@@ -1,0 +1,75 @@
+ @-webkit-keyframes line-scale-party {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes line-scale-party {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.line-scale-party > div:nth-child(1) {
+  animation-delay: 0.8s;
+  animation-duration: 0.35s;
+}
+
+.line-scale-party > div:nth-child(2) {
+  animation-delay: 0.68s;
+  animation-duration: 1.25s;
+}
+
+.line-scale-party > div:nth-child(3) {
+  animation-delay: 0.44s;
+  animation-duration: 0.39s;
+}
+
+.line-scale-party > div:nth-child(4) {
+  animation-delay: 0.17s;
+  animation-duration: 0.8s;
+}
+
+.line-scale-party > div {
+  background-color: #0288d1;
+  width: 3px;
+  height: 25px;
+  border-radius: 2px;
+  margin: 0;
+  animation-fill-mode: both;
+  display: inline-block;
+  animation-name: line-scale-party;
+  animation-iteration-count: infinite;
+}
+
+form.sign {
+  padding: .2rem;
+  border-top: .03rem solid $color-primary;
+}
+
+form.sign h2{
+  text-align: center;
+  margin-top: 0;
+  line-height: 1;
+}
+
+.header .item form.sign a {
+  padding: 0!important;
+}
+
+.header .item form.sign a:hover{
+  color: $color-url-hover !important;
+}
+

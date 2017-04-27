@@ -1,0 +1,61 @@
+<form class="sign" *ngIf="!success" #signupForm="ngForm" (ngSubmit)="onSubmit()" [touchForm]="signupForm">
+  <h2>
+    注  册
+  </h2>
+  <div class="input-group">
+    <i class="fa fa-envelope-o"></i>
+    <input class="input no-radius full block" name="email" placeholder="邮箱"
+           [(ngModel)]="user.email" #email="ngModel" isEmail required>
+  </div>
+  <div *ngIf="email.touched && !email.valid" class="error">
+    请填写正确的邮箱
+  </div>
+
+  <div class="input-group mt10">
+    <i class="fa fa-lock"></i>
+    <input class="input no-radius full block" type="password" name="password" placeholder="密码"
+           [(ngModel)]="user.password" #password="ngModel" isPassword required>
+  </div>
+  <div *ngIf="password.touched && !password.valid" class="error">
+    请输入密码（最小长度6位，最大长度20位）
+  </div>
+
+  <div class="input-group mt10">
+    <i class="fa fa-lock"></i>
+    <input class="input no-radius full block" type="password" name="repassword" placeholder="请再次输入相同密码"
+           [(ngModel)]="user.repassword" #repassword="ngModel" [sameTo]="user.password" required>
+  </div>
+  <div *ngIf="repassword.touched && !repassword.valid" class="error">
+    请输入相同密码
+  </div>
+
+  <div class="input-group mt10 mb10">
+    <i class="fa fa-key"></i>
+    <input class="input no-radius full block" name="captcha" placeholder="图形验证码"
+           [(ngModel)]="user.captcha"  #captchaCtrl="ngModel" required>
+  </div>
+  <div *ngIf="captchaCtrl.touched && !captchaCtrl.valid" class="error">
+    请输入图形验证码
+  </div>
+
+  <div class="captcha clearfix mt10" (click)="getCaptcha()">
+    <img [src]="captchaUrl">
+    <span>看不清楚，换一张</span>
+  </div>
+
+  <div class="input-group">
+    <button class="button primary full" type="submit" [btnSaving]="saving" >注    册</button>
+  </div>
+  <div class="input-group" style="line-height: .3rem">
+    已有账号？<a (click)="onSignin()">立刻前往登录</a>
+  </div>
+</form>
+<form class="sign" *ngIf="success">
+  <h2>
+    注  册
+  </h2>
+
+  <div class="input-group">
+    <button type="button" class="button primary full" (click)="onCancel()">注册成功，请前往邮箱激活</button>
+  </div>
+</form>

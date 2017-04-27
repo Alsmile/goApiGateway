@@ -1,0 +1,86 @@
+<div class="header">
+  <div class="item" >
+    <a routerLink="/" > 行云创新 CloudToGo</a>
+  </div>
+  <div class="item" routerLinkActive="active" routerLink="/">
+    <a routerLink="/">应用市场</a>
+  </div>
+  <div class="item" routerLinkActive="active" routerLink="/my/app">
+    <a routerLink="/my/app">我的应用</a>
+  </div>
+  <div class="item full ph10">
+
+  </div>
+  <div class="item" >
+    <a class="mr10" routerLink="/factory" style="padding: 0 .1rem;font-size: .14rem">
+      <i class="iconfont icon-factory"></i>
+      应用工厂</a>
+  </div>
+  <div class="item right">
+    <div class="user" *ngIf="user">
+      <span style="padding: 0 .08rem">
+        <img [src]="user.avatar">
+        <label>{{user.name}}</label>
+        <i class="iconfont icon-triangledown"></i>
+      </span>
+      <div class="dropdown">
+        <div class="item">
+          <a>个人中心</a>
+        </div>
+        <div class="item">
+          <a (click)="onSignout()">退出</a>
+        </div>
+      </div>
+      <div class="modal" *ngIf="options.showSign == 4" (click)="onSignCancel($event)">
+        <div class="modal-content" (click)="$event.stopPropagation();">
+          <form class="sign">
+            <h2 style="color:#ef2a09;">您的账号需要激活</h2>
+            <div class="mb10" style="line-height: 1.5">请先登录注册邮箱进行激活。如果没有收到邮件，请单击“重发激活邮件”。</div>
+
+            <button class="button primary full" type="button" (click)="onSendActiveEmail($event)">重发激活邮件</button>
+            <button class="button default full" type="button" (click)="onSignCancel($event)">关闭</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="sign" *ngIf="!user" >
+      <span>
+        <a (click)="onSignin()">登录</a>
+        <i class="sep"></i>
+        <a (click)="onSignup()">免费试用</a>
+      </span>
+      <div class="modal" *ngIf="options.showSign == 1" (click)="onSignCancel($event)">
+        <div class="modal-content" (click)="$event.stopPropagation();">
+          <sign-in [options]="options"></sign-in>
+        </div>
+      </div>
+
+      <div class="modal" *ngIf="options.showSign == 2" (click)="onSignCancel($event)">
+        <div class="modal-content" (click)="$event.stopPropagation();">
+          <sign-up [options]="options"></sign-up>
+        </div>
+      </div>
+
+      <div class="modal" *ngIf="options.showSign == 3" (click)="onSignCancel($event)">
+        <div class="modal-content" (click)="$event.stopPropagation();">
+          <forget-password [options]="options"></forget-password>
+        </div>
+      </div>
+
+      <div class="modal" *ngIf="options.showSign == 5" (click)="onSignCancel($event)">
+        <div class="modal-content" (click)="$event.stopPropagation();">
+          <new-password [email]="email" [code]="newPasswordCode" [options]="options"></new-password>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="mt50">
+  <router-outlet></router-outlet>
+</div>
+<footer>
+  <div class="copyright mt5">
+    Copyright © 2017 深圳行云创新科技有限公司. All Rights Reserved. &nbsp;
+    <a href="http://www.miitbeian.gov.cn/" target="_blank">粤ICP备17026550号</a>
+  </div>
+</footer>

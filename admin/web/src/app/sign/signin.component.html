@@ -1,0 +1,51 @@
+<form class="sign" #signinForm="ngForm" (ngSubmit)="onSubmit()" [touchForm]="signinForm">
+  <h2>
+    登  录
+  </h2>
+  <div class="input-group">
+    <i class="fa fa-envelope-o"></i>
+    <input class="input no-radius full block" name="email" placeholder="邮箱"
+           [(ngModel)]="user.email" #email="ngModel" required isEmail>
+  </div>
+  <div *ngIf="email.touched && !email.valid" class="error">
+    请填写正确的邮箱
+  </div>
+
+  <div class="input-group mt10">
+    <i class="fa fa-lock"></i>
+    <input class="input no-radius full block" type="password" name="password" placeholder="密码"
+           [(ngModel)]="user.password" #password="ngModel" required isPassword (keyup.enter)="onSubmit()">
+  </div>
+  <div *ngIf="password.touched && !password.valid" class="error">
+    请输入密码（6-20位）
+  </div>
+  <div *ngIf="captchaUrl">
+    <div class="input-group mt10">
+      <i class="fa fa-key"></i>
+      <input class="input no-radius full block" name="captcha" placeholder="验证码"
+             [(ngModel)]="user.captcha" #captcha="ngModel" required >
+    </div>
+    <div *ngIf="captcha.touched && !captcha.valid" class="error">
+      请输入验证码
+    </div>
+
+    <div class="captcha clearfix" (click)="getCaptcha()">
+      <img [src]="captchaUrl">
+      <span class="fr pointer">看不清楚，换一张</span>
+    </div>
+  </div>
+
+  <div class="input-group" style="line-height: .3rem;">
+    <label class="checkbox">
+      <input type="checkbox" name="rememberMe" [(ngModel)]="user.rememberMe" > 下次自动登录
+    </label>
+    <a class="fr" (click)="onForgetPassword()">忘记密码</a>
+  </div>
+  <div class="input-group" >
+    <button class="button primary full" type="submit" [btnSaving]="saving" >登    录</button>
+  </div>
+
+  <div class="input-group" style="line-height: .3rem;margin-bottom: -.1rem;">
+    还没有账号？<a (click)="onSignup()">立刻注册</a>
+  </div>
+</form>
