@@ -23,7 +23,6 @@
     "one-line": [
       true,
       "check-catch",
-      "check-else",
       "check-open-brace",
       "check-whitespace"
     ],
@@ -43,7 +42,6 @@
         "variable-declaration": "nospace"
       }
     ],
-    "curly": true,
     "variable-name": [
       true,
       "ban-keywords",

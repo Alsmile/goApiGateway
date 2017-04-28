@@ -1,4 +1,30 @@
- @-webkit-keyframes line-scale-party {
+ html {
+   background-color: #f3f4f5;
+ }
+
+ footer {
+   background-color: transparent;
+ }
+
+ .header .item.right .sign a {
+   font-size: .12rem;
+ }
+
+ .header .item.right .sign>span>a {
+   font-size: .16rem;
+   font-weight: 100;
+   padding: 0 .1rem;
+ }
+
+ .header .item.active a, .header .item a.active {
+   color: #26bbf0!important;
+ }
+ .header .item a:hover, .header .item .user:hover, .header.item a.active.deactive:hover {
+   color: #26bbf0!important;
+   background-color: transparent;
+ }
+
+@-webkit-keyframes line-scale-party {
   0% {
     transform: scale(1);
   }
@@ -64,6 +90,19 @@ form.sign h2{
   margin-top: 0;
   line-height: 1;
 }
+
+.header {
+  background-color: #343536;
+}
+
+ .header .item a {
+   font-weight: 100;
+ }
+
+ .header .item.active a {
+   background: none;
+   color: $color-primary;
+ }
 
 .header .item form.sign a {
   padding: 0!important;

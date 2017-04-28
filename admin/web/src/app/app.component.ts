@@ -15,8 +15,13 @@ export class AppComponent implements OnInit {
   options: any = {showSign: null};
   email: string;
   newPasswordCode: string;
+  myStyle: any = {};
   constructor(private _router: Router, private _activateRoute: ActivatedRoute, private _storeService: StoreService,
               private _signService: SignService) {
+    this.myStyle = {
+      'margin-top': '.6rem',
+      'min-height': (document.documentElement.clientHeight - 120) + 'px'
+    };
   }
 
   ngOnInit() {

@@ -14,7 +14,7 @@ type AppConfig struct {
   Admin   struct {
             Host string `json:"host"`
             Port uint16 `json:"port"`
-          }
+          } `json:"admin"`
   Db      struct {
              Host string `json:"host"`
              Port uint16 `json:"port"`

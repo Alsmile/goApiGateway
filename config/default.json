@@ -1,0 +1,24 @@
+{
+  "name": "goMicroService",
+  "version": "0.0.1",
+  "cpu": 1,
+  "admin": {
+    "host": "",
+    "port": 8500
+  },
+  "db": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "goMicroService",
+    "user": "",
+    "password": "",
+    "maxConnections": 1,
+    "acquireTimeout": 30  // s
+  },
+  "log": {
+    "filename": "./out/default.log",
+    "maxSize": 300, // mb
+    "maxBackups": 5,
+    "maxAge": 30  // days
+  }
+}

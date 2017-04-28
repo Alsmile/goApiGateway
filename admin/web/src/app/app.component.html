@@ -1,20 +1,24 @@
 <div class="header">
   <div class="item" >
-    <a routerLink="/" > 行云创新 CloudToGo</a>
+    <a routerLink="/" > 行云创新</a>
   </div>
   <div class="item" routerLinkActive="active" routerLink="/">
-    <a routerLink="/">应用市场</a>
+    <a routerLink="/">微服务网关</a>
   </div>
-  <div class="item" routerLinkActive="active" routerLink="/my/app">
-    <a routerLink="/my/app">我的应用</a>
+  <div class="item" routerLinkActive="active" routerLink="/sites">
+    <a routerLink="/sites">我的站点</a>
+  </div>
+  <div class="item" routerLinkActive="active" routerLink="/settings">
+    <a routerLink="/settings">全局设置</a>
+  </div>
+  <div class="item" routerLinkActive="active" routerLink="/help">
+    <a routerLink="/help">服务与支持</a>
+  </div>
+  <div class="item" routerLinkActive="active" routerLink="/us">
+    <a routerLink="/us">关于我们</a>
   </div>
   <div class="item full ph10">
 
-  </div>
-  <div class="item" >
-    <a class="mr10" routerLink="/factory" style="padding: 0 .1rem;font-size: .14rem">
-      <i class="iconfont icon-factory"></i>
-      应用工厂</a>
   </div>
   <div class="item right">
     <div class="user" *ngIf="user">
@@ -75,7 +79,7 @@
     </div>
   </div>
 </div>
-<div class="mt50">
+<div [ngStyle]="myStyle">
   <router-outlet></router-outlet>
 </div>
 <footer>
