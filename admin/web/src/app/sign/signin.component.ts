@@ -8,7 +8,7 @@ import { SignService, SignType } from "./sign.service";
   templateUrl: "signin.component.html"
 })
 export class SigninComponent {
-  captchaUrl: string = '/captcha?rand=1';
+  captchaUrl: string = '';
   user:any = {email: localStorage.getItem("last.email") || '', password: ''};
   @Input() options: any;
   saving: boolean;

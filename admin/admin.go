@@ -10,19 +10,25 @@ import (
 )
 
 func Start() {
-  appConfig, err := utils.GetAppConfig()
-  if err != nil {
-    return
-  }
-
   app := iris.New()
   app.Adapt(httprouter.New())
   app.StaticWeb("/assets", "./admin/web/dist/assets")
 
   app.Get("/", controllers.Index)
   app.Get("/browser.html", controllers.Browser)
-  strPort := strconv.Itoa(int(appConfig.Admin.Port))
+  app.Get("/captcha", controllers.Captcha)
 
-  fmt.Printf("[log]Admin listen: %s:%d\r\n", appConfig.Admin.Host, appConfig.Admin.Port)
-  app.Listen(appConfig.Admin.Host + ":" + strPort)
+  app.Post("/api/login", controllers.Login)
+  app.Post("/api/signup", controllers.Captcha)
+  app.Post("/api/forget/password", controllers.Captcha)
+  app.Post("/api/send/active/email", controllers.Captcha)
+  app.Get("/api/user/info", controllers.Captcha)
+  app.Post("/api/password/replace", controllers.Captcha)
+  app.Post("/api/password/recover", controllers.Captcha)
+
+  app.Get("/api/sign/config", controllers.GetSignConfig)
+
+  fmt.Printf("[log]Admin listen: %s:%d\r\n", utils.GlobalConfig.Admin.Host, utils.GlobalConfig.Admin.Port)
+  strPort := strconv.Itoa(int(utils.GlobalConfig.Admin.Port))
+  app.Listen(utils.GlobalConfig.Admin.Host + ":" + strPort)
 }

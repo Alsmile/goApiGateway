@@ -36,7 +36,8 @@
     "le5le-ui": "~0.1.3",
     "le5le-components": "~0.1.1",
     "le5le-store": "~0.0.5",
-    "normalize.css": "~4.1.1"
+    "normalize.css": "~4.1.1",
+    "file-saver": "*"
   },
   "devDependencies": {
     "@angular/compiler-cli": "~4.0.0",

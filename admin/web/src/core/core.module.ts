@@ -37,6 +37,10 @@ export class CoreModule {
           CookieService.delete("token");
 
           this._router.navigate(['/']);
+
+
+          let _noticeService: NoticeService = new NoticeService();
+          _noticeService.notice({body: "请先登录", theme: 'error', timeout: 5000});
         }
       }
     );

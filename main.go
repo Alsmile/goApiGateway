@@ -19,23 +19,23 @@ func main() {
   }()
 
   // 读取全局配置文件
-  config, err := utils.GetAppConfig()
+  err := utils.ReadConfig()
   if err != nil {
     log.Printf("[error]Load app config error: %v\r\n.", err)
     return
   }
-  log.Printf("[config] %v\r\n", config)
+  log.Printf("[config] %v\r\n", utils.GlobalConfig)
 
   // 设置log
   log.SetOutput(&lumberjack.Logger{
-    Filename:   config.Log.Filename,
-    MaxSize:    config.Log.MaxSize, // mb
-    MaxBackups: config.Log.MaxBackups,
-    MaxAge:     config.Log.MaxAge, // days
+    Filename:   utils.GlobalConfig.Log.Filename,
+    MaxSize:    utils.GlobalConfig.Log.MaxSize, // mb
+    MaxBackups: utils.GlobalConfig.Log.MaxBackups,
+    MaxAge:     utils.GlobalConfig.Log.MaxAge, // days
   })
 
   // cpu
-  runtime.GOMAXPROCS(config.Cpu)
+  runtime.GOMAXPROCS(utils.GlobalConfig.Cpu)
 
   // 连接数据库
   err = db.Init()
@@ -46,6 +46,7 @@ func main() {
 
   defer pq.ConnPool.Close()
 
+  // 后台管理web
   admin.Start()
 }
 

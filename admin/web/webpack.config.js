@@ -94,7 +94,7 @@ module.exports = function (options) {
       setImmediate: false
     },
     devServer: {
-      port: 8101,
+      port: 8501,
       host: 'localhost',
       historyApiFallback: true,
       watchOptions: {
@@ -103,15 +103,14 @@ module.exports = function (options) {
       },
       proxy: {
         "/api": {
-          target: "http://www.i-dengta.com/api/proxy/58c965d26025d75788966da0",
+          target: "http://localhost:8500",
           changeOrigin: true,
-          // headers: {host: 'www.i-dengta.com'},
+          headers: {host: ''},
           secure: false
         },
         "/captcha": {
-          target: "http://www.i-dengta.com",
+          target: "http://localhost:8500",
           changeOrigin: true,
-          // headers: {host: 'www.i-dengta.com'},
           secure: false
         }
       }

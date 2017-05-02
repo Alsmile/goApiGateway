@@ -2,7 +2,6 @@ import {EventEmitter, Injectable} from '@angular/core';
 import {Observable} from "rxjs/Observable";
 import {Http} from "@angular/http";
 import {CookieService, StoreService} from 'le5le-store';
-import HmacSHA256 from 'crypto-js/hmac-sha256';
 
 import 'rxjs/add/operator/do';
 
@@ -16,7 +15,7 @@ export enum SignType {
   NewPasswordDialog,
 }
 
-const Salt:string = 'le5le.com';
+const Salt:string = 'goMicroServer.io';
 
 @Injectable()
 export class SignService extends HttpService {
@@ -25,12 +24,10 @@ export class SignService extends HttpService {
   }
 
   Signin(user: any): Observable<any> {
-    let pwd:string = HmacSHA256(user.password, Salt)+'';
-    pwd = HmacSHA256(pwd, user.email)+'';
     let u: any = {
       rememberMe: user.rememberMe,
       email: user.email,
-      password: pwd,
+      password: user.password,
       captcha: user.captcha
     };
     let login$ = this.Post('/api/login', u).do( ret => {
@@ -49,11 +46,10 @@ export class SignService extends HttpService {
   }
 
   Signup(user: any): Observable<any> {
-    let pwd:string = HmacSHA256(user.password, Salt)+'';
     let u: any = {
       rememberMe: user.rememberMe,
       email: user.email,
-      password: pwd,
+      password: user.password,
       captcha: user.captcha
     };
 
@@ -73,7 +69,6 @@ export class SignService extends HttpService {
   }
 
   NewPassword(params: any): Observable<any> {
-    params.password = HmacSHA256(params.password, Salt)+'';
     return this.Post('/api/sign/new/password', params);
   }
 

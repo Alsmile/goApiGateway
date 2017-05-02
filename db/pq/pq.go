@@ -7,24 +7,19 @@ import (
 
 var ConnPool *pgx.ConnPool
 
-func GetConnPool() error {
-  appConfig, err := utils.GetAppConfig()
-  if err != nil {
-    return err
-  }
-
+func GetConnPool() (err error) {
   config := pgx.ConnPoolConfig {
     ConnConfig: pgx.ConnConfig{
-      Host: appConfig.Db.Host,
-      Port: appConfig.Db.Port,
-      Database: appConfig.Db.Database,
-      User: appConfig.Db.User,
-      Password: appConfig.Db.Password,
+      Host: utils.GlobalConfig.PostgresSql.Host,
+      Port: utils.GlobalConfig.PostgresSql.Port,
+      Database: utils.GlobalConfig.PostgresSql.Database,
+      User: utils.GlobalConfig.PostgresSql.User,
+      Password: utils.GlobalConfig.PostgresSql.Password,
     },
-    MaxConnections: appConfig.Db.MaxConnections,
-    AcquireTimeout: appConfig.Db.AcquireTimeout,
+    MaxConnections: utils.GlobalConfig.PostgresSql.MaxConnections,
+    AcquireTimeout: utils.GlobalConfig.PostgresSql.AcquireTimeout,
   }
-
   ConnPool, err = pgx.NewConnPool(config)
-  return err
+
+  return
 }

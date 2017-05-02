@@ -14,6 +14,7 @@ import { ForgetPasswordComponent } from './sign/forgetPassword.component';
 import { NewPasswordComponent } from './sign/newPassword.component';
 
 import { SignService } from './sign/sign.service';
+import {AppService} from './app.service';
 
 @NgModule({
   imports: [
@@ -33,6 +34,7 @@ import { SignService } from './sign/sign.service';
   ],
   providers: [
     SignService,
+    AppService,
     appRoutingProviders
   ],
   bootstrap: [ AppComponent ]
