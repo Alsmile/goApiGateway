@@ -1,6 +1,7 @@
 {
   "name": "goMicroServer",
   "version": "0.0.1",
+  "website": "http://localhost:8500",
   "cpu": 1,
   "admin": {
     "host": "",
@@ -34,5 +35,11 @@
     "maxSize": 300,
     "maxBackups": 5,
     "maxAge": 30
+  },
+  "email": {
+    "address": "smtp.goMicroServer.com",
+    "port": 25,
+    "user": "go@goMicroServer.com",
+    "password": "go"
   }
 }

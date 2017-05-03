@@ -24,7 +24,7 @@ export class NewPasswordComponent{
 
     this.saving = true;
     this._signService.NewPassword({
-      code: this.code,
+      passwordCode: this.code,
       password: this.user.password
     }).subscribe(
       ret => {

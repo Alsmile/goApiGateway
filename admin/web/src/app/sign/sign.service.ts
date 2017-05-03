@@ -31,6 +31,7 @@ export class SignService extends HttpService {
       captcha: user.captcha
     };
     let login$ = this.Post('/api/login', u).do( ret => {
+      if (ret.error) return;
       if (user.rememberMe) {
         localStorage.setItem("rememberMe", "1");
         localStorage.setItem("token", ret.token);
@@ -61,7 +62,7 @@ export class SignService extends HttpService {
   }
 
   SignActive(activeCode: string): Observable<any> {
-    let login$ = this.Post('/api/sign/active', {code: activeCode}).do( ret => {
+    let login$ = this.Post('/api/sign/active', {activeCode: activeCode}).do( ret => {
       localStorage.setItem("token", ret.token);
       this.store.set('user', ret);
     });

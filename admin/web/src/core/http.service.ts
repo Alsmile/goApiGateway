@@ -74,7 +74,7 @@ export class HttpService {
     url += this.queryParams;
     this.queryParams = '';
     return this.http.get(this.baseUrl + url, {headers: this.headers}).map(this.extractData)
-      .filter(data => data && !data.error).catch((err: any) => {
+      .filter(data => !data || data.errorTip || !data.error).catch((err: any) => {
         return this.handleError(err);
       });
   }
@@ -84,7 +84,7 @@ export class HttpService {
     url += this.queryParams;
     this.queryParams = '';
     return this.http.delete(this.baseUrl + url, {headers: this.headers}).map(this.extractData)
-      .filter(data => data && !data.error).catch((err: any) => {
+      .filter(data => !data || data.errorTip || !data.error).catch((err: any) => {
         return this.handleError(err);
       });
   }
@@ -100,7 +100,7 @@ export class HttpService {
     url += this.queryParams;
     this.queryParams = '';
     return this.http.post(this.baseUrl + url, strBody, {headers: this.headers}).map(this.extractData)
-      .filter(data => data && !data.error).catch((err: any) => {
+      .filter(data => !data || data.errorTip || !data.error).catch((err: any) => {
         return this.handleError(err);
       });
   }
@@ -116,7 +116,7 @@ export class HttpService {
     url += this.queryParams;
     this.queryParams = '';
     return this.http.put(this.baseUrl + url, strBody, {headers: this.headers}).map(this.extractData)
-      .filter(data => data && !data.error).catch((err: any) => {
+      .filter(data => !data || data.errorTip || !data.error).catch((err: any) => {
         return this.handleError(err);
       });
   }

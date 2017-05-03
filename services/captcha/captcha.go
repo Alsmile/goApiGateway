@@ -2,9 +2,10 @@ package captcha
 
 import (
   "github.com/dchest/captcha"
-  "idengta.xyz/dengta/db/redis"
-  goRedis "github.com/garyburd/redigo/redis"
+  myRedis "github.com/alsmile/goMicroServer/db/redis"
+  "github.com/garyburd/redigo/redis"
   "github.com/alsmile/goMicroServer/session"
+  "gopkg.in/kataras/iris.v6"
 )
 
 const (
@@ -18,10 +19,10 @@ func init() {
 }
 
 func IsNeedSignCaptcha(id string) (b bool) {
-  redisConn := redis.RedisPool.Get()
+  redisConn := myRedis.RedisPool.Get()
   defer redisConn.Close()
 
-  val, err := goRedis.Int(redisConn.Do("GET", "Captcha.Sign.Error." + id))
+  val, err := redis.Int(redisConn.Do("GET", "Captcha.Sign.Error." + id))
   if err != nil || val < 3 {
     return
   }
@@ -31,11 +32,11 @@ func IsNeedSignCaptcha(id string) (b bool) {
 }
 
 func SignError(id string) (need bool) {
-  redisConn := redis.RedisPool.Get()
+  redisConn := myRedis.RedisPool.Get()
   defer redisConn.Close()
 
   var num int
-  val, err := goRedis.Int(redisConn.Do("GET", "Captcha.Sign.Error." + id))
+  val, err := redis.Int(redisConn.Do("GET", "Captcha.Sign.Error." + id))
   if err == nil{
     num = val + 1
     need = num > 2
@@ -49,10 +50,18 @@ func SignError(id string) (need bool) {
 }
 
 func ClearSignError(id string){
-  redisConn := redis.RedisPool.Get()
+  redisConn := myRedis.RedisPool.Get()
   defer redisConn.Close()
 
   redisConn.Do("DEL", "Captcha.Sign.Error." + id)
 
   return
+}
+
+func VerifyImage(ctx *iris.Context, code string) bool {
+  captchaId, _ := redis.String(session.GetSession(ctx, CaptchaSessionName))
+  if captchaId == "" {
+    return false
+  }
+  return captcha.VerifyString(captchaId, code)
 }

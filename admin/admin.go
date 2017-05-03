@@ -19,12 +19,11 @@ func Start() {
   app.Get("/captcha", controllers.Captcha)
 
   app.Post("/api/login", controllers.Login)
-  app.Post("/api/signup", controllers.Captcha)
-  app.Post("/api/forget/password", controllers.Captcha)
-  app.Post("/api/send/active/email", controllers.Captcha)
-  app.Get("/api/user/info", controllers.Captcha)
-  app.Post("/api/password/replace", controllers.Captcha)
-  app.Post("/api/password/recover", controllers.Captcha)
+  app.Post("/api/signup", controllers.SignUp)
+  app.Post("/api/sign/active", controllers.SignActive)
+  app.Post("/api/forget/password", controllers.ForgetPassword)
+  app.Post("/api/sign/new/password", controllers.NewPassword)
+  app.Get("/api/user/info", controllers.UserInfo)
 
   app.Get("/api/sign/config", controllers.GetSignConfig)
 

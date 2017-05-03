@@ -10,6 +10,7 @@ import (
 type AppConfig struct {
   Name    string `json:"name"`
   Version string `json:"version"`
+  Website string `json:"website"`
   Cpu     int `json:"cpu"`
   Admin struct {
     Host string `json:"host"`
@@ -20,7 +21,7 @@ type AppConfig struct {
     SignUpUrl string `json:"signUpUrl"`
     InfoUrl   string `json:"infoUrl"`
   } `json:"user"`
-  Jwt string `json:"jwt"`
+  Jwt    string `json:"jwt"`
   Secret string `json:"secret"`
   PostgresSql struct {
     Host           string `json:"host"`
@@ -32,11 +33,11 @@ type AppConfig struct {
     AcquireTimeout time.Duration `json:"acquireTimeout"`
   } `json:"postgresSql"`
   Redis struct {
-    ConnectNum int `json:"connectNum"`
-    Address string `json:"address"`
-    Password string `json:"password"`
+    ConnectNum  int `json:"connectNum"`
+    Address     string `json:"address"`
+    Password    string `json:"password"`
     IdleTimeout int64 `json:"idleTimeout"`
-    Db string `json:"db"`
+    Db          string `json:"db"`
   } `json:"redis"`
   Log struct {
     Filename   string `json:"filename"`
@@ -44,6 +45,12 @@ type AppConfig struct {
     MaxBackups int `json:"maxBackups"`
     MaxAge     int `json:"maxAge"`
   } `json:"log"`
+  Email struct {
+    Address  string `json:"address"`
+    Port     int `json:"port"`
+    User     string `json:"user"`
+    Password string `json:"password"`
+  } `json:"email"`
 }
 
 var GlobalConfig AppConfig

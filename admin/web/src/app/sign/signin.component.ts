@@ -33,7 +33,11 @@ export class SigninComponent {
 
     this.saving = true;
     this._signService.Signin(this.user).subscribe(
-      ret => {},
+      ret => {
+        if (ret.errorTip) {
+          this.getCaptcha();
+        }
+      },
       err => console.error(err),
       () => this.saving = false
     );

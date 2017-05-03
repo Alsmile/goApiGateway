@@ -37,17 +37,13 @@ export class CoreModule {
           CookieService.delete("token");
 
           this._router.navigate(['/']);
-
-
-          let _noticeService: NoticeService = new NoticeService();
-          _noticeService.notice({body: "请先登录", theme: 'error', timeout: 5000});
         }
       }
     );
 
     let token: string = localStorage.getItem('rememberMe')? localStorage.getItem('token'): CookieService.get('token');
     if (token) {
-      this._httpService.Post('/api/user/info', {}).subscribe( ret => {
+      this._httpService.Get('/api/user/info').subscribe( ret => {
         this._storeService.set('user', ret);
       });
     }

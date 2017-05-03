@@ -23,8 +23,8 @@
   <div class="item right">
     <div class="user" *ngIf="user">
       <span style="padding: 0 .08rem">
-        <img [src]="user.avatar">
-        <label>{{user.name}}</label>
+        <!--<img [src]="user.avatar">-->
+        <label class="avatar"><i class="iconfont icon-people"></i> {{user.username}}</label>
         <i class="iconfont icon-triangledown"></i>
       </span>
       <div class="dropdown">
