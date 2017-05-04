@@ -2,11 +2,11 @@
   <div class="item" >
     <a routerLink="/" > 行云创新</a>
   </div>
-  <div class="item" routerLinkActive="active" routerLink="/">
+  <div class="item" [class.active]="isActive('/')" routerLink="/">
     <a routerLink="/">微服务网关</a>
   </div>
-  <div class="item" routerLinkActive="active" routerLink="/sites">
-    <a routerLink="/sites">我的站点</a>
+  <div class="item" [class.active]="isActive('/sites/')">
+    <a routerLink="/sites/home">我的站点</a>
   </div>
   <div class="item" routerLinkActive="active" routerLink="/settings">
     <a routerLink="/settings">全局设置</a>
@@ -24,7 +24,7 @@
     <div class="user" *ngIf="user">
       <span style="padding: 0 .08rem">
         <!--<img [src]="user.avatar">-->
-        <label class="avatar"><i class="iconfont icon-people"></i> {{user.username}}</label>
+        <label class="avatar"><i class="iconfont icon-people mr5"></i> {{user.username}}</label>
         <i class="iconfont icon-triangledown"></i>
       </span>
       <div class="dropdown">

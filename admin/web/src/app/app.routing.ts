@@ -3,10 +3,12 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { HomeComponent } from "./home/home.component";
 import { UserModule } from './+user/user.module';
+import { SitesModule } from './+sites/sites.module';
 
 export const appRoutes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full'},
-  { path: 'user', loadChildren: './+user/user.module#UserModule' }
+  { path: 'user', loadChildren: './+user/user.module#UserModule' },
+  { path: 'sites', loadChildren: './+sites/sites.module#SitesModule' },
 ];
 
 export const appRoutingProviders: any[] = [

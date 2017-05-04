@@ -41,6 +41,8 @@
    background: #3f4142;
    color: #fff;
    min-width: 2rem;
+   padding-top: .07rem;
+   padding-bottom: .07rem;
  }
 
 @-webkit-keyframes line-scale-party {
@@ -110,10 +112,6 @@ form.sign h2{
   line-height: 1;
 }
 
-.header {
-  background-color: #343536;
-}
-
  .header .item a {
    font-weight: 100;
  }
@@ -131,3 +129,118 @@ form.sign h2{
   color: $color-url-hover !important;
 }
 
+ .panel {
+   background-color: #fff;
+   box-shadow: 0 1px 1px rgba(0,0,0,0.15);
+ }
+
+.panel-menu {
+  width: .8rem;
+  text-align: center;
+  background-color: $color-button-hover;
+  color: #fff;
+}
+ .panel-menu>.item{
+   display: block;
+   color: #fff!important;
+   padding-top: .08rem;
+   padding-bottom: .08rem;
+   line-height: 1.5;
+   cursor: pointer;
+ }
+.panel-menu>.item.active{
+   background-color:  color(#fff a(15%));
+ }
+ .panel-menu>.item:hover{
+   background-color: color(#fff a(10%));
+ }
+ .panel-menu>.item>i{
+   font-size: .2rem;
+ }
+
+ .right-side {
+   width: 3rem;
+   flex-shrink: 0;
+ }
+
+ .dot {
+   display: inline-block;
+   width: .12rem;
+   height: .12rem;
+   border-radius: 50%;
+   background-color: $color-gray;
+   position: relative;
+   top: 1px;
+ }
+
+ .dot.primary {
+   background-color: $color-primary;
+ }
+
+ .dot.success {
+   background-color: $color-success;
+ }
+
+ .card {
+   width: 2.2rem;
+   padding: .2rem;
+   background-color: #fff;
+   box-shadow: 0 2px 2px 0 rgba(0,0,0,.12);
+ }
+
+ .card .head .img {
+   flex-shrink: 0;
+   margin-right: .1rem;
+ }
+
+.card .head img {
+  width: .6rem;
+  height: .6rem;
+}
+
+.card .caption {
+  font-size: .16rem;
+  height: .32rem;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+}
+
+ .card .head a {
+   height: .24rem;
+   -webkit-line-clamp: 1;
+   -webkit-box-orient: vertical;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   display: -webkit-box;
+ }
+
+ .card>.desc {
+   line-height: .2rem;
+   height: .4rem;
+   -webkit-line-clamp: 2;
+   -webkit-box-orient: vertical;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   display: -webkit-box;
+   margin-bottom: .05rem;
+ }
+.card>.footer {
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+ .card>.footer .iconfont {
+   font-size: .14rem;
+ }
+
+ .box-card {
+   font-size: .16rem;
+   width: 2.2rem;
+   height: 1.66rem;
+   position: relative;
+   top:1px;
+   cursor: pointer;
+ }

@@ -1,0 +1,46 @@
+<div class="flex" [ngStyle]="myStyle">
+  <div class="panel-menu">
+    <a class="item" routerLinkActive="active" routerLink="/sites/home">
+      <i class="iconfont icon-website"></i>
+      <div>站点</div>
+    </a>
+    <a class="item">
+      <i class="iconfont icon-report"></i>
+      <div>监控</div>
+    </a>
+    <a class="item">
+      <i class="iconfont icon-plan"></i>
+      <div>计划</div>
+    </a>
+    <a class="item">
+      <i class="iconfont icon-safe"></i>
+      <div>授权</div>
+    </a>
+    <a class="item">
+      <i class="iconfont icon-repair"></i>
+      <div>发布</div>
+    </a>
+    <a class="item">
+      <i class="iconfont icon-attention"></i>
+      <div>测试</div>
+    </a>
+    <a class="item">
+      <i class="iconfont icon-list-ul"></i>
+      <div>历史</div>
+    </a>
+    <a class="item">
+      <i class="iconfont icon-text"></i>
+      <div>文档</div>
+    </a>
+    <a class="item">
+      <i class="iconfont icon-friend"></i>
+      <div>团队</div>
+    </a>
+  </div>
+  <div class="full p20 text-left">
+    <div style="min-height: 5.7rem">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
+
