@@ -37,7 +37,8 @@
 
   <div class="input-group" style="line-height: .3rem;">
     <label class="checkbox">
-      <input type="checkbox" name="rememberMe" [(ngModel)]="user.rememberMe" > 下次自动登录
+      <input type="checkbox" name="rememberMe" [(ngModel)]="user.rememberMe" >
+      <span>下次自动登录</span>
     </label>
     <a class="fr" (click)="onForgetPassword()">忘记密码</a>
   </div>

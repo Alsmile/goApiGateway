@@ -1,0 +1,107 @@
+<div class="nav">
+  <a routerLink="/sites/home">我的站点</a>
+  <label *ngIf="!id">新建</label>
+  <label *ngIf="id">编辑</label>
+</div>
+
+<style>
+  .site-edit .flex>label {
+    width: .6rem;
+  }
+  .input {
+    min-width: 3rem;
+  }
+  .input.short {
+    min-width: 1rem;
+  }
+</style>
+<form class="panel site-edit mt10 p20"  #myForm="ngForm" (ngSubmit)="onSubmit()" [touchForm]="myForm">
+  <div class="flex mb10">
+    <label class="required">站名</label>
+    <div>
+      <input class="input" name="name" [(ngModel)]="site.name" #name="ngModel" required placeholder="您的站点名称">
+      <div *ngIf="name.touched && !name.valid" class="error">
+        请填写站名
+      </div>
+    </div>
+  </div>
+  <div class="flex mb10">
+    <label>域名</label>
+    <div>
+      <input class="input" name="domain" [(ngModel)]="site.domain" #domain="ngModel" placeholder="缺省为localhost">
+    </div>
+  </div>
+  <div class="flex mb10">
+    <label>gzip</label>
+    <label class="checkbox">
+      <input type="checkbox" name="gzip" [(ngModel)]="site.gzip" >
+      <span>gzip</span>
+    </label>
+  </div>
+  <div class="flex mb10">
+    <label>https</label>
+    <div>
+      <label class="radio mr20">
+        <input type="radio" name="https" [(ngModel)]="site.https" value="">
+        <span>None</span>
+      </label>
+
+      <label class="radio mr20">
+        <input type="radio" name="https" [(ngModel)]="site.https" value="tls">
+        <span>TLS</span>
+      </label>
+
+      <label class="radio">
+        <input type="radio" name="https" [(ngModel)]="site.https" value="letsencrypt">
+        <span>Letsencrypt</span>
+      </label>
+    </div>
+  </div>
+  <div class="flex mb10">
+    <label>静态资源</label>
+    <div>
+      <div *ngFor="let item of site.statics;let i = index" class="mb10">
+        <input class="input short" name="staticUrl{{i+1}}" [(ngModel)]="item.url" placeholder="访问前缀，例如： /assets" required>
+        <input class="input" name="staticPath{{i+1}}" [(ngModel)]="item.path"
+               placeholder="静态资源路径，例如： /usr/local/html" required>
+        <a class="ml5" (click)="site.statics.splice(i,1);">删除</a>
+      </div>
+      <div class="mb10">
+        <input class="input short" name="staticUrl" [(ngModel)]="staticUrl" placeholder="访问前缀，例如： /assets">
+        <input class="input" name="staticPath" [(ngModel)]="staticPath" placeholder="静态资源路径，例如： /usr/local/html">
+      </div>
+      <div>
+        <button type="button" class="button success" [disabled]="!staticUrl || !staticPath" (click)="onAddStatic()">新增</button>
+      </div>
+    </div>
+  </div>
+  <div class="flex mb10">
+    <label>proxy</label>
+    <div>
+      <div *ngFor="let item of site.proxies;let i = index" class="mb10">
+        <input class="input short" name="proxyUrl{{i+1}}" [(ngModel)]="item.url" placeholder="访问前缀，例如： /api" required>
+        <input class="input" name="proxyPath{{i+1}}" [(ngModel)]="item.path"
+               placeholder="代理地址，例如： https://api.domain.com/proxy" required>
+        <a class="ml5" (click)="site.proxies.splice(i,1);">删除</a>
+      </div>
+      <div class="mb10">
+        <input class="input short" name="proxyUrl" [(ngModel)]="proxyUrl" placeholder="访问前缀，例如： /api">
+        <input class="input" name="proxyPath" [(ngModel)]="proxyPath" placeholder="代理地址，例如： https://api.domain.com/proxy">
+      </div>
+      <div>
+        <button type="button" class="button success" [disabled]="!proxyUrl || !proxyPath" (click)="onAddProxy()">新增</button>
+      </div>
+    </div>
+  </div>
+  <div class="flex mb10">
+    <label>描述</label>
+    <textarea class="input full" name="desc" rows="3" [(ngModel)]="site.desc" ></textarea>
+  </div>
+  <div class="flex mb10">
+    <label></label>
+    <div>
+      <button class="button primary" [btnSaving]="saving" >保存</button>
+      <a class="button " routerLink="/sites/home">取消</a>
+    </div>
+  </div>
+</form >
