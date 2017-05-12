@@ -18,7 +18,7 @@ func SendEmail(email, title, body string) error {
   d := gomail.NewDialer(utils.GlobalConfig.Email.Address, utils.GlobalConfig.Email.Port, utils.GlobalConfig.Email.User, utils.GlobalConfig.Email.Password)
   err := d.DialAndSend(m)
   if err != nil {
-    log.Printf("[email]error: %v; config=%v\r\n",err.Error(), utils.GlobalConfig.Email)
+    log.Printf("[email]error: %v; config=%v, email=%s, title=%s\r\n",err.Error(), utils.GlobalConfig.Email, email, title)
   }
   return err
 }
@@ -29,9 +29,9 @@ func SendSignUpEmail(u *models.User) error {
     return err
   }
 
-  bodyStr = strings.Replace(bodyStr, "{{name}}", u.Username, -1)
-  bodyStr = strings.Replace(bodyStr, "{{signupUrl}}", utils.GlobalConfig.Website + "/?active=" + u.ActiveCode , -1)
-  go SendEmail(u.Email, utils.GlobalConfig.Name, bodyStr)
+  bodyStr = strings.Replace(bodyStr, "{{name}}", u.Profile.Username, -1)
+  bodyStr = strings.Replace(bodyStr, "{{signupUrl}}", utils.GlobalConfig.Website + "/?active=" + u.Active.Code , -1)
+  go SendEmail(u.Profile.Email, utils.GlobalConfig.Name, bodyStr)
 
   return nil
 }
@@ -42,10 +42,10 @@ func SendForgetPasswordEmail(u *models.User) error {
     return err
   }
 
-  bodyStr = strings.Replace(bodyStr, "{{name}}", u.Username, -1)
+  bodyStr = strings.Replace(bodyStr, "{{name}}", u.Profile.Username, -1)
   bodyStr = strings.Replace(bodyStr, "{{signupUrl}}", utils.GlobalConfig.Website + "/?forgetPassword=" + u.PasswordCode +
-    "&email=" + u.Email, -1)
-  go SendEmail(u.Email, utils.GlobalConfig.Name, bodyStr)
+    "&email=" + u.Profile.Email, -1)
+  go SendEmail(u.Profile.Email, utils.GlobalConfig.Name, bodyStr)
 
   return nil
 }

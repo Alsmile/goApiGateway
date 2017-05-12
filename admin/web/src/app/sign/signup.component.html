@@ -5,7 +5,7 @@
   <div class="input-group">
     <i class="fa fa-envelope-o"></i>
     <input class="input no-radius full block" name="email" placeholder="邮箱"
-           [(ngModel)]="user.email" #email="ngModel" isEmail required>
+           [(ngModel)]="user.profile.email" #email="ngModel" isEmail required>
   </div>
   <div *ngIf="email.touched && !email.valid" class="error">
     请填写正确的邮箱

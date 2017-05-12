@@ -49,17 +49,3 @@ const (
   FilePathImageNotFound = "img/notFound.png"
   FilePathImageUser = "img/user.png"
 )
-
-const (
-  ProjectDataType_Index = 1
-  ProjectDataType_Api = 2
-  ProjectDataType_Api_Comment = 3
-)
-
-const (
-  Feedback_New = 1
-  Feedback_Dealing = 2
-  Feedback_Dealt = 3
-  Feedback_No_Deal = 4
-  Feedback_Future = 5
-)

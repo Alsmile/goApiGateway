@@ -9,7 +9,7 @@ import { SignService, SignType } from "./sign.service";
 })
 export class SignupComponent {
   captchaUrl: string;
-  user: any = {email: '', password: '', captcha: ''};
+  user: any = {profile:{email: ''}, password: '', captcha: ''};
   @Input() options: any;
   saving: boolean;
   success: boolean;

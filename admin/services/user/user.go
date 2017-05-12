@@ -10,13 +10,14 @@ import (
   "errors"
   "github.com/dgrijalva/jwt-go"
   "github.com/alsmile/goMicroServer/admin/models"
-  "github.com/alsmile/goMicroServer/db/pq"
+  "github.com/alsmile/goMicroServer/db/mongo"
   "github.com/alsmile/goMicroServer/utils"
   "github.com/alsmile/goMicroServer/services"
   "strings"
   "github.com/alsmile/goMicroServer/services/email"
   "github.com/alsmile/goMicroServer/db/redis"
   "gopkg.in/kataras/iris.v6"
+  "gopkg.in/mgo.v2/bson"
 )
 
 func EncodePassword(pwd string) string {
@@ -28,12 +29,30 @@ func EncodePassword(pwd string) string {
 }
 
 func AddUser(u *models.User) (err error) {
-  u.Id = utils.GetGuid()
-  u.ActiveCode = utils.GetGuid()
-  u.GetUsername()
-  _, err = pq.ConnPool.Exec("INSERT INTO users (id, email, phone, username, password, \"activeCode\") VALUES ($1,$2,$3,$4,$5,$6); ",
-    u.Id, u.Email, u.Phone, u.Username, EncodePassword(u.Password), u.ActiveCode)
+  if u.Profile.Email == "" && u.Profile.Phone == "" {
+    err = errors.New(services.ErrorEmailEmpty)
+    return
+  }
 
+  mongoSession := mongo.MgoSession.Clone()
+  defer mongoSession.Close()
+
+  err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionUsers).Find(
+    bson.M{"profile.email": u.Profile.Email}).Select(bson.M{"_id":1}).One(&u)
+
+  if u.Id != "" {
+    err = errors.New(services.ErrorEmailExists)
+    return
+  }
+
+  u.Id = bson.NewObjectId()
+  u.Active.Code = bson.NewObjectId().Hex()
+  u.Profile.GetUsername()
+  u.Password = EncodePassword(u.Password)
+  u.CreatedAt = time.Now().UTC()
+
+  err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionUsers).Insert(u)
+  u.Password = ""
   if err != nil {
     if strings.Contains(err.Error(), "unique_email") {
       err = errors.New(services.ErrorEmailExists)
@@ -49,36 +68,54 @@ func AddUser(u *models.User) (err error) {
 }
 
 func GetUserByPassword(u *models.User) (err error) {
-  err = pq.ConnPool.QueryRow("SELECT id, email,username, \"activeCode\" FROM users WHERE email=$1 and password=$2", u.Email, EncodePassword(u.Password)).
-    Scan(&u.Id, &u.Email, &u.Username, &u.ActiveCode)
+  mongoSession := mongo.MgoSession.Clone()
+  defer mongoSession.Close()
 
+  err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionUsers).Find(
+    bson.M{
+      "profile.email": u.Profile.Email,
+      "password": EncodePassword(u.Password),
+    }).Select(bson.M{"_id":1, "profile": 1, "roles": 1, "active": 1}).One(&u)
+  u.Password = ""
   if err != nil {
+    log.Printf("[error]admin.services.user.GetUserByPassword: err=%v\r\n", err)
     err = errors.New("用户名或密码错误")
-  } else if u.ActiveCode != "" {
+  } else if u.Active.Code != "" {
     err = errors.New(services.ErrorNoActive)
   }
+
   return
 }
 
 func Active(u *models.User) (err error) {
-  err = pq.ConnPool.QueryRow("SELECT id,email,username FROM users WHERE \"activeCode\"=$1 ", u.ActiveCode).
-    Scan(&u.Id, &u.Email, &u.Username)
-  if err != nil || u.Id == "" || u.ActiveCode == ""{
+  mongoSession := mongo.MgoSession.Clone()
+  defer mongoSession.Close()
+
+  err =  mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionUsers).Find(
+    bson.M{"active.code": u.Active.Code}).Select(bson.M{"_id":1, "profile": 1, "roles": 1, "active": 1}).One(&u)
+  if err != nil {
     err = errors.New(services.ErrorActiveCode)
     return
   }
 
-  _, err = pq.ConnPool.Exec("UPDATE users SET \"activeCode\"=$1 ", "")
+  err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionUsers).
+    Update(bson.M{"active.code": u.Active.Code}, bson.M{"$set": bson.M{"active": bson.M{"time": time.Now().UTC()}}})
   if err != nil {
-    log.Printf("admin.services.user.user.Active error: %v\r\n", err)
     err = errors.New(services.ErrorSave)
+    return
   }
 
   return
 }
 
 func ForgetPassword(u *models.User) (err error) {
-  err = pq.ConnPool.QueryRow("SELECT id,username FROM users WHERE email=$1 ", u.Email).Scan(&u.Id, &u.Username)
+  mongoSession := mongo.MgoSession.Clone()
+  defer mongoSession.Close()
+
+  err =  mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionUsers).Find(
+    bson.M{
+      "profile.email": u.Profile.Email,
+    }).Select(bson.M{"_id":1}).One(&u)
   if err != nil || u.Id == "" {
     err = errors.New(services.ErrorUserNoExists)
     return
@@ -108,25 +145,29 @@ func NewPassword(u *models.User) (err error) {
     return
   }
 
-  u.Id = utils.String(val)
-  err = pq.ConnPool.QueryRow("SELECT email,username FROM users WHERE id=$1 ", u.Id).Scan(&u.Email, &u.Username)
-  if err != nil || u.Email == "" {
-    err = errors.New(services.ErrorUserNoExists)
-    return
-  }
+  mongoSession := mongo.MgoSession.Clone()
+  defer mongoSession.Close()
 
-  _, err = pq.ConnPool.Exec("UPDATE users SET password=$1 where id=$2", EncodePassword(u.Password), u.Id)
+  u.Id = bson.ObjectIdHex(utils.String(val))
+  err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionUsers).
+    Update(bson.M{"_id": u.Id}, bson.M{"$set": bson.M{"password": EncodePassword(u.Password)}})
+  u.Password = ""
   if err != nil {
-    log.Printf("admin.services.user.user.NewPassword error: %v\r\n", err)
-    err = errors.New(services.ErrorSave)
+    err = errors.New(services.ErrorUserNoExists)
   }
 
   return
 }
 
 func GetUserById(u *models.User) (err error) {
-  err = pq.ConnPool.QueryRow("SELECT id, email,username FROM users WHERE id=$1", u.Id).
-    Scan(&u.Id, &u.Email, &u.Username)
+  mongoSession := mongo.MgoSession.Clone()
+  defer mongoSession.Close()
+
+  err =  mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionUsers).Find(bson.M{"_id": u.Id}).
+    Select(bson.M{"_id": 1, "profile": 1, "roles": 1}).One(&u)
+  if err != nil {
+    err = errors.New(services.ErrorUserNoExists)
+  }
 
   return
 }
@@ -171,6 +212,6 @@ func ValidToken(ctx *iris.Context, user *models.User) {
   if !ok || !token.Valid {
     return
   }
-  user.Id = utils.String(claims["uid"])
+  user.Id = bson.ObjectIdHex(utils.String(claims["uid"]))
   return
 }

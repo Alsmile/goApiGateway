@@ -10,7 +10,7 @@ import { SignService, SignType } from "./sign.service";
 export class ForgetPasswordComponent {
   captchaUrl: string;
   @Input() options: any;
-  user: any = {email: '', captcha: ''};
+  user: any = {profile:{email: ''}, captcha: ''};
   saving: boolean;
   success: boolean;
   @ViewChild('forgetForm') currentForm: NgForm;

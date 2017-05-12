@@ -1,7 +1,6 @@
 package utils
 
 import (
-  "reflect"
   "strconv"
   "unsafe"
 )
@@ -44,7 +43,7 @@ func String(v interface{}) string {
     return strconv.Itoa(int(reply))
   case int64:
     return strconv.Itoa(int(reply))
-  case []byte:    
+  case []byte:
     return *(*string)(unsafe.Pointer(&reply))
   case nil:
     return ""
@@ -56,27 +55,4 @@ func String(v interface{}) string {
   }
 
   return ""
-}
-
-
-func GetStructValues(obj interface{}) []interface{} {
-  t := reflect.TypeOf(obj)
-  l := t.NumField()
-  datas := make([]interface{}, l)
-  v := reflect.ValueOf(obj)
-  for i := 0; i < l; i++ {
-    datas[i] = v.Field(i).Interface()
-  }
-  return datas
-}
-
-func GetStructTags(obj interface{}, tagName string) []string {
-  t := reflect.TypeOf(obj)
-  l := t.NumField()
-  fields := make([]string, l)
-  for i := 0; i < l; i++ {
-    fields[i] = t.Field(i).Tag.Get(tagName)
-  }
-
-  return fields
 }

@@ -23,9 +23,11 @@ func Start() {
   app.Post("/api/sign/active", controllers.SignActive)
   app.Post("/api/forget/password", controllers.ForgetPassword)
   app.Post("/api/sign/new/password", controllers.NewPassword)
-  app.Get("/api/user/info", controllers.UserInfo)
+  app.Get("/api/user/profile", controllers.UserProfile)
 
   app.Get("/api/sign/config", controllers.GetSignConfig)
+
+  app.Post("/api/site/save", controllers.Auth, controllers.SiteSave)
 
   fmt.Printf("[log]Admin listen: %s:%d\r\n", utils.GlobalConfig.Admin.Host, utils.GlobalConfig.Admin.Port)
   strPort := strconv.Itoa(int(utils.GlobalConfig.Admin.Port))

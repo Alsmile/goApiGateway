@@ -9,7 +9,7 @@ import { SignService, SignType } from "./sign.service";
 })
 export class SigninComponent {
   captchaUrl: string = '';
-  user:any = {email: localStorage.getItem("last.email") || '', password: ''};
+  user:any = {profile:{email: localStorage.getItem("last.email") || ''}, password: ''};
   @Input() options: any;
   saving: boolean;
   @ViewChild('signinForm') currentForm: NgForm;

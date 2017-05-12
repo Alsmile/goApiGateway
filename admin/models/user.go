@@ -2,25 +2,41 @@ package models
 
 import (
   "strings"
+  "time"
+  "gopkg.in/mgo.v2/bson"
 )
 
 type User struct {
-  Id           string `json:"id"`
-  Email        string `json:"email"`
-  Phone        string `json:"phone"`
-  Username     string `json:"username"`
-  Password     string `json:"password"`
-  Captcha      string `json:"captcha"`
-  ActiveCode   string `json:"activeCode"`
-  PasswordCode string `json:"passwordCode"`
-  RememberMe   bool `json:"rememberMe"`
+  Id       bson.ObjectId `json:"_id" bson:"_id"`
+  Profile  UserProfile `json:"profile" `
+  Password string `json:"password" `
+  Captcha  string `json:"captcha" bson:",omitempty"`
+  Active struct {
+    Code string `json:"code" `
+    Time time.Time `json:"time" bson:",omitempty"`
+  } `json:"active" `
+  PasswordCode string `json:"passwordCode" bson:"passwordCode"`
+  RememberMe   bool `json:"rememberMe" bson:"rememberMe,omitempty"`
+  CreatedAt    time.Time `json:"createdAt" bson:"createdAt,omitempty"`
+  UpdatedAt    time.Time `json:"updatedAt" bson:"updatedAt,omitempty"`
+  DeletedAt    time.Time `json:"deletedAt" bson:"deletedAt,omitempty"`
 }
 
-func (user *User) GetUsername() {
-  pos := strings.Index(user.Email, "@")
+func (user *User) TableName() string {
+  return "users"
+}
+
+type UserProfile struct {
+  Email    string `json:"email" `
+  Phone    string `json:"phone" `
+  Username string `json:"username" `
+}
+
+func (profile *UserProfile) GetUsername() {
+  pos := strings.Index(profile.Email, "@")
   if pos < 0 {
     return
   }
 
-  user.Username = user.Email[0: pos]
+  profile.Username = profile.Email[0: pos]
 }

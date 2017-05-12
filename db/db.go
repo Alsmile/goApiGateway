@@ -1,12 +1,12 @@
 package db
 
 import (
-  "github.com/alsmile/goMicroServer/db/pq"
+  "github.com/alsmile/goMicroServer/db/mongo"
   "github.com/alsmile/goMicroServer/db/redis"
 )
 
 func Init() error {
-  err := pq.GetConnPool()
+  err := mongo.InitSession()
   if err != nil {
     return err
   }

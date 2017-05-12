@@ -43,7 +43,7 @@ export class CoreModule {
 
     let token: string = localStorage.getItem('rememberMe')? localStorage.getItem('token'): CookieService.get('token');
     if (token) {
-      this._httpService.Get('/api/user/info').subscribe( ret => {
+      this._httpService.Get('/api/user/profile').subscribe( ret => {
         this._storeService.set('user', ret);
       });
     }

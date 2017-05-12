@@ -26,7 +26,7 @@ export class SignService extends HttpService {
   Signin(user: any): Observable<any> {
     let u: any = {
       rememberMe: user.rememberMe,
-      email: user.email,
+      profile: {email: user.profile.email},
       password: user.password,
       captcha: user.captcha
     };
@@ -49,7 +49,7 @@ export class SignService extends HttpService {
   Signup(user: any): Observable<any> {
     let u: any = {
       rememberMe: user.rememberMe,
-      email: user.email,
+      profile: {email: user.profile.email},
       password: user.password,
       captcha: user.captcha
     };
@@ -62,7 +62,7 @@ export class SignService extends HttpService {
   }
 
   SignActive(activeCode: string): Observable<any> {
-    let login$ = this.Post('/api/sign/active', {activeCode: activeCode}).do( ret => {
+    let login$ = this.Post('/api/sign/active', {active:{code: activeCode}}).do( ret => {
       localStorage.setItem("token", ret.token);
       this.store.set('user', ret);
     });

@@ -19,8 +19,8 @@
   <div class="flex mb10">
     <label class="required">站名</label>
     <div>
-      <input class="input" name="name" [(ngModel)]="site.name" #name="ngModel" required placeholder="您的站点名称">
-      <div *ngIf="name.touched && !name.valid" class="error">
+      <input class="input" name="name" [(ngModel)]="site.name" required placeholder="您的站点名称">
+      <div *ngIf="formErrors.name" class="error">
         请填写站名
       </div>
     </div>
@@ -28,7 +28,7 @@
   <div class="flex mb10">
     <label>域名</label>
     <div>
-      <input class="input" name="domain" [(ngModel)]="site.domain" #domain="ngModel" placeholder="缺省为localhost">
+      <input class="input" name="domain" [(ngModel)]="site.domain" placeholder="缺省为localhost">
     </div>
   </div>
   <div class="flex mb10">
@@ -58,38 +58,84 @@
     </div>
   </div>
   <div class="flex mb10">
+    <label>404</label>
+    <div>
+      <input class="input" name="404" [(ngModel)]="site.notFound" placeholder="404访问路径">
+    </div>
+  </div>
+  <div class="flex mb10">
     <label>静态资源</label>
     <div>
-      <div *ngFor="let item of site.statics;let i = index" class="mb10">
-        <input class="input short" name="staticUrl{{i+1}}" [(ngModel)]="item.url" placeholder="访问前缀，例如： /assets" required>
-        <input class="input" name="staticPath{{i+1}}" [(ngModel)]="item.path"
-               placeholder="静态资源路径，例如： /usr/local/html" required>
+      <div *ngFor="let item of site.statics;let i = index" class="flex mb10">
+        <div class="mr10">
+          <input class="input short" name="staticUrl{{i+1}}" [(ngModel)]="item.url" placeholder="访问url，例如： /assets/" required>
+          <div *ngIf="formErrors['staticUrl'+(i+1)]" class="error">
+            请填写静态资源访问url
+          </div>
+        </div>
+        <div class="mr10">
+          <input class="input" name="staticPath{{i+1}}" [(ngModel)]="item.path"
+                 placeholder="静态资源文件目录，例如： /usr/local/html/assets/" required>
+
+          <div *ngIf="formErrors['staticPath'+(i+1)]" class="error">
+            请填写静态资源文件目录
+          </div>
+        </div>
+
         <a class="ml5" (click)="site.statics.splice(i,1);">删除</a>
+
       </div>
-      <div class="mb10">
-        <input class="input short" name="staticUrl" [(ngModel)]="staticUrl" placeholder="访问前缀，例如： /assets">
-        <input class="input" name="staticPath" [(ngModel)]="staticPath" placeholder="静态资源路径，例如： /usr/local/html">
+      <div class="flex mb10">
+        <div class="mr10">
+          <input class="input short" name="staticUrl" [(ngModel)]="staticUrl" placeholder="访问url，例如： /assets/">
+        </div>
+        <div>
+          <input class="input" name="staticPath" [(ngModel)]="staticPath" placeholder="静态资源路径，例如： /usr/local/html/assets/">
+        </div>
       </div>
       <div>
-        <button type="button" class="button success" [disabled]="!staticUrl || !staticPath" (click)="onAddStatic()">新增</button>
+        <button type="button" class="button success mr10" [disabled]="!staticUrl || !staticPath" (click)="onAddStatic()">新增</button>
+        <label class="gray"> 以 / 结尾表示路径匹配； 非 / 结尾表示精确匹配</label>
       </div>
     </div>
   </div>
   <div class="flex mb10">
     <label>proxy</label>
     <div>
-      <div *ngFor="let item of site.proxies;let i = index" class="mb10">
-        <input class="input short" name="proxyUrl{{i+1}}" [(ngModel)]="item.url" placeholder="访问前缀，例如： /api" required>
-        <input class="input" name="proxyPath{{i+1}}" [(ngModel)]="item.path"
-               placeholder="代理地址，例如： https://api.domain.com/proxy" required>
+      <div *ngFor="let item of site.proxies;let i = index" class="flex mb10">
+        <div class="mr10">
+          <input class="input short" name="proxyUrl{{i+1}}" [(ngModel)]="item.url" placeholder="代理url，例如： /api/" required>
+          <div *ngIf="formErrors['proxyUrl'+(i+1)]" class="error">
+            请填写代理url
+          </div>
+        </div>
+        <div>
+          <input class="input" name="proxyPath{{i+1}}" [(ngModel)]="item.path" isUrl
+                 placeholder="代理地址，例如： https://api.domain.com/proxy/api/" required>
+          <div *ngIf="formErrors['proxyPath'+(i+1)]" class="error">
+            请填写代理地址，以http://或https://开头
+          </div>
+        </div>
+
+
         <a class="ml5" (click)="site.proxies.splice(i,1);">删除</a>
       </div>
-      <div class="mb10">
-        <input class="input short" name="proxyUrl" [(ngModel)]="proxyUrl" placeholder="访问前缀，例如： /api">
-        <input class="input" name="proxyPath" [(ngModel)]="proxyPath" placeholder="代理地址，例如： https://api.domain.com/proxy">
+      <div class="flex mb10">
+        <div class="mr10">
+          <input class="input short" name="proxyUrl" [(ngModel)]="proxyUrl" placeholder="代理url，例如： /api/">
+        </div>
+        <div>
+          <input class="input" name="proxyPath" [(ngModel)]="proxyPath" isUrl
+                 placeholder="代理地址，例如： https://api.domain.com/proxy/api/">
+          <div *ngIf="formErrors.proxyPath" class="error">
+            代理地址必须以http://或https://开头
+          </div>
+        </div>
+
       </div>
       <div>
-        <button type="button" class="button success" [disabled]="!proxyUrl || !proxyPath" (click)="onAddProxy()">新增</button>
+        <button type="button" class="button success mr10" [disabled]="!proxyUrl || !proxyPath" (click)="onAddProxy()">新增</button>
+        <label class="gray"> 以 / 结尾表示前缀路径匹配； 非 / 结尾表示精确匹配。注意：代理url将会被代理地址替换</label>
       </div>
     </div>
   </div>

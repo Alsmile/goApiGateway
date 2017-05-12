@@ -21,7 +21,20 @@
     "user": "",
     "password": "",
     "maxConnections": 1,
-    "acquireTimeout": 30
+    "acquireTimeout": 30,
+    "showSql": true,
+    "logLevel": 1,
+    "sslMode": "disable"
+  },
+  "mongo": {
+    "address": "localhost:27017",
+    "database": "goMicroServer",
+    "user": "",
+    "password": "",
+    "maxConnections": 1,
+    "acquireTimeout": 30,
+    "logLevel": 1,
+    "debug ": true
   },
   "redis": {
     "connectNum": 10,

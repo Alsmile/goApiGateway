@@ -23,6 +23,16 @@ type AppConfig struct {
   } `json:"user"`
   Jwt    string `json:"jwt"`
   Secret string `json:"secret"`
+  Mongo struct {
+    Address        string `json:"address"`
+    Database       string `json:"database"`
+    User           string `json:"user"`
+    Password       string `json:"password"`
+    MaxConnections int `json:"maxConnections"`
+    AcquireTimeout time.Duration `json:"acquireTimeout"`
+    Mechanism      string `json:"mechanism"`
+    Debug          bool `json:"debug"`
+  } `json:"mongo"`
   PostgresSql struct {
     Host           string `json:"host"`
     Port           uint16 `json:"port"`
@@ -31,6 +41,9 @@ type AppConfig struct {
     Password       string `json:"password"`
     MaxConnections int `json:"maxConnections"`
     AcquireTimeout time.Duration `json:"acquireTimeout"`
+    ShowSql        bool `json:"showSql"`
+    LogLevel       uint8 `json:"logLevel"`
+    SslMode        string `json:"sslMode"`
   } `json:"postgresSql"`
   Redis struct {
     ConnectNum  int `json:"connectNum"`

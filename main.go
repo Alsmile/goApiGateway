@@ -6,8 +6,8 @@ import (
   "gopkg.in/natefinch/lumberjack.v2"
   "github.com/alsmile/goMicroServer/utils"
   "github.com/alsmile/goMicroServer/db"
-  "github.com/alsmile/goMicroServer/db/pq"
   "github.com/alsmile/goMicroServer/admin"
+  "github.com/alsmile/goMicroServer/db/mongo"
 )
 
 func main() {
@@ -43,8 +43,7 @@ func main() {
     log.Printf("[error]Db error: %v\r\n", err)
     return
   }
-
-  defer pq.ConnPool.Close()
+  defer mongo.MgoSession.Close()
 
   // 后台管理web
   admin.Start()

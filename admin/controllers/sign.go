@@ -42,8 +42,8 @@ func Login(ctx *iris.Context) {
   }
 
   ret["id"] = u.Id
-  ret["email"] = u.Email
-  ret["username"] = u.Username
+  ret["email"] = u.Profile.Email
+  ret["username"] = u.Profile.Username
   if rememberMe {
     ret["token"] = user.GetToken(u, services.TokenValidRemember)
   } else {
@@ -83,8 +83,8 @@ func SignActive(ctx *iris.Context) {
   }
 
   ret["id"] = u.Id
-  ret["email"] = u.Email
-  ret["username"] = u.Username
+  ret["email"] = u.Profile.Email
+  ret["username"] = u.Profile.Username
   ret["token"] = user.GetToken(u, services.TokenValidHours)
 }
 
@@ -120,29 +120,45 @@ func NewPassword(ctx *iris.Context) {
   }
 
   ret["id"] = u.Id
-  ret["email"] = u.Email
-  ret["username"] = u.Username
+  ret["email"] = u.Profile.Email
+  ret["username"] = u.Profile.Username
   ret["token"] = user.GetToken(u, services.TokenValidHours)
 }
 
-func UserInfo(ctx *iris.Context) {
+func UserProfile(ctx *iris.Context) {
   ret := make(map[string]interface{})
   defer ServeJson(ctx, ret)
 
   u := models.User{}
   user.ValidToken(ctx, &u)
   if u.Id == "" {
+    ctx.SetStatusCode(iris.StatusUnauthorized)
     ret["error"] = services.ErrorNeedSign
     return
   }
 
   err := user.GetUserById(&u)
   if err != nil {
+    ctx.SetStatusCode(iris.StatusUnauthorized)
     ret["error"] = services.ErrorUserNoExists
     return
   }
 
   ret["id"] = u.Id
-  ret["email"] = u.Email
-  ret["username"] = u.Username
+  ret["email"] = u.Profile.Email
+  ret["username"] = u.Profile.Username
+}
+
+func Auth(ctx *iris.Context) {
+  u := models.User{}
+  user.ValidToken(ctx, &u)
+  if u.Id == "" {
+    ctx.SetStatusCode(iris.StatusUnauthorized)
+    ret := make(map[string]interface{})
+    ret["error"] = services.ErrorNeedSign
+    ServeJson(ctx, ret)
+    return
+  }
+
+  ctx.Next()
 }
