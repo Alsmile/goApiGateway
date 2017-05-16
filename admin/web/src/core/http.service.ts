@@ -83,17 +83,22 @@ export class HttpService {
     }
   }
 
-  Delete(url: string, options?: any): Observable<any> {
+  async Delete(url: string, options?: any): Promise<any> {
     this.setHeaders(options);
     url += this.queryParams;
     this.queryParams = '';
-    return this.http.delete(this.baseUrl + url, {headers: this.headers}).map(this.extractData)
-      .filter(data => !data || data.errorTip || !data.error).catch((err: any) => {
-        return this.handleError(err);
-      });
+
+    try {
+      let response = await this.http
+        .delete(this.baseUrl + url, {headers: this.headers})
+        .toPromise();
+      return this.extractData(response);
+    } catch (error) {
+      await this.handleError(error);
+    }
   }
 
-  Post(url: string, body: any, options?: any): Observable<any> {
+  async Post(url: string, body: any, options?: any): Promise<any> {
     let strBody: string;
     if (typeof body === 'string') {
       strBody = body;
@@ -103,13 +108,18 @@ export class HttpService {
     this.setHeaders(options);
     url += this.queryParams;
     this.queryParams = '';
-    return this.http.post(this.baseUrl + url, strBody, {headers: this.headers}).map(this.extractData)
-      .filter(data => !data || data.errorTip || !data.error).catch((err: any) => {
-        return this.handleError(err);
-      });
+
+    try {
+      let response = await this.http
+        .post(this.baseUrl + url, strBody, {headers: this.headers})
+        .toPromise();
+      return this.extractData(response);
+    } catch (error) {
+      await this.handleError(error);
+    }
   }
 
-  Put(url: string, body: any, options?: any): Observable<any> {
+  async Put(url: string, body: any, options?: any): Promise<any> {
     let strBody: string;
     if (typeof body === 'string') {
       strBody = body;
@@ -119,10 +129,14 @@ export class HttpService {
     this.setHeaders(options);
     url += this.queryParams;
     this.queryParams = '';
-    return this.http.put(this.baseUrl + url, strBody, {headers: this.headers}).map(this.extractData)
-      .filter(data => !data || data.errorTip || !data.error).catch((err: any) => {
-        return this.handleError(err);
-      });
+    try {
+      let response = await this.http
+        .put(this.baseUrl + url, strBody, {headers: this.headers})
+        .toPromise();
+      return this.extractData(response);
+    } catch (error) {
+      await this.handleError(error);
+    }
   }
 
   DownloadFile(url: string, fileName: string, options?: any) {
@@ -157,8 +171,8 @@ export class HttpService {
     if (error.status == 401) {
       this.delToken();
       error.message = 'Authorization error';
+    } else if (error.status != 404) {
+      console.error(error.message);
     }
-    console.error(error.message);
-    return Observable.throw(error.message);
   }
 }

@@ -27,7 +27,7 @@ export class AppComponent implements OnInit {
     };
   }
 
-  ngOnInit() {
+  async ngOnInit(): Promise<void> {
     // 监听用户信息
     this._storeService.get$('user').subscribe(
       ret => {
@@ -40,16 +40,14 @@ export class AppComponent implements OnInit {
       if (params) {
         // 激活账户
         if (params.active) {
-          this._signService.SignActive(params.active).subscribe(
-            ret => {
-              let _noticeService: NoticeService = new NoticeService();
-              _noticeService.notice({body: '恭喜账号激活成功，感谢您的使用！', theme: 'success'});
-            },
-            err => {
-              let _noticeService: NoticeService = new NoticeService();
-              _noticeService.notice({body: '激活失败，请稍后重试！', theme: 'error', timeout: 5000});
-            }
-          );
+          let ret = this._signService.SignActive(params.active);
+          if (ret) {
+            let _noticeService: NoticeService = new NoticeService();
+            _noticeService.notice({body: '恭喜账号激活成功，感谢您的使用！', theme: 'success'});
+          } else {
+            let _noticeService: NoticeService = new NoticeService();
+            _noticeService.notice({body: '激活失败，请稍后重试！', theme: 'error', timeout: 5000});
+          }
         }
         // 找回密码方式设置新密码
         else if (params.forgetPassword) {
@@ -67,9 +65,7 @@ export class AppComponent implements OnInit {
       }
     );
 
-    this._appService.GetSignConfig().subscribe(ret => {
-      this.signConfig = ret;
-    });
+    this.signConfig = await this._appService.GetSignConfig() || {};
   }
 
   isActive (strUrl: string) {
@@ -109,20 +105,18 @@ export class AppComponent implements OnInit {
     this.options.showSign = null;
   }
 
-  onSendActiveEmail (event:any) {
+  async onSendActiveEmail (event:any): Promise<void> {
     if (event) event.stopPropagation();
 
     if (!this.user) return;
 
-    this._signService.SendActiveEmail(this.user.email).subscribe(
-      ret => {
-        let _noticeService: NoticeService = new NoticeService();
-        _noticeService.notice({body: '已经发送激活邮件到您的邮箱，请注意查收！', theme: 'success'});
-      },
-      err => {
-        let _noticeService: NoticeService = new NoticeService();
-        _noticeService.notice({body: '发送激活邮件失败，请稍后重试！', theme: 'error', timeout: 5000});
-      }
-    );
+    let ret = this._signService.SendActiveEmail(this.user.email);
+    if (ret) {
+      let _noticeService: NoticeService = new NoticeService();
+      _noticeService.notice({body: '已经发送激活邮件到您的邮箱，请注意查收！', theme: 'success'});
+    } else {
+      let _noticeService: NoticeService = new NoticeService();
+      _noticeService.notice({body: '发送激活邮件失败，请稍后重试！', theme: 'error', timeout: 5000});
+    }
   }
 }

@@ -1,25 +1,30 @@
-import {Injectable} from '@angular/core';
-import {Observable} from "rxjs/Observable";
-import {Http} from "@angular/http";
-import {CookieService, StoreService} from 'le5le-store';
+import { Injectable } from '@angular/core';
+import { StoreService } from 'le5le-store';
 
 import { HttpService } from '../../core/http.service';
 
 @Injectable()
-export class SitesService extends HttpService {
-  public constructor(protected http: Http, protected store: StoreService) {
-    super(http, store);
+export class SitesService {
+  public constructor(protected http: HttpService, protected store: StoreService) {
   }
 
-  List(params: any): Observable<any> {
-    return this.QueryString(params).Get('/api/site/list');
+  async List(params: any): Promise<any> {
+    let ret = await this.http.QueryString(params).Get('/api/site/list');
+    if (!ret || !ret.list) return [];
+    return ret.list;
   }
 
-  GetSite(params: any): Observable<any> {
-    return this.QueryString(params).Get('/api/site/get');
+  async GetSite(params: any): Promise<any> {
+    let ret = await this.http.QueryString(params).Get('/api/site/get');
+    if (!ret || ret.error) return {https: '', notFound: {code:404}, statics: [], proxies: []};
+
+    return ret;
   }
 
-  Save(params: any): Observable<any> {
-    return this.Post('/api/site/save', params);
+  async Save(params: any): Promise<any> {
+    let ret = await this.http.Post('/api/site/save', params);
+    if (!ret || ret.error) return false;
+
+    return true;
   }
 }

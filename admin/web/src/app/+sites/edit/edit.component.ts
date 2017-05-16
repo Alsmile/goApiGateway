@@ -28,17 +28,13 @@ export class SitesEditComponent implements AfterViewChecked {
     this.site.owner = this.site.editor = this.user;
   }
 
-  ngOnInit() {
+  async ngOnInit(): Promise<any> {
+    this.loading = true;
     this.id = this._activateRoute.snapshot.queryParams['id'];
     if (!this.id) return this.loading = false;
 
-    this._sitesService.GetSite({id: this.id}).subscribe(
-      ret => {
-        this.site = ret;
-      },
-      err => console.error(err),
-      () => this.loading = false
-    );
+    this.site = await this._sitesService.GetSite({id: this.id});
+    this.loading = false;
   }
 
   ngAfterViewChecked() {
@@ -89,7 +85,7 @@ export class SitesEditComponent implements AfterViewChecked {
     this.proxyPath = '';
   }
 
-  onSubmit () {
+  async onSubmit(): Promise<void> {
     this.onValueChanged(true);
     if (this.currentForm.form.invalid) return;
 
@@ -98,15 +94,13 @@ export class SitesEditComponent implements AfterViewChecked {
 
     this.saving = true;
     this.site.editor = this.user;
-    this._sitesService.Save(this.site).subscribe(
-      ret => {
-        let _noticeService: NoticeService = new NoticeService();
-        _noticeService.notice({body: '保存成功！', theme: 'success'});
+    let ret = await this._sitesService.Save(this.site);
+    if (ret) {
+      let _noticeService: NoticeService = new NoticeService();
+      _noticeService.notice({body: '保存成功！', theme: 'success'});
 
-        this._router.navigateByUrl('/sites/home');
-      },
-      err => console.error(err),
-      () => this.saving = false
-    );
+      this._router.navigateByUrl('/sites/home');
+    }
+    this.saving = false;
   }
 }

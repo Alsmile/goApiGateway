@@ -28,19 +28,14 @@ export class SigninComponent {
     if (this.options) this.options.showSign = SignType.ForgetPasswordDialog;
   }
 
-  onSubmit() {
+  async onSubmit(): Promise<void> {
     if (this.currentForm.form.invalid) return;
 
     this.saving = true;
-    this._signService.Signin(this.user).subscribe(
-      ret => {
-        if (ret.errorTip) {
-          this.getCaptcha();
-        }
-      },
-      err => console.error(err),
-      () => this.saving = false
-    );
+    let ret = await this._signService.Signin(this.user);
+    this.saving = false;
+    if (ret.errorTip) {
+      this.getCaptcha();
+    }
   }
-
 }

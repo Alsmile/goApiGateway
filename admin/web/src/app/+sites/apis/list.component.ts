@@ -20,16 +20,12 @@ export class SitesApisListComponent{
     this.user = _storeService.get('user');
   }
 
-  ngOnInit() {
+  async ngOnInit(): Promise<any> {
+    this.loading = true;
     this.id = this._activateRoute.snapshot.queryParams['id'];
     if (!this.id) return this.loading = false;
 
-    this._sitesService.GetSite({id: this.id}).subscribe(
-      ret => {
-        this.site = ret;
-      },
-      err => console.error(err),
-      () => this.loading = false
-    );
+    this.site = await this._sitesService.GetSite({id: this.id});
+    this.loading = false;
   }
 }

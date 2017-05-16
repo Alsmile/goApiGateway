@@ -42,11 +42,12 @@ export class CoreModule {
     );
 
     let token: string = localStorage.getItem('rememberMe')? localStorage.getItem('token'): CookieService.get('token');
-    if (token) {
-      this._httpService.Get('/api/user/profile').subscribe( ret => {
-        this._storeService.set('user', ret);
-      });
-    }
+    if (token) this.onProfile();
+  }
+
+  async onProfile(): Promise<void> {
+    let ret = await this._httpService.Get('/api/user/profile');
+    if (ret && !ret.error) this._storeService.set('user', ret);
   }
 
   static forRoot(): ModuleWithProviders {

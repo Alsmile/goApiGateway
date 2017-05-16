@@ -33,16 +33,11 @@ export class SignupComponent {
     if (this.options) this.options.showSign = null;
   }
 
-  onSubmit(valid: boolean) {
+  async onSubmit(valid: boolean):Promise<void> {
     if (this.currentForm.form.invalid) return;
 
     this.saving = true;
-    this._signService.Signup(this.user).subscribe(
-      ret => {
-        this.success = true;
-      },
-      err => console.error(err),
-      () => this.saving = false
-    );
+    this.success = await this._signService.Signup(this.user);
+    this.saving = false;
   }
 }

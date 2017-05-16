@@ -1,18 +1,15 @@
 import {Injectable} from '@angular/core';
-import {Http} from "@angular/http";
-import {Observable} from "rxjs/Observable";
-import {CookieService, StoreService} from 'le5le-store';
+import {StoreService} from 'le5le-store';
 
 import { HttpService } from '../core/http.service';
 
 @Injectable()
-export class AppService extends HttpService {
-  public constructor(protected http: Http, protected store: StoreService) {
-    super(http, store);
+export class AppService {
+  public constructor(protected http: HttpService, protected store: StoreService) {
   }
 
-  GetSignConfig(): Observable<any> {
-    return this.Get('/api/sign/config');
+  GetSignConfig(): Promise<any> {
+    return this.http.Get('/api/sign/config');
   }
 
 }

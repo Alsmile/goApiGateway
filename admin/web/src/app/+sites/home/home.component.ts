@@ -14,12 +14,7 @@ export class SitesHomeComponent {
   constructor(private _sitesService: SitesService, private _router: Router) {
   }
 
-  ngOnInit() {
-    this._sitesService.List({pageIndex: this.pageIndex, pageCount: this.pageCount}).subscribe(
-      ret => {
-        this.sites = ret.list;
-      },
-      err => console.error(err)
-    );
+  async ngOnInit(): Promise<void> {
+    this.sites = await this._sitesService.List({pageIndex: this.pageIndex, pageCount: this.pageCount});
   }
 }
