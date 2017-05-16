@@ -40,7 +40,7 @@ export class SignService extends HttpService {
         localStorage.removeItem("rememberMe");
         CookieService.set("token", ret.token);
       }
-      localStorage.setItem("last.email", user.email);
+      localStorage.setItem("last.email", user.profile.email);
       this.store.set('user', ret);
     });
     return login$;

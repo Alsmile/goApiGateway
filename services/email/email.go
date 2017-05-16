@@ -5,7 +5,7 @@ import (
   "strings"
   "github.com/alsmile/goMicroServer/utils"
   "log"
-  "github.com/alsmile/goMicroServer/admin/models"
+  "github.com/alsmile/goMicroServer/models"
 )
 
 func SendEmail(email, title, body string) error {

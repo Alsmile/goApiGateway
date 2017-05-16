@@ -1,5 +1,0 @@
-package sites
-
-func Start()  {
-
-}

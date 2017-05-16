@@ -1,5 +1,7 @@
 package services
 
+import "gopkg.in/mgo.v2/bson"
+
 const (
   ErrorPhoneCode = "手机验证码错误"
   ErrorPhoneEmpty = "手机号不能为空"
@@ -10,6 +12,7 @@ const (
   ErrorCaptchaCode = "验证码错误"
   ErrorLogin = "邮箱或密码错误"
   ErrorParam = "参数错误"
+  ErrorParamPage = "分页参数错误"
   ErrorPermission = "权限错误"
   ErrorSave = "保存数据错误，请稍后重试"
   ErrorFile = "读取上传文件错误"
@@ -44,8 +47,15 @@ const (
 )
 
 const (
+  PageIndex = "pageIndex"
+  PageCount = "pageCount"
+)
+
+const (
   FilePathTemp = "/temp"
   FilePathImage = "/images"
   FilePathImageNotFound = "img/notFound.png"
   FilePathImageUser = "img/user.png"
 )
+
+var SelectHide = bson.M{"editor": false, "deletedAt": false}

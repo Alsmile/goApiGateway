@@ -22,10 +22,6 @@ type User struct {
   DeletedAt    time.Time `json:"deletedAt" bson:"deletedAt,omitempty"`
 }
 
-func (user *User) TableName() string {
-  return "users"
-}
-
 type UserProfile struct {
   Email    string `json:"email" `
   Phone    string `json:"phone" `
@@ -39,4 +35,11 @@ func (profile *UserProfile) GetUsername() {
   }
 
   profile.Username = profile.Email[0: pos]
+}
+
+type QuotedUser struct {
+  Id       bson.ObjectId `json:"id" bson:"_id"`
+  Email    string `json:"email" `
+  Phone    string `json:"phone" `
+  Username string `json:"username" `
 }

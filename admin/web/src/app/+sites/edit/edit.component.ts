@@ -1,16 +1,20 @@
 import {Component, AfterViewChecked, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import {Router, ActivatedRoute} from "@angular/router";
+import {StoreService} from 'le5le-store';
+import {NoticeService} from "le5le-components";
 
-import {SitesEditService} from "./edit.service";
+import {SitesService} from "../sites.service";
 
 @Component({
   selector: 'site-edit',
   templateUrl: "edit.component.html"
 })
 export class SitesEditComponent implements AfterViewChecked {
+  loading: boolean = true;
   id: string;
-  site: any = {https: '', statics: [], proxies: []};
+  user: any;
+  site: any = {https: '', notFound: {code:404}, statics: [], proxies: []};
   staticUrl : string;
   staticPath: string;
   proxyUrl: string;
@@ -18,18 +22,22 @@ export class SitesEditComponent implements AfterViewChecked {
   saving: boolean;
   formErrors: any = {};
   @ViewChild('myForm') currentForm: NgForm;
-  constructor(private _sitesEditService: SitesEditService, private _router: Router, private _activateRoute: ActivatedRoute) {
+  constructor(private _sitesService: SitesService, private _storeService: StoreService,
+              private _router: Router, private _activateRoute: ActivatedRoute) {
+    this.user = _storeService.get('user');
+    this.site.owner = this.site.editor = this.user;
   }
 
   ngOnInit() {
     this.id = this._activateRoute.snapshot.queryParams['id'];
-    if (!this.id) return;
+    if (!this.id) return this.loading = false;
 
-    this._sitesEditService.GetSite({id: this.id}).subscribe(
+    this._sitesService.GetSite({id: this.id}).subscribe(
       ret => {
         this.site = ret;
       },
-      err => console.error(err)
+      err => console.error(err),
+      () => this.loading = false
     );
   }
 
@@ -89,9 +97,13 @@ export class SitesEditComponent implements AfterViewChecked {
     this.onAddProxy();
 
     this.saving = true;
-    this._sitesEditService.Save(this.site).subscribe(
+    this.site.editor = this.user;
+    this._sitesService.Save(this.site).subscribe(
       ret => {
+        let _noticeService: NoticeService = new NoticeService();
+        _noticeService.notice({body: '保存成功！', theme: 'success'});
 
+        this._router.navigateByUrl('/sites/home');
       },
       err => console.error(err),
       () => this.saving = false

@@ -59,7 +59,7 @@ export class HttpService {
     return this;
   }
 
-  setHeaders(options?: any) {
+  private setHeaders(options?: any) {
     this.headers.set('Authorization', 'Bearer ' + this.getToken());
 
     if (!options || !options.headers) return;
@@ -69,14 +69,18 @@ export class HttpService {
     })
   }
 
-  Get(url: string, options?: any): Observable<any> {
+  async Get(url: string, options?: any): Promise<any> {
     this.setHeaders(options);
     url += this.queryParams;
     this.queryParams = '';
-    return this.http.get(this.baseUrl + url, {headers: this.headers}).map(this.extractData)
-      .filter(data => !data || data.errorTip || !data.error).catch((err: any) => {
-        return this.handleError(err);
-      });
+    try {
+      let response = await this.http
+        .get(this.baseUrl + url, {headers: this.headers})
+        .toPromise();
+      return this.extractData(response);
+    } catch (error) {
+      await this.handleError(error);
+    }
   }
 
   Delete(url: string, options?: any): Observable<any> {
@@ -144,6 +148,7 @@ export class HttpService {
       let _noticeService: NoticeService = new NoticeService();
       _noticeService.notice({body: body.error, theme: 'error', timeout: 5000});
     }
+    if (body.errorConsole) console.warn(body.errorConsole);
     return body;
   }
 

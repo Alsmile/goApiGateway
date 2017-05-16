@@ -1,27 +1,31 @@
-<div class="flex">
+<div class="flex p20">
   <div class="full" >
     <div class="border-bottom mb10">
       <div style="font-size: .16rem">我的站点</div>
       <a class="fr button primary" routerLink="/sites/edit" style="margin-top: -.32rem">+ 添加</a>
     </div>
 
-    <div class="flex wrap">
+    <div class="flex wrap" *ngFor="let item of sites;let i = index" >
       <div class="card mr20">
         <div class="head flex">
           <div class="img"><img src="https://coding.net/static/project_icon/scenery-12.png"></div>
           <div class="full">
-            <div class="caption" title="web前端">web前端</div>
-            <div class="desc"><a class="gray" href="http://www.cloudtogo.cn" target="_blank">www.cloudtogo.cn</a></div>
+            <a class="caption" title="{{item.name}}" [routerLink]="['/sites/apis/list']" [queryParams]="{id:item.id}">
+              {{item.name}}
+            </a>
+            <div class="desc"><a class="gray" [href]="item.domain" target="_blank">{{item.domain}}</a></div>
           </div>
         </div>
-        <div class="desc">前端静态资源发布</div>
+        <div class="desc">{{item.desc}}</div>
         <div class="footer">
           <div class="full">
             <i class="dot primary"></i> 运行中...
           </div>
           <div class="text-right nowrap">
             <a class="success mr5"><i class="iconfont icon-pause"></i> 暂停</a>
-            <a class="success mr5"><i class="iconfont icon-edit"></i> 编辑</a>
+            <a class="success mr5" [routerLink]="['/sites/edit']" [queryParams]="{id:item.id}">
+              <i class="iconfont icon-edit"></i> 编辑
+            </a>
             <a class="success"><i class="iconfont icon-close"></i> 删除</a>
           </div>
         </div>

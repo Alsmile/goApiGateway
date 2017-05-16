@@ -3,8 +3,8 @@ package controllers
 import (
   "gopkg.in/kataras/iris.v6"
   "github.com/alsmile/goMicroServer/utils"
-  "github.com/alsmile/goMicroServer/admin/models"
-  "github.com/alsmile/goMicroServer/admin/services/user"
+  "github.com/alsmile/goMicroServer/models"
+  "github.com/alsmile/goMicroServer/services/user"
   "github.com/alsmile/goMicroServer/session"
   "github.com/alsmile/goMicroServer/services/captcha"
   "github.com/alsmile/goMicroServer/services"

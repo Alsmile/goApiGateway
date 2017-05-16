@@ -27,6 +27,8 @@ func Start() {
 
   app.Get("/api/sign/config", controllers.GetSignConfig)
 
+  app.Get("/api/site/list", controllers.Auth, controllers.SiteList)
+  app.Get("/api/site/get", controllers.Auth, controllers.SiteGet)
   app.Post("/api/site/save", controllers.Auth, controllers.SiteSave)
 
   fmt.Printf("[log]Admin listen: %s:%d\r\n", utils.GlobalConfig.Admin.Host, utils.GlobalConfig.Admin.Port)

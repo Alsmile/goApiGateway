@@ -9,7 +9,7 @@ import (
   "encoding/hex"
   "errors"
   "github.com/dgrijalva/jwt-go"
-  "github.com/alsmile/goMicroServer/admin/models"
+  "github.com/alsmile/goMicroServer/models"
   "github.com/alsmile/goMicroServer/db/mongo"
   "github.com/alsmile/goMicroServer/utils"
   "github.com/alsmile/goMicroServer/services"
@@ -57,7 +57,7 @@ func AddUser(u *models.User) (err error) {
     if strings.Contains(err.Error(), "unique_email") {
       err = errors.New(services.ErrorEmailExists)
     } else {
-      log.Printf("admin.services.user.user.AddUser error: %v\r\n", err)
+      log.Printf("services.user.user.AddUser error: %v\r\n", err)
       err = errors.New(services.ErrorSave)
     }
   } else {
@@ -78,7 +78,7 @@ func GetUserByPassword(u *models.User) (err error) {
     }).Select(bson.M{"_id":1, "profile": 1, "roles": 1, "active": 1}).One(&u)
   u.Password = ""
   if err != nil {
-    log.Printf("[error]admin.services.user.GetUserByPassword: err=%v\r\n", err)
+    log.Printf("[error]services.user.GetUserByPassword: err=%v\r\n", err)
     err = errors.New("用户名或密码错误")
   } else if u.Active.Code != "" {
     err = errors.New(services.ErrorNoActive)
@@ -127,7 +127,7 @@ func ForgetPassword(u *models.User) (err error) {
   u.PasswordCode = utils.GetGuid()
   _, err = redisConn.Do("SETEX", u.PasswordCode, services.TokenValidHours*3600, u.Id)
   if err != nil {
-    log.Printf("admin.services.user.user.ForgetPassword: redis error=%v\r\n", err)
+    log.Printf("services.user.user.ForgetPassword: redis error=%v\r\n", err)
     err = errors.New(services.ErrorSave)
     return
   }
