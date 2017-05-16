@@ -27,4 +27,11 @@ export class SitesService {
 
     return true;
   }
+
+  async SaveApi(params: any): Promise<any> {
+    let ret = await this.http.Post('/api/site/api/save', params);
+    if (!ret || ret.error) return {};
+
+    return ret;
+  }
 }

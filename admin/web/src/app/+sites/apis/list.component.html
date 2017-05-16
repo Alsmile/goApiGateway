@@ -1,11 +1,44 @@
-<div class="nav">
+<div class="nav ph20 pv10 border-bottom">
   <a routerLink="/sites/home">我的站点</a>
   <a [routerLink]="['/sites/edit']" [queryParams]="{id:site.id}">{{site.name}}</a>
   <label >APIs</label>
+
+  <a class="fr primary" (click)="onAdd()"><i class="iconfont icon-add"></i> 添加自定义API</a>
 </div>
 
-
-<div class="flex p20" >
-  <div></div>
-  <div></div>
+<div class="flex" >
+  <div class="border-right" style="width: 2rem;overflow: auto;" [ngStyle]="treeStyle">
+    <div class="tree" >
+      <div class="item" >
+        <a (click)="onTreeShowEdited()" [class.active]="tree.activeEdited" >
+          <i class="iconfont" [class.icon-triangle-down]="tree.showEdited" [class.icon-triangle-right]="!tree.showEdited"></i>
+          自定义API
+        </a>
+        <ng-template ngFor let-item let-i="index" [ngForOf]="tree.edited" >
+          <div class="item" *ngIf="tree.showEdited" (click)="tree.selected=item;">
+            <a class="ml10" [class.active]="item.id === tree.selected.id" >
+              {{item.name}}
+            </a>
+          </div>
+        </ng-template>
+      </div>
+      <div class="item" >
+        <a (click)="onTreeShowFound()" [class.active]="tree.activeFound">
+          <i class="iconfont" [class.icon-triangle-down]="tree.showFound" [class.icon-triangle-right]="!tree.showFound"></i>
+          自动发现API
+        </a>
+        <div class="item" *ngIf="tree.showFound" (click)="tree.selected=item;">
+          <a >
+            <i class="iconfont icon-angle-right"></i>
+            ellipsis
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="full">
+    <div *ngIf="!tree.selected.id && tree.edited.length === 0" class="gray text-center mt50">
+      您还没有自定义API，立即添加 <a (click)="onAdd()">自定义API</a> 吧
+    </div>
+  </div>
 </div >
