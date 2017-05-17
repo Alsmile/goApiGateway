@@ -1,0 +1,532 @@
+<div *ngIf="api.isEdit">
+  <div class="flex middle mb20">
+    <label class="mr10" style="width: .5rem">名称： </label>
+    <input class="input full" [(ngModel)]="api.name" placeholder="API名称">
+  </div>
+  <div class="flex middle mb20">
+    <label class="mr10" style="width: .5rem">Url： </label>
+    <input class="input full" [(ngModel)]="api.url" placeholder="/api/your/url">
+  </div>
+  <div class="flex middle mb20">
+    <label class="mr10" style="width: .5rem">方法：</label>
+    <div class="full">
+      <label class="radio mr30">
+        <input name="method" type="radio" [(ngModel)]="api.method" value="GET">
+        <span>GET</span>
+      </label>
+      <label class="radio mr30">
+        <input name="method" type="radio" [(ngModel)]="api.method" value="POST">
+        <span>POST</span>
+      </label>
+      <label class="radio mr30">
+        <input name="method" type="radio" [(ngModel)]="api.method" value="PUT">
+        <span>PUT</span>
+      </label>
+      <label class="radio mr30">
+        <input name="method" type="radio" [(ngModel)]="api.method" value="DELETE">
+        <span>DELETE</span>
+      </label>
+    </div>
+  </div>
+  <div class="flex mb20">
+    <label class="mr10" style="width: .5rem">描述： </label>
+    <textarea class="input full" rows="2" [(ngModel)]="api.desc" placeholder="建议简洁清晰。更多信息应该在您的详细设计文档。"></textarea>
+  </div>
+  <div class="flex middle mt10 ">
+    <h4 class="mr30">header列表</h4>
+  </div>
+  <table class="mb10">
+    <tr>
+      <th>名称</th>
+      <th>说明</th>
+      <th style="min-width: 50px;">必需</th>
+      <th>操作</th>
+    </tr>
+    <tr *ngFor="let item of api.headers; let i = index">
+      <td class="td-input">
+        <div class="flex middle">
+          <input class="input full" [(ngModel)]="item.name">
+        </div>
+      </td>
+      <td class="td-input">
+        <div class="flex middle">
+          <input class="input full" [(ngModel)]="item.desc">
+        </div>
+      </td>
+      <td class="td-input">
+        <div class="mb5">
+          <label class="radio nowrap ml10 mr10">
+            <input name="headers-required{{i}}" type="radio" value="true" [(ngModel)]="item.required"> <span>必需</span>
+          </label>
+        </div>
+        <div>
+          <label class="radio ml10 mr10 nowrap">
+            <input name="headers-required{{i}}" type="radio" value="false" [(ngModel)]="item.required"> <span>可选</span>
+          </label>
+        </div>
+      </td>
+      <td class="">
+        <a class="mr10 mb5 nowrap" (click)="api.headers.splice(i,1)">删除</a>
+      </td>
+    </tr>
+    <tr *ngIf="!api.headers || api.headers.length === 0">
+      <td class="text-center gray" colspan="7">
+        没有header
+      </td>
+    </tr>
+  </table>
+  <div >
+    <button class="button primary" (click)="onAddHeader()">添加header</button>
+  </div>
+  <br>
+  <div class="flex middle mt10 ">
+    <h4 class="mr30">query参数列表</h4>
+  </div>
+  <table class="mb10">
+    <tr>
+      <th>变量名</th>
+      <th>说明</th>
+      <th style="min-width: 50px;">必需</th>
+      <th>操作</th>
+    </tr>
+    <ng-template ngFor let-item let-i="index" [ngForOf]="api.queryParams" >
+      <td class="td-input">
+        <div class="flex middle">
+          <input class="input full" [(ngModel)]="item.name">
+        </div>
+      </td>
+      <td class="td-input">
+        <div class="flex middle">
+          <input class="input full" [(ngModel)]="item.desc">
+        </div>
+      </td>
+      <td class="td-input">
+        <div class="mb5">
+          <label class="radio nowrap ml10 mr10">
+            <input name="queryParams-required{{i}}" type="radio" value="true" [(ngModel)]="item.required"> <span>必需</span>
+          </label>
+        </div>
+        <div>
+          <label class="radio ml10 mr10 nowrap">
+            <input name="queryParams-required{{i}}" type="radio" value="false" [(ngModel)]="item.required"> <span>可选</span>
+          </label>
+        </div>
+      </td>
+      <td class="">
+        <a class="mr10 mb5 nowrap" (click)="api.queryParams.splice(i,1)">删除</a>
+      </td>
+    </ng-template>
+    <tr *ngIf="!api.queryParams || api.queryParams.length === 0">
+      <td class="text-center gray" colspan="7">
+        没有query参数
+      </td>
+    </tr>
+  </table>
+  <div >
+    <button class="button primary" (click)="onAddQuery()">添加query参数</button>
+  </div>
+  <br>
+  <div  *ngIf="api.method === 'PUT' || api.method === 'POST'">
+    <div class="flex middle mt10 ">
+      <h4 class="mr30">body列表</h4>
+      <select class="input" [(ngModel)]="api.contentType" >
+        <option value="application/json">json</option>
+        <option value="multipart/form-data">form-data</option>
+        <option value="application/x-www-form-urlencoded">x-www-form-urlencoded</option>
+        <option value="text/plain">text</option>
+        <option value="application/xml">xml</option>
+        <option value="text/html">html</option>
+      </select>
+    </div>
+    <div *ngIf="api.contentType==='application/json' || api.contentType==='multipart/form-data' || api.contentType==='application/x-www-form-urlencoded'">
+      <table class="mb10">
+        <tr>
+          <th>变量名</th>
+          <th>类型</th>
+          <th>说明</th>
+          <th style="min-width: 50px;">必需</th>
+          <th>mock值</th>
+          <th>操作</th>
+        </tr>
+        <ng-template ngFor let-item let-i="index" [ngForOf]="api.bodyParams" >
+          <tr *ngIf="canShow(api.bodyParams, i)">
+            <td class="td-input">
+              <div class="flex middle" style="padding-left: .12rem">
+                <label class="nowrap text-right" [style.width]="getMarginLeft(item)" (click)="item.hide = !item.hide">
+                  <i *ngIf="item.hasChild" class="iconfont pr5"
+                     [class.icon-triangle-right]="item.hide" [class.icon-triangle-down]="!item.hide"
+                  ></i>
+                </label>
+                <input class="input full" [(ngModel)]="item.name" style="padding-left: 0;">
+              </div>
+            </td>
+            <td class="td-input" *ngIf="api.contentType!=='text/plain' && api.contentType!=='text/html' && api.contentType!=='application/xml'">
+              <select class="input full" [(ngModel)]="item.type">
+                <option value="string">string</option>
+                <option value="number">number</option>
+                <option value="boolean">boolean</option>
+                <option value="object" *ngIf="api.contentType === 'application/json'">object</option>
+                <option value="array<any>" *ngIf="api.contentType === 'application/json'">array&lt;any&gt;</option>
+                <option value="array<string>" *ngIf="api.contentType === 'application/json'">array&lt;string&gt;</option>
+                <option value="array<number>" *ngIf="api.contentType === 'application/json'">array&lt;number&gt;</option>
+                <option value="array<boolean>" *ngIf="api.contentType === 'application/json'">array&lt;boolean&gt;</option>
+                <option value="array<object>" *ngIf="api.contentType === 'application/json'">array&lt;object&gt;</option>
+                <option value="file" *ngIf="api.contentType === 'multipart/form-data'">file</option>
+              </select>
+            </td>
+            <td class="td-input">
+              <textarea class="input" [(ngModel)]="item.desc" style="min-width: 2rem;"></textarea>
+            </td>
+            <td class="td-input">
+              <div class="mb5">
+                <label class="radio nowrap ml10 mr10">
+                  <input name="bodyParams-required{{i}}" type="radio" value="true" [(ngModel)]="item.required"> <span>必需</span>
+                </label>
+              </div>
+              <div>
+                <label class="radio ml10 mr10 nowrap">
+                  <input name="bodyParams-required{{i}}" type="radio" value="false" [(ngModel)]="item.required"> <span>可选</span>
+                </label>
+              </div>
+            </td>
+            <td class="td-input">
+                <textarea class="input full" [(ngModel)]="item.mock"
+                          placeholder="{{(item.type&&item.type.indexOf('array')===0)?'请用双引号的json格式填写':''}}"></textarea>
+            </td>
+            <td class="">
+              <a *ngIf="item.type === 'object' || item.type === 'array<object>'" class="mr10 mb5 nowrap"
+                 (click)="onAddBody(item, i)">添加子属性</a>
+              <a class="mr10 mb5 nowrap" (click)="api.bodyParams.splice(i,1)" *ngIf="canDel(api.bodyParams, item)">删除</a>
+            </td>
+          </tr>
+        </ng-template>
+        <tr *ngIf="!api.bodyParams || api.bodyParams.length === 0">
+          <td class="text-center gray" colspan="7">
+            没有body参数
+          </td>
+        </tr>
+      </table>
+      <div >
+        <button class="button primary" (click)="onAddBody(null)">添加body参数</button>
+      </div>
+    </div>
+    <div *ngIf="api.contentType!=='application/json' && api.contentType!=='multipart/form-data' && api.contentType!=='application/x-www-form-urlencoded'">
+      <div>body参数说明</div>
+      <textarea class="input full" [(ngModel)]="api.bodyParamsTextDesc" rows="2"></textarea>
+      <div class="mt10">body参数mock</div>
+      <textarea class="input full" [(ngModel)]="api.bodyParamsText" rows="5"></textarea>
+    </div>
+    <br>
+  </div>
+
+  <div class="flex middle mt10 ">
+    <h4 class="mr30">返回数据列表</h4>
+    <select class="input" [(ngModel)]="api.dataType">
+      <option value="application/json">json</option>
+      <option value="multipart/form-data">form-data</option>
+      <option value="application/x-www-form-urlencoded">x-www-form-urlencoded</option>
+      <option value="text/plain">text</option>
+      <option value="application/xml">xml</option>
+      <option value="text/html">html</option>
+    </select>
+  </div>
+  <div *ngIf="api.dataType==='application/json' || api.dataType==='multipart/form-data' || api.dataType==='application/x-www-form-urlencoded'">
+    <table class="mb10">
+      <tr>
+        <th>变量名</th>
+        <th>类型</th>
+        <th>说明</th>
+        <th style="min-width: 50px;">必需</th>
+        <th>mock值</th>
+        <th>操作</th>
+      </tr>
+      <ng-template ngFor let-item let-i="index" [ngForOf]="api.responseParams" >
+        <tr *ngIf="canShow(api.responseParams, i)">
+          <td class="td-input">
+            <div class="flex middle" style="padding-left: .12rem">
+              <label class="nowrap text-right" [style.width]="getMarginLeft(item)" (click)="item.hide = !item.hide">
+                <i *ngIf="item.hasChild" class="iconfont pr5"
+                   [class.icon-triangle-right]="item.hide" [class.icon-triangle-down]="!item.hide"
+                ></i>
+              </label>
+              <input class="input full" [(ngModel)]="item.name" style="padding-left: 0;">
+            </div>
+          </td>
+          <td class="td-input" *ngIf="api.contentType!=='text/plain' && api.contentType!=='text/html' && api.contentType!=='application/xml'">
+            <select class="input full" [(ngModel)]="item.type">
+              <option value="string">string</option>
+              <option value="number">number</option>
+              <option value="boolean">boolean</option>
+              <option value="object" *ngIf="api.contentType === 'application/json'">object</option>
+              <option value="array<any>" *ngIf="api.contentType === 'application/json'">array&lt;any&gt;</option>
+              <option value="array<string>" *ngIf="api.contentType === 'application/json'">array&lt;string&gt;</option>
+              <option value="array<number>" *ngIf="api.contentType === 'application/json'">array&lt;number&gt;</option>
+              <option value="array<boolean>" *ngIf="api.contentType === 'application/json'">array&lt;boolean&gt;</option>
+              <option value="array<object>" *ngIf="api.contentType === 'application/json'">array&lt;object&gt;</option>
+              <option value="file" *ngIf="api.contentType === 'multipart/form-data'">file</option>
+            </select>
+          </td>
+          <td class="td-input">
+            <textarea class="input" [(ngModel)]="item.desc" style="min-width: 2rem;"></textarea>
+          </td>
+          <td class="td-input">
+            <div class="mb5">
+              <label class="radio nowrap ml10 mr10">
+                <input name="responseParams-required{{i}}" type="radio" value="true" [(ngModel)]="item.required"> <span>必需</span>
+              </label>
+            </div>
+            <div>
+              <label class="radio ml10 mr10 nowrap">
+                <input name="responseParams-required{{i}}" type="radio" value="false" [(ngModel)]="item.required"> <span>可选</span>
+              </label>
+            </div>
+          </td>
+          <td class="td-input">
+                <textarea class="input full" [(ngModel)]="item.mock"
+                          placeholder="{{(item.type&&item.type.indexOf('array')===0)?'请用双引号的json格式填写':''}}"></textarea>
+          </td>
+          <td class="">
+            <a *ngIf="item.type === 'object' || item.type === 'array<object>'" class="mr10 mb5 nowrap"
+               (click)="onAddResponse(item, i)">添加子属性</a>
+            <a class="mr10 mb5 nowrap" (click)="api.responseParams.splice(i,1)" *ngIf="canDel(api.responseParams, item)">删除</a>
+          </td>
+        </tr>
+      </ng-template>
+      <tr *ngIf="!api.responseParams || api.responseParams.length === 0">
+        <td class="text-center gray" colspan="7">
+          没有返回数据
+        </td>
+      </tr>
+    </table>
+    <div >
+      <button class="button primary" (click)="onAddResponse(null)">添加返回数据</button>
+    </div>
+  </div>
+  <div *ngIf="api.dataType!=='application/json' && api.dataType!=='multipart/form-data' && api.dataType!=='application/x-www-form-urlencoded'">
+    <div>返回数据说明</div>
+    <textarea class="input full" [(ngModel)]="api.responseParamsTextDesc" rows="2"></textarea>
+    <div class="mt10">返回数据mock</div>
+    <textarea class="input full" [(ngModel)]="api.responseParamsText" rows="5"></textarea>
+  </div>
+  <br>
+</div>
+<div *ngIf="!api.isEdit">
+  <div class="flex middle mb20">
+    <label class="mr10" style="width: .5rem">名称： </label>
+    <label class="full">{{api.name}}</label>
+  </div>
+  <div class="flex middle mb20">
+    <label class="mr10" style="width: .5rem">Url： </label>
+    <label class="full">{{api.url}}</label>
+  </div>
+  <div class="flex middle mb20">
+    <label class="mr10" style="width: .5rem">方法： </label>
+    <div class="full">{{api.method}}</div>
+  </div>
+  <div class="flex mb20">
+    <label class="mr10" style="width: .5rem">描述： </label>
+    <div class="full">
+      {{api.desc}}
+    </div>
+  </div>
+  <div class="pt10" *ngIf="api.headers && api.headers.length > 0">
+    <h4 class="mt20 ">headers列表</h4>
+    <table class="mb10">
+      <tr>
+        <th>名称</th>
+        <th>说明</th>
+        <th>必需</th>
+      </tr>
+      <tr *ngFor="let item of api.headers">
+        <td>{{item.name}}</td>
+        <td>{{item.desc}}</td>
+        <td [class.gray]="item.required === 'false'">{{item.required}}</td>
+      </tr>
+      <tr *ngIf="!api.headers || api.headers.length === 0">
+        <td class="text-center gray" colspan="5">
+          没有headers
+        </td>
+      </tr>
+    </table>
+    <br>
+  </div>
+
+  <div class="pt10" *ngIf="api.queryParams && api.queryParams.length > 0">
+    <h4 class="mt20 ">query参数列表</h4>
+    <table class="mb10">
+      <tr>
+        <th>名称</th>
+        <th>说明</th>
+        <th>必需</th>
+      </tr>
+      <tr *ngFor="let item of api.queryParams">
+        <td>{{item.name}}</td>
+        <td>{{item.desc}}</td>
+        <td [class.gray]="item.required === 'false'">{{item.required}}</td>
+      </tr>
+      <tr *ngIf="!api.queryParams || api.queryParams.length === 0">
+        <td class="text-center gray" colspan="5">
+          没有query参数
+        </td>
+      </tr>
+    </table>
+    <br>
+  </div>
+
+  <div *ngIf="api.method === 'PUT' || api.method === 'POST'">
+    <h4 class="mt10 ">body参数列表</h4>
+    <div *ngIf="api.contentType==='application/json' || api.contentType==='multipart/form-data' || api.contentType==='application/x-www-form-urlencoded'">
+      <table class="mb10">
+        <tr>
+          <th>变量名</th>
+          <th>类型</th>
+          <th>说明</th>
+          <th>必需</th>
+          <th>mock值</th>
+        </tr>
+        <ng-template ngFor let-item let-i="index" [ngForOf]="api.bodyParams" >
+          <tr *ngIf="canShow(api.bodyParams, i)">
+            <td>
+              <div class="flex middle" >
+                <label class="nowrap text-right" [style.width]="getMarginLeft(item)" (click)="item.hide = !item.hide">
+                  <i *ngIf="item.hasChild" class="iconfont pr5"
+                     [class.icon-triangle-right]="item.hide" [class.icon-triangle-down]="!item.hide"
+                  ></i>
+                </label>
+                <label >{{item.name}}</label>
+              </div>
+            </td>
+            <td *ngIf="api.contentType!=='text/plain' && api.contentType!=='text/html' && api.contentType!=='application/xml'">
+              {{item.type}}
+            </td>
+            <td>
+              {{item.desc}}
+            </td>
+            <td [class.gray]="item.required === 'false'">{{item.required}}</td>
+            <td class="td-input">
+              <div class="flex middle">
+                <input class="input full" [(ngModel)]="item.mock">
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <tr *ngIf="!api.bodyParams || api.bodyParams.length === 0">
+          <td class="text-center gray" colspan="5">
+            没有body参数
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div *ngIf="api.contentType!=='application/json' && api.contentType!=='multipart/form-data' && api.contentType!=='application/x-www-form-urlencoded'">
+      <div><b>body参数说明：</b></div>
+      <p class="pre">{{api.bodyParamsTextDesc}}</p>
+      <div class="mt10"><b>body参数mock：</b></div>
+      <p class="pre">{{api.bodyParamsText}}</p>
+    </div>
+    <br>
+  </div>
+
+  <div class="flex middle mt10 ">
+    <h4 class="mr30">返回数据列表</h4>
+    <div>{{api.dataType}}</div>
+  </div>
+  <div *ngIf="api.dataType==='application/json' || api.dataType==='multipart/form-data' || api.dataType==='application/x-www-form-urlencoded'">
+    <table class="mb10">
+    <tr>
+      <th>名称</th>
+      <th>类型</th>
+      <th>说明</th>
+      <th >必需</th>
+      <th>mock值</th>
+    </tr>
+    <ng-template ngFor let-item let-i="index" [ngForOf]="api.responseParams" >
+      <tr *ngIf="canShow(api.responseParams, i)">
+        <td >
+          <div class="flex middle" >
+            <label class="nowrap text-right" [style.width]="getMarginLeft(item)" (click)="item.hide = !item.hide">
+              <i *ngIf="item.hasChild" class="iconfont pr5"
+                 [class.icon-triangle-right]="item.hide" [class.icon-triangle-down]="!item.hide"
+              ></i>
+            </label>
+            <label>{{item.name}}</label>
+          </div>
+        </td>
+        <td>
+          {{item.type}}
+        </td>
+        <td >
+          {{item.desc}}
+        </td>
+        <td [class.gray]="item.required === 'false'">{{item.required}}</td>
+        <td >
+          {{item.mock}}
+        </td>
+      </tr>
+    </ng-template>
+    <tr *ngIf="!api.responseParams || api.responseParams.length === 0">
+      <td class="text-center" colspan="7">
+        没有返回数据
+      </td>
+    </tr>
+  </table>
+  </div>
+  <div *ngIf="api.dataType!=='application/json' && api.dataType!=='multipart/form-data' && api.dataType!=='application/x-www-form-urlencoded'">
+    <div><b>返回数据说明：</b></div>
+    <p class="pre">{{api.responseParamsTextDesc}}</p>
+    <div class="mt10"><b>返回数据mock：</b></div>
+    <p class="pre">{{api.responseParamsText}}</p>
+  </div>
+  <br>
+  <div class="mt10 mb10">
+    <button class="button success mr10" (click)="onRequestApi()" >测试数据请求</button>
+  </div>
+  <table class="mb10" *ngIf="api.dataType!=='text/plain' && api.dataType!=='text/html' && api.dataType!=='application/xml'">
+    <tr>
+      <th>名称</th>
+      <th >类型</th>
+      <th>必需</th>
+      <th>mock值</th>
+      <th>接口返回值</th>
+      <th>结论</th>
+    </tr>
+    <ng-template ngFor let-item let-i="index" [ngForOf]="api.responseParams" >
+      <tr *ngIf="canShow(api.responseParams, i)">
+        <td >
+          <div class="flex middle" >
+            <label class="nowrap text-right" [style.width]="getMarginLeft(item)" (click)="item.hide = !item.hide">
+              <i *ngIf="item.hasChild" class="iconfont pr5"
+                 [class.icon-triangle-right]="item.hide" [class.icon-triangle-down]="!item.hide"
+              ></i>
+            </label>
+            <label >{{item.name}}</label>
+          </div>
+        </td>
+        <td>
+          {{item.type}}
+        </td>
+        <td [class.gray]="item.required === 'false'">{{item.required}}</td>
+        <td >
+          {{item.mock}}
+        </td>
+        <td >
+          {{item.resValue}}
+        </td>
+        <td >
+          <i *ngIf="item.expected>0" class="iconfont icon-check success"></i>
+          <i *ngIf="item.expected<0" class="iconfont icon-close error"></i>
+        </td>
+      </tr>
+    </ng-template>
+    <tr *ngIf="!api.responseParams || api.responseParams.length === 0">
+      <td class="text-center" colspan="7">
+        没有数据
+      </td>
+    </tr>
+  </table>
+  <div *ngIf="requestData">
+    <br>
+    <h4 class="">测试数据请求返回结果</h4>
+    <textarea rows="10" class="input full" readonly="readonly" [value]="requestData | json"></textarea>
+  </div>
+
+</div>

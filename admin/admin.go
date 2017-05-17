@@ -30,6 +30,9 @@ func Start() {
   app.Get("/api/site/list", controllers.Auth, controllers.SiteList)
   app.Get("/api/site/get", controllers.Auth, controllers.SiteGet)
   app.Post("/api/site/save", controllers.Auth, controllers.SiteSave)
+  app.Post("/api/site/api/save", controllers.Auth, controllers.SiteApiSave)
+  app.Get("/api/site/api/get", controllers.Auth, controllers.SiteApiGet)
+  app.Get("/api/site/api/list", controllers.Auth, controllers.SiteApiList)
 
   fmt.Printf("[log]Admin listen: %s:%d\r\n", utils.GlobalConfig.Admin.Host, utils.GlobalConfig.Admin.Port)
   strPort := strconv.Itoa(int(utils.GlobalConfig.Admin.Port))

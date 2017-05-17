@@ -25,12 +25,16 @@ export class SitesApisListComponent{
     activeFound: false,
     selected: {}
   };
+  pageIndex: number = 1;
+  pageCount: number = 100;
+  saving: boolean;
   constructor(private _sitesService: SitesService, private _storeService: StoreService,
               private _router: Router, private _activateRoute: ActivatedRoute) {
     this.user = _storeService.get('user');
 
     this.treeStyle = {
-      'height': (document.documentElement.clientHeight - 159) + 'px'
+      overflow: 'auto',
+      height: (document.documentElement.clientHeight - 159) + 'px'
     };
   }
 
@@ -40,7 +44,15 @@ export class SitesApisListComponent{
     if (!this.id) return this.loading = false;
 
     this.site = await this._sitesService.GetSite({id: this.id});
+    this.tree.edited = await this._sitesService.GetApiList({siteId: this.id, pageIndex: this.pageIndex, pageCount: this.pageCount});
+    if (this.tree.edited.length > 0) {
+      await this.onSelectEdited(this.tree.edited[0]);
+    }
     this.loading = false;
+  }
+
+  async onSelectEdited(item: any): Promise<any> {
+    this.tree.selected = await this._sitesService.GetApi({id: item.id});
   }
 
   onTreeShowEdited(item: any) {
@@ -63,16 +75,34 @@ export class SitesApisListComponent{
       placeholder: '请输入名称',
       required: true,
       callback: async (retText: any): Promise<void> => {
-
-        let ret = await this._sitesService.SaveApi({owner: this.user, siteId: this.site.id, name: retText});
+        let ret = await this._sitesService.SaveApi({
+          owner: this.user,
+          editor: this.user,
+          siteId: this.site.id,
+          name: retText
+        });
         if (!ret.id) return;
 
-        this.tree.edited.push({
+        this.tree.selected = {
           id: ret.id,
           name: retText,
           active: true
-        });
+        };
+        this.tree.edited.push(this.tree.selected);
       }
     });
+  }
+
+  onSaveMock(item) {
+    console.info('onSaveMock', item.isMock)
+  }
+
+  async onSaveApi(): Promise<any> {
+    this.saving = true;
+    this.tree.selected.editor = this.user;
+    let ret = await this._sitesService.SaveApi(this.tree.selected);
+    this.saving = false;
+    if (!ret.id) return;
+    this.tree.selected.isEdit=false;
   }
 }

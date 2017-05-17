@@ -7,7 +7,7 @@
 </div>
 
 <div class="flex" >
-  <div class="border-right" style="width: 2rem;overflow: auto;" [ngStyle]="treeStyle">
+  <div class="border-right" style="width: 2rem;" [ngStyle]="treeStyle">
     <div class="tree" >
       <div class="item" >
         <a (click)="onTreeShowEdited()" [class.active]="tree.activeEdited" >
@@ -15,7 +15,7 @@
           自定义API
         </a>
         <ng-template ngFor let-item let-i="index" [ngForOf]="tree.edited" >
-          <div class="item" *ngIf="tree.showEdited" (click)="tree.selected=item;">
+          <div class="item" *ngIf="tree.showEdited" (click)="onSelectEdited(item)">
             <a class="ml10" [class.active]="item.id === tree.selected.id" >
               {{item.name}}
             </a>
@@ -36,9 +36,31 @@
       </div>
     </div>
   </div>
-  <div class="full">
+  <div class="full" [ngStyle]="treeStyle">
     <div *ngIf="!tree.selected.id && tree.edited.length === 0" class="gray text-center mt50">
       您还没有自定义API，立即添加 <a (click)="onAdd()">自定义API</a> 吧
+    </div>
+    <div *ngIf="tree.selected && tree.selected.id" class="p20">
+      <div>
+        <label class="font-2x">{{tree.selected.name}}</label>
+
+        <div class="fr mt10">
+          <label class="checkbox mr20">
+            <input type="checkbox" name="isMock" [(ngModel)]="tree.selected.isMock" (click)="onSaveMock(tree.selected)">
+            <span>使用mock</span>
+          </label>
+          <button *ngIf="!tree.selected.isEdit" class="button primary " (click)="tree.selected.isEdit=true">编辑</button>
+          <button *ngIf="tree.selected.isEdit" class="button success" (click)="onSaveApi()">保存</button>
+          <button *ngIf="tree.selected.isEdit" class="button" (click)="tree.selected.isEdit=false">取消</button>
+        </div>
+      </div>
+      <div class="panel p20">
+        <api-edit [api]="tree.selected"></api-edit>
+      </div>
+      <div class="mt10" *ngIf="tree.selected.isEdit">
+        <button class="button success" (click)="onSaveApi()">保存</button>
+        <button class="button" (click)="tree.selected.isEdit=false">取消</button>
+      </div>
     </div>
   </div>
 </div >

@@ -8,6 +8,7 @@ import {SitesEditComponent} from './edit/edit.component';
 import {SitesApisListComponent} from './apis/list.component';
 
 import {SitesService} from './sites.service';
+import {ApiEditComponent} from './apis/api.edit.component';
 
 @NgModule({
   imports:      [ SharedModule, routing ],
@@ -15,7 +16,8 @@ import {SitesService} from './sites.service';
     SitesComponent,
     SitesHomeComponent,
     SitesEditComponent,
-    SitesApisListComponent
+    SitesApisListComponent,
+    ApiEditComponent
   ],
   providers: [
     SitesService

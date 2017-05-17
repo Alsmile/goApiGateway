@@ -8,6 +8,7 @@ import (
 const (
   CollectionUsers = "users"
   CollectionSites = "sites"
+  CollectionApis = "apis"
 )
 
 var MgoSession *mgo.Session

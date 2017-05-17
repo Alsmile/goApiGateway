@@ -24,7 +24,7 @@ const (
   ErrorEmail = "发送邮件错误"
   ErrorActiveCode = "激活码错误"
   ErrorNoActive = "账号没有激活"
-  ErrorRead = "读取数据错误，请稍后重试"
+  ErrorRead = "数据不存在；或读取数据错误，请稍后重试"
   ErrorNeedSign = "请先登录"
   ErrorLock = "您的小伙伴正在编辑该数据，被锁定。锁定者："
   ErrorMaxCount = "您已经超出最大个数限制"
