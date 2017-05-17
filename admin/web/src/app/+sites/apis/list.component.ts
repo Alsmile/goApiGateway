@@ -94,7 +94,8 @@ export class SitesApisListComponent{
   }
 
   onSaveMock(item) {
-    console.info('onSaveMock', item.isMock)
+    if (item.isEdit) return;
+    this.onSaveApi();
   }
 
   async onSaveApi(): Promise<any> {

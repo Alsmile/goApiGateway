@@ -50,7 +50,7 @@
             <span>使用mock</span>
           </label>
           <button *ngIf="!tree.selected.isEdit" class="button primary " (click)="tree.selected.isEdit=true">编辑</button>
-          <button *ngIf="tree.selected.isEdit" class="button success" (click)="onSaveApi()">保存</button>
+          <button *ngIf="tree.selected.isEdit" class="button success" (click)="onSaveApi()" [btnSaving]="saving" >保存</button>
           <button *ngIf="tree.selected.isEdit" class="button" (click)="tree.selected.isEdit=false">取消</button>
         </div>
       </div>
@@ -58,7 +58,7 @@
         <api-edit [api]="tree.selected"></api-edit>
       </div>
       <div class="mt10" *ngIf="tree.selected.isEdit">
-        <button class="button success" (click)="onSaveApi()">保存</button>
+        <button class="button success" (click)="onSaveApi()" [btnSaving]="saving" >保存</button>
         <button class="button" (click)="tree.selected.isEdit=false">取消</button>
       </div>
     </div>
