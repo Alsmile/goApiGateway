@@ -34,6 +34,8 @@ func Start() {
   app.Get("/api/site/api/get", controllers.Auth, controllers.SiteApiGet)
   app.Get("/api/site/api/list", controllers.Auth, controllers.SiteApiList)
 
+  app.OnError(iris.StatusNotFound, controllers.Index)
+
   fmt.Printf("[log]Admin listen: %s:%d\r\n", utils.GlobalConfig.Admin.Host, utils.GlobalConfig.Admin.Port)
   strPort := strconv.Itoa(int(utils.GlobalConfig.Admin.Port))
   app.Listen(utils.GlobalConfig.Admin.Host + ":" + strPort)

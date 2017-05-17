@@ -16,6 +16,10 @@ type AppConfig struct {
     Host string `json:"host"`
     Port uint16 `json:"port"`
   } `json:"admin"`
+  Gateway struct {
+    Host string `json:"host"`
+    Port uint16 `json:"port"`
+  } `json:"gateway"`
   User struct {
     LoginUrl  string `json:"loginUrl"`
     SignUpUrl string `json:"signUpUrl"`

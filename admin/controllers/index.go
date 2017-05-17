@@ -9,6 +9,7 @@ import (
 
 
 func Index(ctx *iris.Context) {
+  ctx.SetStatusCode(iris.StatusOK)
   ctx.ServeFile("./admin/web/dist/index.html", true)
 }
 

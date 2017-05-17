@@ -7,6 +7,10 @@
     "host": "",
     "port": 8500
   },
+  "gateway": {
+    "host": "",
+    "port": 8510
+  },
   "user": {
     "loginUrl": "",
     "signUpUrl": "",

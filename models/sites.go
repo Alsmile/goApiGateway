@@ -59,6 +59,6 @@ type SiteParam struct {
   Id         bson.ObjectId `json:"id" bson:"_id"`
   Gzip       bool `json:"gzip"`
   Https      string `json:"https"`
-  ProxyKey   string `json:"proxyKey"`
-  ProxyValue string `json:"proxyValue"`
+  ProxyKey   string `json:"proxyKey" bson:"proxyKey"`
+  ProxyValue string `json:"proxyValue" bson:"proxyValue"`
 }

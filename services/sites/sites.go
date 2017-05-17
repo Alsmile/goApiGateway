@@ -173,3 +173,21 @@ func ApiList(siteId bson.ObjectId, pageIndex, pageCount int) (apis []models.Site
 
   return
 }
+
+
+func GetApiByUrl(method, key, url string) (siteApi *models.SiteApi, err error) {
+  mongoSession := mongo.MgoSession.Clone()
+  defer mongoSession.Close()
+
+  err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
+    Find(bson.M{"method": method,  "url": url, "site.proxyKey": key}).
+    Select(services.SelectHide).
+    One(&siteApi)
+
+  if err != nil {
+    log.Printf("[error]serivces.sites.GetApiByUrl: err=%v, method=%s, key=%s, url=%s\r\n", err, method, key, url)
+    err = errors.New(services.ErrorRead)
+  }
+
+  return
+}
