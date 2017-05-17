@@ -46,7 +46,7 @@
 
         <div class="fr mt10">
           <label class="checkbox mr20">
-            <input type="checkbox" name="isMock" [(ngModel)]="tree.selected.isMock" (click)="onSaveMock(tree.selected)">
+            <input type="checkbox" name="isMock" [(ngModel)]="tree.selected.isMock" (change)="onSaveMock(tree.selected)">
             <span>使用mock</span>
           </label>
           <button *ngIf="!tree.selected.isEdit" class="button primary " (click)="tree.selected.isEdit=true">编辑</button>

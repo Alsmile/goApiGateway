@@ -6,33 +6,23 @@ import (
 )
 
 type Site struct {
-  Id     bson.ObjectId `json:"id" bson:"_id"`
-  Owner  QuotedUser `json:"owner,omitempty"`
-  Editor QuotedUser `json:"editor,omitempty"`
-  Name   string `json:"name"`
-  Desc   string `json:"desc"`
-  Domain string `json:"domain"`
-  Gzip   bool `json:"gzip"`
-  Https  string `json:"https"`
-  NotFound struct {
-    Code int `json:"code"`
-    Path string `json:"path"`
-  } `json:"notFound" bson:"notFound"`
-  Statics   []PathUrl `json:"statics"`
-  Proxies   []PathUrl `json:"proxies"`
-  CreatedAt time.Time `json:"createdAt,omitempty" bson:"createdAt,omitempty"`
-  UpdatedAt time.Time `json:"updatedAt,omitempty" bson:"updatedAt,omitempty"`
-  DeletedAt time.Time `json:"deletedAt,omitempty" bson:"deletedAt,omitempty"`
-}
-
-type PathUrl struct {
-  Path string `json:"path"`
-  Url  string `json:"url"`
+  Id         bson.ObjectId `json:"id" bson:"_id"`
+  Owner      QuotedUser `json:"owner,omitempty"`
+  Editor     QuotedUser `json:"editor,omitempty"`
+  Name       string `json:"name"`
+  Desc       string `json:"desc"`
+  Gzip       bool `json:"gzip"`
+  Https      string `json:"https"`
+  ProxyKey   string `json:"proxyKey" bson:"proxyKey"`
+  ProxyValue string `json:"proxyValue" bson:"proxyValue"`
+  CreatedAt  time.Time `json:"createdAt,omitempty" bson:"createdAt,omitempty"`
+  UpdatedAt  time.Time `json:"updatedAt,omitempty" bson:"updatedAt,omitempty"`
+  DeletedAt  time.Time `json:"deletedAt,omitempty" bson:"deletedAt,omitempty"`
 }
 
 type SiteApi struct {
   Id                     bson.ObjectId `json:"id" bson:"_id"`
-  SiteId                 bson.ObjectId `json:"siteId" bson:"siteId"`
+  Site                   SiteParam `json:"site" bson:"site"`
   Owner                  QuotedUser `json:"owner,omitempty"`
   Editor                 QuotedUser `json:"editor,omitempty"`
   Name                   string `json:"name"`
@@ -63,4 +53,12 @@ type ApiParam struct {
   Required string `json:"required"`
   Mock     string `json:"mock" bson:"mock,omitempty"`
   Level    int    `json:"level" bson:"level,omitempty"`
+}
+
+type SiteParam struct {
+  Id         bson.ObjectId `json:"id" bson:"_id"`
+  Gzip       bool `json:"gzip"`
+  Https      string `json:"https"`
+  ProxyKey   string `json:"proxyKey"`
+  ProxyValue string `json:"proxyValue"`
 }

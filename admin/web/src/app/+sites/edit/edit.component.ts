@@ -14,11 +14,7 @@ export class SitesEditComponent implements AfterViewChecked {
   loading: boolean = true;
   id: string;
   user: any;
-  site: any = {https: '', notFound: {code:404}, statics: [], proxies: []};
-  staticUrl : string;
-  staticPath: string;
-  proxyUrl: string;
-  proxyPath: string;
+  site: any = {https: '', notFound: {code:404}, proxyKey: '', proxyValue: ''};
   saving: boolean;
   formErrors: any = {};
   @ViewChild('myForm') currentForm: NgForm;
@@ -62,35 +58,9 @@ export class SitesEditComponent implements AfterViewChecked {
     }
   }
 
-  onAddStatic () {
-    if (!this.staticUrl || !this.staticPath) return;
-
-    this.site.statics.push({
-      url: this.staticUrl,
-      path: this.staticPath
-    });
-    this.staticUrl = '';
-    this.staticPath = '';
-  }
-
-  onAddProxy () {
-    if (!this.proxyUrl || !this.proxyPath) return;
-
-    this.site.proxies.push({
-      url: this.proxyUrl,
-      path: this.proxyPath
-    });
-
-    this.proxyUrl = '';
-    this.proxyPath = '';
-  }
-
   async onSubmit(): Promise<void> {
     this.onValueChanged(true);
     if (this.currentForm.form.invalid) return;
-
-    this.onAddStatic();
-    this.onAddProxy();
 
     this.saving = true;
     this.site.editor = this.user;

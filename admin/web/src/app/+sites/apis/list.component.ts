@@ -75,20 +75,22 @@ export class SitesApisListComponent{
       placeholder: '请输入名称',
       required: true,
       callback: async (retText: any): Promise<void> => {
-        let ret = await this._sitesService.SaveApi({
+        let api: any = {
           owner: this.user,
           editor: this.user,
-          siteId: this.site.id,
+          site: {
+            id: this.site.id,
+            proxyKey: this.site.proxyKey
+          },
           name: retText
-        });
+        };
+        let ret = await this._sitesService.SaveApi(api);
         if (!ret.id) return;
 
-        this.tree.selected = {
-          id: ret.id,
-          name: retText,
-          active: true
-        };
-        this.tree.edited.push(this.tree.selected);
+        api.id = ret.id;
+        api.active = true;
+        this.tree.selected = api;
+        this.tree.edited.push(api);
       }
     });
   }

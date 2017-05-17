@@ -5,15 +5,17 @@
       <a class="fr button primary" routerLink="/sites/edit" style="margin-top: -.32rem">+ 添加</a>
     </div>
 
-    <div class="flex wrap" *ngFor="let item of sites;let i = index" >
-      <div class="card mr20">
+    <div class="flex wrap" >
+      <div class="card mr20" *ngFor="let item of sites;let i = index" >
         <div class="head flex">
           <div class="img"><img src="https://coding.net/static/project_icon/scenery-12.png"></div>
           <div class="full">
             <a class="caption" title="{{item.name}}" [routerLink]="['/sites/apis/list']" [queryParams]="{id:item.id}">
               {{item.name}}
             </a>
-            <div class="desc"><a class="gray" [href]="item.domain" target="_blank">{{item.domain}}</a></div>
+            <div class="desc">
+
+            </div>
           </div>
         </div>
         <div class="desc">{{item.desc}}</div>

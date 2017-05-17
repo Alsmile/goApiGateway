@@ -39,7 +39,7 @@ export class SitesService {
     let ret = await this.http.QueryString(params).Get('/api/site/api/list');
     if (!ret || ret.error) return [];
 
-    return ret.list;
+    return ret.list || [];
   }
 
   async GetApi(params: any): Promise<any> {

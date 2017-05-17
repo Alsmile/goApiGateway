@@ -5,6 +5,7 @@
   </div>
   <div class="flex middle mb20">
     <label class="mr10" style="width: .5rem">Url： </label>
+    <span class="mr5">{{api.site.proxyKey}}</span>
     <input class="input full" [(ngModel)]="api.url" placeholder="/api/your/url">
   </div>
   <div class="flex middle mb20">
@@ -145,7 +146,6 @@
           <th>类型</th>
           <th>说明</th>
           <th style="min-width: 50px;">必需</th>
-          <th>mock值</th>
           <th>操作</th>
         </tr>
         <ng-template ngFor let-item let-i="index" [ngForOf]="api.bodyParams" >
@@ -189,10 +189,10 @@
                 </label>
               </div>
             </td>
-            <td class="td-input">
-                <textarea class="input full" [(ngModel)]="item.mock"
-                          placeholder="{{(item.type&&item.type.indexOf('array')===0)?'请用双引号的json格式填写':''}}"></textarea>
-            </td>
+            <!--<td class="td-input">-->
+                <!--<textarea class="input full" [(ngModel)]="item.mock"-->
+                          <!--placeholder="{{(item.type&&item.type.indexOf('array')===0)?'请用双引号的json格式填写':''}}"></textarea>-->
+            <!--</td>-->
             <td class="">
               <a *ngIf="item.type === 'object' || item.type === 'array<object>'" class="mr10 mb5 nowrap"
                  (click)="onAddBody(item, i)">添加子属性</a>
@@ -213,8 +213,8 @@
     <div *ngIf="api.contentType!=='application/json' && api.contentType!=='multipart/form-data' && api.contentType!=='application/x-www-form-urlencoded'">
       <div>body参数说明</div>
       <textarea class="input full" [(ngModel)]="api.bodyParamsTextDesc" rows="2"></textarea>
-      <div class="mt10">body参数mock</div>
-      <textarea class="input full" [(ngModel)]="api.bodyParamsText" rows="5"></textarea>
+      <!--<div class="mt10">body参数mock</div>-->
+      <!--<textarea class="input full" [(ngModel)]="api.bodyParamsText" rows="5"></textarea>-->
     </div>
     <br>
   </div>
@@ -317,7 +317,7 @@
   </div>
   <div class="flex middle mb20">
     <label class="mr10" style="width: .5rem">Url： </label>
-    <label class="full">{{api.url}}</label>
+    <label class="full">{{api.site.proxyKey}}{{api.url}}</label>
   </div>
   <div class="flex middle mb20">
     <label class="mr10" style="width: .5rem">方法： </label>
