@@ -7,36 +7,42 @@ import (
   "gopkg.in/kataras/iris.v6/adaptors/httprouter"
   "github.com/alsmile/goMicroServer/utils"
   "github.com/alsmile/goMicroServer/admin/controllers"
+  proxy "github.com/alsmile/goMicroServer/servers/controllers"
 )
 
 func Start() {
   app := iris.New()
   app.Adapt(httprouter.New())
-  app.StaticWeb("/assets", "./admin/web/dist/assets")
+  admin := app.Party(utils.GlobalConfig.Domain.AdminDomain)
+  {
+    admin.StaticWeb("/assets", "./admin/web/dist/assets")
 
-  app.Get("/", controllers.Index)
-  app.Get("/browser.html", controllers.Browser)
-  app.Get("/captcha", controllers.Captcha)
+    admin.Get("/", controllers.Index)
+    admin.Get("/browser.html", controllers.Browser)
+    admin.Get("/captcha", controllers.Captcha)
 
-  app.Post("/api/login", controllers.Login)
-  app.Post("/api/signup", controllers.SignUp)
-  app.Post("/api/sign/active", controllers.SignActive)
-  app.Post("/api/forget/password", controllers.ForgetPassword)
-  app.Post("/api/sign/new/password", controllers.NewPassword)
-  app.Get("/api/user/profile", controllers.UserProfile)
+    admin.Post("/api/login", controllers.Login)
+    admin.Post("/api/signup", controllers.SignUp)
+    admin.Post("/api/sign/active", controllers.SignActive)
+    admin.Post("/api/forget/password", controllers.ForgetPassword)
+    admin.Post("/api/sign/new/password", controllers.NewPassword)
+    admin.Get("/api/user/profile", controllers.UserProfile)
 
-  app.Get("/api/sign/config", controllers.GetSignConfig)
+    admin.Get("/api/sign/config", controllers.GetSignConfig)
 
-  app.Get("/api/site/list", controllers.Auth, controllers.SiteList)
-  app.Get("/api/site/get", controllers.Auth, controllers.SiteGet)
-  app.Post("/api/site/save", controllers.Auth, controllers.SiteSave)
-  app.Post("/api/site/api/save", controllers.Auth, controllers.SiteApiSave)
-  app.Get("/api/site/api/get", controllers.Auth, controllers.SiteApiGet)
-  app.Get("/api/site/api/list", controllers.Auth, controllers.SiteApiList)
+    admin.Get("/api/site/list", controllers.Auth, controllers.SiteList)
+    admin.Get("/api/site/get", controllers.Auth, controllers.SiteGet)
+    admin.Post("/api/site/save", controllers.Auth, controllers.SiteSave)
+    admin.Post("/api/site/api/save", controllers.Auth, controllers.SiteApiSave)
+    admin.Get("/api/site/api/get", controllers.Auth, controllers.SiteApiGet)
+    admin.Get("/api/site/api/list", controllers.Auth, controllers.SiteApiList)
 
-  app.OnError(iris.StatusNotFound, controllers.Index)
+    admin.OnError(iris.StatusNotFound, controllers.Index)
+  }
 
-  fmt.Printf("[log]Admin listen: %s:%d\r\n", utils.GlobalConfig.Admin.Host, utils.GlobalConfig.Admin.Port)
-  strPort := strconv.Itoa(int(utils.GlobalConfig.Admin.Port))
-  app.Listen(utils.GlobalConfig.Admin.Host + ":" + strPort)
+  app.Any("/:key/*url", proxy.ProxyDo)
+
+  fmt.Printf("[log]Listen: %s:%d\r\n", utils.GlobalConfig.Domain.Domain, utils.GlobalConfig.Domain.Port)
+  strPort := strconv.Itoa(int(utils.GlobalConfig.Domain.Port))
+  app.Listen(utils.GlobalConfig.Domain.Domain + ":" + strPort)
 }

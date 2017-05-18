@@ -47,12 +47,14 @@ type SiteApi struct {
 
 type ApiParam struct {
   Id       int    `json:"id" bson:"id,omitempty"`
+  ParentId int    `json:"parentId" bson:"parentId,omitempty"`
   Name     string `json:"name"`
   Type     string `json:"type" bson:"type,omitempty"`
   Desc     string `json:"desc"`
   Required string `json:"required"`
   Mock     string `json:"mock" bson:"mock,omitempty"`
   Level    int    `json:"level" bson:"level,omitempty"`
+  HasChild bool   `json:"hasChild" bson:"hasChild,omitempty"`
 }
 
 type SiteParam struct {
@@ -61,4 +63,10 @@ type SiteParam struct {
   Https      string `json:"https"`
   ProxyKey   string `json:"proxyKey" bson:"proxyKey"`
   ProxyValue string `json:"proxyValue" bson:"proxyValue"`
+}
+
+func (api *SiteApi) GetMockData() {
+  if api.DataType == "application/json" || api.DataType == "multipart/form-data" || api.DataType == "application/x-www-form-urlencoded" {
+
+  }
 }

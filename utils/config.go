@@ -12,14 +12,11 @@ type AppConfig struct {
   Version string `json:"version"`
   Website string `json:"website"`
   Cpu     int `json:"cpu"`
-  Admin struct {
-    Host string `json:"host"`
+  Domain struct {
+    Domain string `json:"domain"`
+    AdminDomain string `json:"adminDomain"`
     Port uint16 `json:"port"`
-  } `json:"admin"`
-  Gateway struct {
-    Host string `json:"host"`
-    Port uint16 `json:"port"`
-  } `json:"gateway"`
+  } `json:"domain"`
   User struct {
     LoginUrl  string `json:"loginUrl"`
     SignUpUrl string `json:"signUpUrl"`

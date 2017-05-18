@@ -14,6 +14,20 @@ export class ApiEditComponent {
     this.api.method = this.api.method || 'GET';
     this.api.contentType = this.api.contentType || 'application/json';
     this.api.dataType = this.api.dataType || 'application/json';
+
+    // if (this.api.contentType === 'application/json' ||
+    //   this.api.contentType === 'multipart/form-data' ||
+    //   this.api.contentType === 'application/x-www-form-urlencoded') {
+    //   this.api.bodyParamsText = this.api.bodyParamsText || '{}';
+    //   this.api.bodyParamsObj = JSON.parse(this.api.bodyParamsText);
+    // }
+    //
+    // if (this.api.dataType === 'application/json' ||
+    //   this.api.dataType === 'multipart/form-data' ||
+    //   this.api.dataType === 'application/x-www-form-urlencoded') {
+    //   this.api.responseParamsText = this.api.responseParamsText || '{}';
+    //   this.api.responseParamsObj = JSON.parse(this.api.responseParamsObj);
+    // }
   }
 
   onAddHeader() {
@@ -75,6 +89,7 @@ export class ApiEditComponent {
     };
 
     if (parentItem) {
+      parentItem.hasChild = true;
       newItem.parentId = parentItem.id;
       newItem.level += parentItem.level;
       let i:number = pos+1;
@@ -101,6 +116,7 @@ export class ApiEditComponent {
     };
 
     if (parentItem) {
+      parentItem.hasChild = true;
       newItem.parentId = parentItem.id;
       newItem.level += parentItem.level;
       let i:number = pos+1;

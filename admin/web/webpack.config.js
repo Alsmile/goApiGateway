@@ -95,7 +95,7 @@ module.exports = function (options) {
     },
     devServer: {
       port: 8501,
-      host: 'localhost',
+      host: 'admin.api.local.cloudtogo.cn',
       historyApiFallback: true,
       watchOptions: {
         aggregateTimeout: 300,
@@ -103,13 +103,13 @@ module.exports = function (options) {
       },
       proxy: {
         "/api": {
-          target: "http://localhost:8500",
+          target: "http://admin.api.local.cloudtogo.cn:8500",
           changeOrigin: true,
           headers: {host: ''},
           secure: false
         },
         "/captcha": {
-          target: "http://localhost:8500",
+          target: "http://admin.api.local.cloudtogo.cn:8500",
           changeOrigin: true,
           secure: false
         }

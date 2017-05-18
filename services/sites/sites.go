@@ -174,7 +174,6 @@ func ApiList(siteId bson.ObjectId, pageIndex, pageCount int) (apis []models.Site
   return
 }
 
-
 func GetApiByUrl(method, key, url string) (siteApi *models.SiteApi, err error) {
   mongoSession := mongo.MgoSession.Clone()
   defer mongoSession.Close()
@@ -185,7 +184,24 @@ func GetApiByUrl(method, key, url string) (siteApi *models.SiteApi, err error) {
     One(&siteApi)
 
   if err != nil {
-    log.Printf("[error]serivces.sites.GetApiByUrl: err=%v, method=%s, key=%s, url=%s\r\n", err, method, key, url)
+    //log.Printf("[error]serivces.sites.GetApiByUrl: err=%v, method=%s, key=%s, url=%s\r\n", err, method, key, url)
+    err = errors.New(services.ErrorRead)
+  }
+
+  return
+}
+
+func GetSiteByProxyKey(proxyKey string) (site *models.Site, err error) {
+  mongoSession := mongo.MgoSession.Clone()
+  defer mongoSession.Close()
+
+  err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).
+    Find(bson.M{"proxyKey": proxyKey}).
+    Select(services.SelectHide).
+    One(&site)
+
+  if err != nil {
+    //log.Printf("[error]serivces.sites.GetSiteByProxyKey: err=%v,key=%s\r\n", err, site)
     err = errors.New(services.ErrorRead)
   }
 

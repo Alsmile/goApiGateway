@@ -8,7 +8,7 @@ import (
   "github.com/alsmile/goMicroServer/db"
   "github.com/alsmile/goMicroServer/admin"
   "github.com/alsmile/goMicroServer/db/mongo"
-  "github.com/alsmile/goMicroServer/servers"
+  //"github.com/alsmile/goMicroServer/servers"
 )
 
 func main() {
@@ -46,10 +46,7 @@ func main() {
   }
   defer mongo.MgoSession.Close()
 
-  // 后台管理web
-  go admin.Start()
-
-  // api代理
-  servers.Start()
+  // 后台管理web + proxy
+  admin.Start()
 }
 
