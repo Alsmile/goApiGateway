@@ -2,13 +2,13 @@ package controllers
 
 import (
   "gopkg.in/kataras/iris.v6"
-  "github.com/alsmile/goMicroServer/services/sites"
+  "github.com/alsmile/goApiGateway/services/sites"
   "log"
   "encoding/json"
   "gopkg.in/mgo.v2/bson"
   "net/http"
   "io/ioutil"
-  "github.com/alsmile/goMicroServer/utils"
+  "github.com/alsmile/goApiGateway/utils"
 )
 
 func ServeJson(ctx *iris.Context, v interface{}) error {

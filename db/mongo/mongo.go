@@ -2,7 +2,7 @@ package mongo
 
 import (
   mgo "gopkg.in/mgo.v2"
-  "github.com/alsmile/goMicroServer/utils"
+  "github.com/alsmile/goApiGateway/utils"
 )
 
 const (

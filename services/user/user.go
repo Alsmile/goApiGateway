@@ -9,13 +9,13 @@ import (
   "encoding/hex"
   "errors"
   "github.com/dgrijalva/jwt-go"
-  "github.com/alsmile/goMicroServer/models"
-  "github.com/alsmile/goMicroServer/db/mongo"
-  "github.com/alsmile/goMicroServer/utils"
-  "github.com/alsmile/goMicroServer/services"
+  "github.com/alsmile/goApiGateway/models"
+  "github.com/alsmile/goApiGateway/db/mongo"
+  "github.com/alsmile/goApiGateway/utils"
+  "github.com/alsmile/goApiGateway/services"
   "strings"
-  "github.com/alsmile/goMicroServer/services/email"
-  "github.com/alsmile/goMicroServer/db/redis"
+  "github.com/alsmile/goApiGateway/services/email"
+  "github.com/alsmile/goApiGateway/db/redis"
   "gopkg.in/kataras/iris.v6"
   "gopkg.in/mgo.v2/bson"
 )
@@ -23,7 +23,7 @@ import (
 func EncodePassword(pwd string) string {
   mac := hmac.New(sha256.New, []byte(utils.GlobalConfig.Secret))
   mac.Write([]byte(pwd))
-  str := hex.EncodeToString(mac.Sum([]byte("goMicroServer")))
+  str := hex.EncodeToString(mac.Sum([]byte("goApiGateway")))
 
   return str
 }

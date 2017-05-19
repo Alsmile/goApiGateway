@@ -13,7 +13,7 @@ export enum SignType {
   NewPasswordDialog,
 }
 
-const Salt:string = 'goMicroServer.io';
+const Salt:string = 'goApiGateway.io';
 
 @Injectable()
 export class SignService {

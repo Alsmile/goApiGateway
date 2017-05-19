@@ -3,8 +3,8 @@ import (
   "gopkg.in/kataras/iris.v6"
   "github.com/garyburd/redigo/redis"
   "github.com/dchest/captcha"
-  "github.com/alsmile/goMicroServer/session"
-  myCaptcha "github.com/alsmile/goMicroServer/services/captcha"
+  "github.com/alsmile/goApiGateway/session"
+  myCaptcha "github.com/alsmile/goApiGateway/services/captcha"
 )
 
 

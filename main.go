@@ -4,11 +4,11 @@ import (
   "log"
   "runtime"
   "gopkg.in/natefinch/lumberjack.v2"
-  "github.com/alsmile/goMicroServer/utils"
-  "github.com/alsmile/goMicroServer/db"
-  "github.com/alsmile/goMicroServer/admin"
-  "github.com/alsmile/goMicroServer/db/mongo"
-  //"github.com/alsmile/goMicroServer/servers"
+  "github.com/alsmile/goApiGateway/utils"
+  "github.com/alsmile/goApiGateway/db"
+  "github.com/alsmile/goApiGateway/admin"
+  "github.com/alsmile/goApiGateway/db/mongo"
+  //"github.com/alsmile/goApiGateway/servers"
 )
 
 func main() {

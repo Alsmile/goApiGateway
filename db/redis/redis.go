@@ -3,7 +3,7 @@ package redis
 import (
   "time"
   "github.com/garyburd/redigo/redis"
-  "github.com/alsmile/goMicroServer/utils"
+  "github.com/alsmile/goApiGateway/utils"
 )
 
 var RedisPool *redis.Pool

@@ -1,13 +1,13 @@
 package sites
 
 import (
-  "github.com/alsmile/goMicroServer/models"
-  "github.com/alsmile/goMicroServer/services"
-  "github.com/alsmile/goMicroServer/db/mongo"
+  "github.com/alsmile/goApiGateway/models"
+  "github.com/alsmile/goApiGateway/services"
+  "github.com/alsmile/goApiGateway/db/mongo"
   "errors"
   "log"
   "gopkg.in/mgo.v2/bson"
-  "github.com/alsmile/goMicroServer/utils"
+  "github.com/alsmile/goApiGateway/utils"
   "time"
 )
 

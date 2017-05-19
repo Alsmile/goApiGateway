@@ -1,8 +1,8 @@
 package db
 
 import (
-  "github.com/alsmile/goMicroServer/db/mongo"
-  "github.com/alsmile/goMicroServer/db/redis"
+  "github.com/alsmile/goApiGateway/db/mongo"
+  "github.com/alsmile/goApiGateway/db/redis"
 )
 
 func Init() error {

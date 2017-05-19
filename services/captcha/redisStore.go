@@ -1,8 +1,8 @@
 package captcha
 import (
-  "github.com/alsmile/goMicroServer/db/redis"
+  "github.com/alsmile/goApiGateway/db/redis"
   goRedis "github.com/garyburd/redigo/redis"
-  "github.com/alsmile/goMicroServer/session"
+  "github.com/alsmile/goApiGateway/session"
 )
 
 type captchaRedisStore struct {

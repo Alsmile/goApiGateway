@@ -5,9 +5,9 @@ import (
   "strconv"
   "gopkg.in/kataras/iris.v6"
   "gopkg.in/kataras/iris.v6/adaptors/httprouter"
-  "github.com/alsmile/goMicroServer/utils"
-  "github.com/alsmile/goMicroServer/admin/controllers"
-  proxy "github.com/alsmile/goMicroServer/servers/controllers"
+  "github.com/alsmile/goApiGateway/utils"
+  "github.com/alsmile/goApiGateway/admin/controllers"
+  proxy "github.com/alsmile/goApiGateway/servers/controllers"
 )
 
 func Start() {

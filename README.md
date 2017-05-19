@@ -1,16 +1,14 @@
-#goMicroServer  
-goMicroServer - 简单、快捷、可扩展的WebServer管理工具；具备反向代理、api网关、在线mock等功能；网页式后台管理和网络日志。  
+#goApiGateway 
+goApiGateway - golang编写的api gateway；具备反向代理、api网关、在线mock等功能；网页式后台管理和网络日志。  
 
 
-#window下编译linux    
-1.下载 [tdm-gcc](http://tdm-gcc.tdragon.net/download)  
-2.运行build.bat  
+#交叉编译     
 3. 命令行执行：
   set GOOS=linux  
-  set GOPACH=amd64  
+  set GOPACH=amd64  (可省略)  
   go build
 
-当前目录下新增的le5le即为编译程序  
+当前目录下新增的可执行程序即为编译程序  
 
 
 #运行  

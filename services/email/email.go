@@ -3,9 +3,9 @@ package email
 import (
   "gopkg.in/gomail.v2"
   "strings"
-  "github.com/alsmile/goMicroServer/utils"
+  "github.com/alsmile/goApiGateway/utils"
   "log"
-  "github.com/alsmile/goMicroServer/models"
+  "github.com/alsmile/goApiGateway/models"
 )
 
 func SendEmail(email, title, body string) error {

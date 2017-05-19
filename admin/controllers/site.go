@@ -2,10 +2,10 @@ package controllers
 
 import (
   "gopkg.in/kataras/iris.v6"
-  "github.com/alsmile/goMicroServer/models"
-  "github.com/alsmile/goMicroServer/services/user"
-  "github.com/alsmile/goMicroServer/services/sites"
-  "github.com/alsmile/goMicroServer/services"
+  "github.com/alsmile/goApiGateway/models"
+  "github.com/alsmile/goApiGateway/services/user"
+  "github.com/alsmile/goApiGateway/services/sites"
+  "github.com/alsmile/goApiGateway/services"
   "gopkg.in/mgo.v2/bson"
 )
 

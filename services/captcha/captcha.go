@@ -2,9 +2,9 @@ package captcha
 
 import (
   "github.com/dchest/captcha"
-  myRedis "github.com/alsmile/goMicroServer/db/redis"
+  myRedis "github.com/alsmile/goApiGateway/db/redis"
   "github.com/garyburd/redigo/redis"
-  "github.com/alsmile/goMicroServer/session"
+  "github.com/alsmile/goApiGateway/session"
   "gopkg.in/kataras/iris.v6"
 )
 

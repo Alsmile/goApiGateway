@@ -2,8 +2,8 @@ package session
 import (
   "net/http"
   "gopkg.in/kataras/iris.v6"
-  "github.com/alsmile/goMicroServer/utils"
-  "github.com/alsmile/goMicroServer/db/redis"
+  "github.com/alsmile/goApiGateway/utils"
+  "github.com/alsmile/goApiGateway/db/redis"
 )
 
 const (

@@ -2,12 +2,12 @@ package controllers
 
 import (
   "gopkg.in/kataras/iris.v6"
-  "github.com/alsmile/goMicroServer/utils"
-  "github.com/alsmile/goMicroServer/models"
-  "github.com/alsmile/goMicroServer/services/user"
-  "github.com/alsmile/goMicroServer/session"
-  "github.com/alsmile/goMicroServer/services/captcha"
-  "github.com/alsmile/goMicroServer/services"
+  "github.com/alsmile/goApiGateway/utils"
+  "github.com/alsmile/goApiGateway/models"
+  "github.com/alsmile/goApiGateway/services/user"
+  "github.com/alsmile/goApiGateway/session"
+  "github.com/alsmile/goApiGateway/services/captcha"
+  "github.com/alsmile/goApiGateway/services"
 )
 
 func GetSignConfig(ctx *iris.Context) {
