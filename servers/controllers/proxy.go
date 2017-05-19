@@ -65,11 +65,11 @@ func ProxyDo(ctx *iris.Context) {
   ServeJson(ctx, ret)
 }
 
-func proxy(ctx *iris.Context, method, dstUrl, dataType string) {
+func proxy(ctx *iris.Context, method, dstUrl, dataType string) (err error) {
   client := &http.Client{}
   clientReq, err := http.NewRequest(method, dstUrl, ctx.Request.Body)
   if err != nil {
-    log.Printf("[error]servers.controolers.proxy.proxy: method=%v, url=%v, proxyError=%v [[[[[[[[[[in NewRequest]]]]]]]]]]\r\n",
+    log.Printf("[error]servers.controllers.proxy.proxy: method=%v, url=%v, proxyError=%v [[[[[[[[[[in NewRequest]]]]]]]]]]\r\n",
       method, dstUrl, err)
 
     ctx.SetStatusCode(iris.StatusNotFound)
@@ -91,7 +91,7 @@ func proxy(ctx *iris.Context, method, dstUrl, dataType string) {
   defer clientResp.Body.Close()
   body, err := ioutil.ReadAll(clientResp.Body)
   if err != nil {
-    log.Printf("[error]servers.controolers.proxy.proxy: method=%v, url=%v, proxyError=%v, body=%v\r\n",
+    log.Printf("[error]servers.controllers.proxy.proxy: method=%v, url=%v, proxyError=%v, body=%v\r\n",
       method, dstUrl, err, body)
     ServeJson(ctx, bson.M{"error": err.Error()})
 
@@ -115,4 +115,7 @@ func proxy(ctx *iris.Context, method, dstUrl, dataType string) {
   } else {
     ctx.Render(dataType, string(body))
   }
+
+  err = nil
+  return
 }

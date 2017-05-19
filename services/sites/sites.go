@@ -113,13 +113,31 @@ func SaveApi(siteApi *models.SiteApi) (err error) {
   defer mongoSession.Close()
 
   s := &models.Site{Id: siteApi.Site.Id}
-  Get(s)
-  siteApi.Site.ProxyValue = s.ProxyValue
-  siteApi.Site.ProxyKey = s.ProxyKey
-  siteApi.Site.Https = s.Https
-  siteApi.Site.Gzip = s.Gzip
-  _, err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).Upsert(bson.M{"_id": siteApi.Id}, siteApi)
+  //  site id不存在，表示自动根据api信息保存site
+  if siteApi.Site.Id == "" {
+    s.ProxyValue = siteApi.Site.ProxyValue
+    s.ProxyKey = siteApi.Site.ProxyKey
+    s.Https = siteApi.Site.Https
+    s.Gzip = siteApi.Site.Gzip
+    s.Owner = siteApi.Owner
+    s.Editor = siteApi.Editor
+    s.Desc = "[system]根据api自动保存site信息"
+    Save(s)
+  }
 
+  err = Get(s)
+  if err == nil {
+    siteApi.Site.ProxyValue = s.ProxyValue
+    siteApi.Site.ProxyKey = s.ProxyKey
+    siteApi.Site.Https = s.Https
+    siteApi.Site.Gzip = s.Gzip
+  } else {
+    log.Printf("[error]serivces.sites.SaveApi: get site err=%v, data=%s\r\n", err, siteApi)
+    err = errors.New(services.ErrorRead)
+    return
+  }
+
+  _, err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).Upsert(bson.M{"_id": siteApi.Id}, siteApi)
   if err != nil {
     log.Printf("[error]serivces.sites.SaveApi: err=%v, data=%s\r\n", err, siteApi)
     err = errors.New(services.ErrorSave)

@@ -1,5 +1,5 @@
 {
-  "name": "goMicroServer",
+  "name": "goApiGateway",
   "version": "0.0.1",
   "website": "http://localhost:8500",
   "cpu": 1,
@@ -18,7 +18,7 @@
   "postgresSql": {
     "host": "localhost",
     "port": 5432,
-    "database": "goMicroServer",
+    "database": "apiGateway",
     "user": "",
     "password": "",
     "maxConnections": 1,
@@ -29,7 +29,7 @@
   },
   "mongo": {
     "address": "localhost:27017",
-    "database": "goMicroServer",
+    "database": "apiGateway",
     "user": "",
     "password": "",
     "maxConnections": 1,
@@ -51,9 +51,9 @@
     "maxAge": 30
   },
   "email": {
-    "address": "smtp.goMicroServer.com",
+    "address": "smtp.apiGateway.com",
     "port": 25,
-    "user": "go@goMicroServer.com",
+    "user": "go@apiGateway.com",
     "password": "go"
   }
 }
