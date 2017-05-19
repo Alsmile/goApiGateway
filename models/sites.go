@@ -13,6 +13,7 @@ type Site struct {
   Desc       string `json:"desc"`
   Gzip       bool `json:"gzip"`
   Https      string `json:"https"`
+  Subdomain   string `json:"subdomain" `
   ProxyKey   string `json:"proxyKey" bson:"proxyKey"`
   ProxyValue string `json:"proxyValue" bson:"proxyValue"`
   CreatedAt  time.Time `json:"createdAt,omitempty" bson:"createdAt,omitempty"`
@@ -61,6 +62,7 @@ type SiteParam struct {
   Id         bson.ObjectId `json:"id" bson:"_id"`
   Gzip       bool `json:"gzip"`
   Https      string `json:"https"`
+  Subdomain   string `json:"subdomain" `
   ProxyKey   string `json:"proxyKey" bson:"proxyKey"`
   ProxyValue string `json:"proxyValue" bson:"proxyValue"`
 }

@@ -17,6 +17,7 @@ export class SitesEditComponent implements AfterViewChecked {
   site: any = {https: '', notFound: {code:404}, proxyKey: '', proxyValue: ''};
   saving: boolean;
   formErrors: any = {};
+  domain: string = document.domain.replace('admin', '');
   @ViewChild('myForm') currentForm: NgForm;
   constructor(private _sitesService: SitesService, private _storeService: StoreService,
               private _router: Router, private _activateRoute: ActivatedRoute) {

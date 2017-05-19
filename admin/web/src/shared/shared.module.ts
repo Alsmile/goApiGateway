@@ -4,19 +4,24 @@ import { FormsModule } from '@angular/forms';
 
 import { Le5leComponentsModule } from "le5le-components";
 
+import {ProxyKeyValidator} from './directives/proxyKey.directive';
+
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     Le5leComponentsModule,
   ],
-  declarations: [ ],
+  declarations: [
+    ProxyKeyValidator
+  ],
   exports: [
     CommonModule,
     FormsModule,
     Le5leComponentsModule,
+    ProxyKeyValidator
   ],
-  providers: [ ]
+  providers: []
 })
 export class SharedModule {
 }

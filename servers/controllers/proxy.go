@@ -8,6 +8,7 @@ import (
   "gopkg.in/mgo.v2/bson"
   "net/http"
   "io/ioutil"
+  "github.com/alsmile/goMicroServer/utils"
 )
 
 func ServeJson(ctx *iris.Context, v interface{}) error {
@@ -21,12 +22,16 @@ func ServeJson(ctx *iris.Context, v interface{}) error {
 func ProxyDo(ctx *iris.Context) {
   ret := make(map[string]interface{})
 
+  subdomain := ctx.Subdomain()
+  if ctx.VirtualHostname() == utils.GlobalConfig.Domain.Domain {
+    subdomain = ""
+  }
   method := string(ctx.Method())
   key := "/" + ctx.Param("key")
   url := ctx.Param("url")
 
   // 查找api级别代理
-  siteApi, err := sites.GetApiByUrl(method, key, url)
+  siteApi, err := sites.GetApiByUrl(subdomain, method, key, url)
   if err == nil {
     if siteApi.IsMock {
       if siteApi.DataType == "application/json" ||
@@ -45,7 +50,7 @@ func ProxyDo(ctx *iris.Context) {
   }
 
   // 查找api级别代理
-  site, err := sites.GetSiteByProxyKey(key)
+  site, err := sites.GetSiteByProxyKey(subdomain, key)
   if err == nil {
     proxy(ctx, method, site.ProxyValue+url, "")
     return

@@ -78,10 +78,7 @@ export class SitesApisListComponent{
         let api: any = {
           owner: this.user,
           editor: this.user,
-          site: {
-            id: this.site.id,
-            proxyKey: this.site.proxyKey
-          },
+          site: this.site,
           name: retText
         };
         let ret = await this._sitesService.SaveApi(api);
@@ -115,6 +112,7 @@ export class SitesApisListComponent{
       this.tree.selected.responseParamsText = this.getMockText(this.tree.selected.responseParams);
     }
 
+    this.tree.selected.site = this.site;
     let ret = await this._sitesService.SaveApi(this.tree.selected);
     this.saving = false;
     if (!ret.id) return;

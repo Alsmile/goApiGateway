@@ -174,12 +174,12 @@ func ApiList(siteId bson.ObjectId, pageIndex, pageCount int) (apis []models.Site
   return
 }
 
-func GetApiByUrl(method, key, url string) (siteApi *models.SiteApi, err error) {
+func GetApiByUrl(subdomain, method, key, url string) (siteApi *models.SiteApi, err error) {
   mongoSession := mongo.MgoSession.Clone()
   defer mongoSession.Close()
 
   err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
-    Find(bson.M{"method": method,  "url": url, "site.proxyKey": key}).
+    Find(bson.M{"method": method, "site.subdomain": subdomain, "site.proxyKey": key, "url": url}).
     Select(services.SelectHide).
     One(&siteApi)
 
@@ -191,12 +191,12 @@ func GetApiByUrl(method, key, url string) (siteApi *models.SiteApi, err error) {
   return
 }
 
-func GetSiteByProxyKey(proxyKey string) (site *models.Site, err error) {
+func GetSiteByProxyKey(subdomain, proxyKey string) (site *models.Site, err error) {
   mongoSession := mongo.MgoSession.Clone()
   defer mongoSession.Close()
 
   err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).
-    Find(bson.M{"proxyKey": proxyKey}).
+    Find(bson.M{"subdomain": subdomain, "proxyKey": proxyKey}).
     Select(services.SelectHide).
     One(&site)
 

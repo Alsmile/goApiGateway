@@ -20,10 +20,16 @@
   <form class="panel site-edit mt10 p20"  #myForm="ngForm" (ngSubmit)="onSubmit()" [touchForm]="myForm" *ngIf="!loading">
     <div class="flex mb10">
       <label class="required">站名</label>
-      <div>
-        <input class="input" name="name" [(ngModel)]="site.name" required placeholder="您的站点名称">
-        <div *ngIf="formErrors.name" class="error">
-          请填写站名
+      <div class="flex">
+        <div class="mr10">
+          <input class="input" name="name" [(ngModel)]="site.name" required placeholder="您的站点名称">
+          <div *ngIf="formErrors.name" class="error">
+            请填写站名
+          </div>
+        </div>
+        <div>
+          <input class="input" name="subdomain" [(ngModel)]="site.subdomain" placeholder="子域名，缺省空为网关域名">
+          {{domain}}
         </div>
       </div>
     </div>
@@ -31,7 +37,10 @@
       <label>proxy</label>
       <div class="flex">
         <div class="mr10">
-          <input class="input" name="proxyKey" [(ngModel)]="site.proxyKey" placeholder="代理url，例如： /api">
+          <input class="input" name="proxyKey" [(ngModel)]="site.proxyKey" placeholder="代理url，例如： /api" proxyKey>
+          <div *ngIf="formErrors.proxyKey" class="error">
+            代理url必须为“/”+“字母或数字”格式，并且有且仅有一个“/”在开头。
+          </div>
         </div>
         <div>
           <input class="input" name="proxyValue" [(ngModel)]="site.proxyValue" isUrl
