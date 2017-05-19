@@ -33,3 +33,4 @@ vendor
 config/
 !config/default.json
 out/
+/goApiGateway

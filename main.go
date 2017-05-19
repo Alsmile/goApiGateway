@@ -8,7 +8,6 @@ import (
   "github.com/alsmile/goApiGateway/db"
   "github.com/alsmile/goApiGateway/admin"
   "github.com/alsmile/goApiGateway/db/mongo"
-  //"github.com/alsmile/goApiGateway/servers"
 )
 
 func main() {
