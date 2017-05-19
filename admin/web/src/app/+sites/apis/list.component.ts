@@ -55,13 +55,13 @@ export class SitesApisListComponent{
     this.tree.selected = await this._sitesService.GetApi({id: item.id});
   }
 
-  onTreeShowEdited(item: any) {
+  onTreeShowEdited() {
     this.tree.showEdited = !this.tree.showEdited;
     this.tree.activeEdited = true;
     this.tree.activeFound = false;
   }
 
-  onTreeShowFound(item: any) {
+  onTreeShowFound() {
     this.tree.showFound = !this.tree.showFound;
     this.tree.activeEdited = false;
     this.tree.activeFound = true;
