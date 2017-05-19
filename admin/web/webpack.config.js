@@ -105,7 +105,7 @@ module.exports = function (options) {
         "/api": {
           target: "http://admin.api.local.cloudtogo.cn:8500",
           changeOrigin: true,
-          headers: {host: ''},
+          // headers: {host: ''},
           secure: false
         },
         "/captcha": {

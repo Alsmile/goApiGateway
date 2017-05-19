@@ -103,42 +103,60 @@ func Save(site *models.Site) (err error) {
 }
 
 func SaveApi(siteApi *models.SiteApi) (err error) {
+  mongoSession := mongo.MgoSession.Clone()
+  defer mongoSession.Close()
+
   siteApi.UpdatedAt = time.Now().UTC()
+
+  s := &models.Site{Id: siteApi.Site.Id}
+
+  //  site id不存在，表示自动根据api信息保存site
+  if siteApi.Id == "" && siteApi.Site.Id == "" && siteApi.Site.Subdomain != ""{
+    tempSite := bson.M{}
+    err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).
+      Find(bson.M{"subdomain": siteApi.Site.Subdomain}).
+      Select(bson.M{"_id": true}).
+      One(&tempSite)
+
+
+    // 不存在site，插入保存
+    if err != nil {
+      s.UpdatedAt = time.Now().UTC()
+      s.Id = bson.NewObjectId()
+      siteApi.Site.Id = s.Id
+      s.CreatedAt = s.UpdatedAt
+      s.Subdomain = siteApi.Site.Subdomain
+      s.ProxyValue = siteApi.Site.ProxyValue
+      s.ProxyKey = siteApi.Site.ProxyKey
+      s.Https = siteApi.Site.Https
+      s.Gzip = siteApi.Site.Gzip
+      s.Owner = siteApi.Owner
+      s.Editor = siteApi.Editor
+      s.Name = "[system]" + siteApi.Site.Subdomain
+      s.Desc = "[system]根据api自动保存site信息"
+      mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).Insert(s)
+    }
+  } else {
+    err = Get(s)
+    if err == nil {
+      siteApi.Site.ProxyValue = s.ProxyValue
+      siteApi.Site.ProxyKey = s.ProxyKey
+      siteApi.Site.Https = s.Https
+      siteApi.Site.Gzip = s.Gzip
+    } else {
+      log.Printf("[error]serivces.sites.SaveApi: get site err=%v, data=%s\r\n", err, siteApi)
+      err = errors.New(services.ErrorRead)
+      return
+    }
+  }
+
   if siteApi.Id == "" {
     siteApi.Id = bson.NewObjectId()
     siteApi.CreatedAt = siteApi.UpdatedAt
   }
-
-  mongoSession := mongo.MgoSession.Clone()
-  defer mongoSession.Close()
-
-  s := &models.Site{Id: siteApi.Site.Id}
-  //  site id不存在，表示自动根据api信息保存site
-  if siteApi.Site.Id == "" {
-    s.ProxyValue = siteApi.Site.ProxyValue
-    s.ProxyKey = siteApi.Site.ProxyKey
-    s.Https = siteApi.Site.Https
-    s.Gzip = siteApi.Site.Gzip
-    s.Owner = siteApi.Owner
-    s.Editor = siteApi.Editor
-    s.Desc = "[system]根据api自动保存site信息"
-    Save(s)
-  }
-
-  err = Get(s)
-  if err == nil {
-    siteApi.Site.ProxyValue = s.ProxyValue
-    siteApi.Site.ProxyKey = s.ProxyKey
-    siteApi.Site.Https = s.Https
-    siteApi.Site.Gzip = s.Gzip
-  } else {
-    log.Printf("[error]serivces.sites.SaveApi: get site err=%v, data=%s\r\n", err, siteApi)
-    err = errors.New(services.ErrorRead)
-    return
-  }
-
   _, err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).Upsert(bson.M{"_id": siteApi.Id}, siteApi)
   if err != nil {
+    siteApi.Id = ""
     log.Printf("[error]serivces.sites.SaveApi: err=%v, data=%s\r\n", err, siteApi)
     err = errors.New(services.ErrorSave)
   }

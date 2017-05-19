@@ -106,9 +106,21 @@ func SiteApiSave(ctx *iris.Context)  {
   u := models.User{}
   user.ValidToken(ctx, &u)
 
-  // 校验编辑权限
-  // ...
-  // End 校验编辑权限
+  //  site id不存在，表示自动根据api信息保存site
+  if siteApi.Id == "" && siteApi.Site.Id == "" {
+    err = user.GetUserById(&u)
+    if err != nil {
+      ctx.SetStatusCode(iris.StatusUnauthorized)
+      ret["error"] = services.ErrorUserNoExists
+      return
+    }
+
+    siteApi.Owner.Id = u.Id
+    siteApi.Owner.Email = u.Profile.Email
+    siteApi.Owner.Phone = u.Profile.Phone
+    siteApi.Owner.Username = u.Profile.Username
+    siteApi.Editor = siteApi.Owner
+  }
 
   err = sites.SaveApi(siteApi)
   if err != nil {

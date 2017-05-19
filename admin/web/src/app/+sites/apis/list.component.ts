@@ -53,6 +53,10 @@ export class SitesApisListComponent{
 
   async onSelectEdited(item: any): Promise<any> {
     this.tree.selected = await this._sitesService.GetApi({id: item.id});
+    if (this.tree.selected.bodyParamsText)
+      this.tree.selected.bodyParams = this.strObjToArr(this.tree.selected.bodyParamsText);
+    if (this.tree.selected.responseParamsText)
+      this.tree.selected.responseParams = this.strObjToArr(this.tree.selected.responseParamsText);
   }
 
   onTreeShowEdited() {
@@ -162,5 +166,77 @@ export class SitesApisListComponent{
     }
 
     return JSON.stringify(mock);
+  }
+
+  strObjToArr (strObj: any): any[] {
+    let ret: any[] = [];
+    try {
+      let obj = JSON.parse(strObj);
+      ret = this.objToArr(obj);
+    } catch (error) {}
+
+    return ret;
+  }
+
+  objToArr (obj: any, parent?: any): any[] {
+    let ret: any[] = [];
+    for (let prop in obj) {
+      let tmp: any = {
+        id : new Date().getTime(),
+        name : prop,
+        type : typeof obj[prop],
+        desc : "",
+        required : "false",
+        mock : obj[prop],
+        level : parent? parent.level+1: 1
+      };
+      if (parent) tmp.parentId = parent.id;
+
+      if (!obj[prop]) {
+        tmp.type = 'string';
+        ret.push(tmp);
+        continue;
+      }
+
+      if (toString.apply(obj[prop]) === '[object Array]') {
+        tmp.type = 'array<any>';
+        if (!obj[prop][0]) continue;
+
+        let t = typeof obj[prop][0];
+        if (t === 'string') {
+          tmp.type = 'array<string>';
+          ret.push(tmp);
+          continue;
+        } else if (t === 'number') {
+          tmp.type = 'array<number>';
+          ret.push(tmp);
+          continue;
+        } else if (t === 'boolean') {
+          tmp.type = 'array<boolean>';
+          ret.push(tmp);
+          continue;
+        } else if (t === 'object') {
+          tmp.type = 'array<object>';
+          tmp.mock = '';
+          let children = this.objToArr(obj[prop][0], tmp);
+          if (children && children.length > 0) tmp.hasChild = true;
+          ret.push(tmp);
+          ret = ret.concat(children);
+          continue;
+        }
+        continue;
+      } else if (tmp.type !== 'object') {
+        ret.push(tmp);
+        continue;
+      }
+
+      tmp.mock = '';
+      let children = this.objToArr(obj[prop], tmp);
+      if (children && children.length > 0) tmp.hasChild = true;
+      ret.push(tmp);
+      ret = ret.concat(children);
+    }
+
+    return ret;
   }
 }

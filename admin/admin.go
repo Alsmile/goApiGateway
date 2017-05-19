@@ -36,11 +36,11 @@ func Start() {
     admin.Post("/api/site/api/save", controllers.Auth, controllers.SiteApiSave)
     admin.Get("/api/site/api/get", controllers.Auth, controllers.SiteApiGet)
     admin.Get("/api/site/api/list", controllers.Auth, controllers.SiteApiList)
-
-    admin.OnError(iris.StatusNotFound, controllers.Index)
   }
 
   app.Any("/:key/*url", proxy.ProxyDo)
+
+  app.OnError(iris.StatusNotFound, controllers.Index)
 
   fmt.Printf("[log]Listen: %s:%d\r\n", utils.GlobalConfig.Domain.Domain, utils.GlobalConfig.Domain.Port)
   strPort := strconv.Itoa(int(utils.GlobalConfig.Domain.Port))

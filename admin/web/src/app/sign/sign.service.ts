@@ -27,7 +27,7 @@ export class SignService {
       password: user.password,
       captcha: user.captcha
     });
-    if (ret.error) return {};
+    if (ret.error) return ret;
     if (user.rememberMe) {
       localStorage.setItem("rememberMe", "1");
       localStorage.setItem("token", ret.token);
