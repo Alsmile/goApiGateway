@@ -17,7 +17,7 @@ module.exports = function (options) {
       app: './src/main.ts'
     },
     output: {
-      publicPath: '/assets',
+      publicPath: '/assets/',
       path: path.resolve(__dirname, './dist/assets'),
       filename: '[name].[chunkhash].js',
       sourceMapFilename: '[name].[chunkhash].map',

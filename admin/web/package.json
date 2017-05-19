@@ -1,7 +1,7 @@
 {
-  "name": "le5le-ng-start",
+  "name": "goApiGateway-web-admin",
   "version": "0.0.1",
-  "description": "Angular start for le5le.",
+  "description": "Angular start for admin of goApiGateway.",
   "main": "index.ts",
   "scripts": {
     "clean": "npm cache clean && npm run rimraf -- dist ",
@@ -14,7 +14,8 @@
   },
   "keywords": [
     "angular",
-    "le5le"
+    "api gateway",
+    "goApiGateway"
   ],
   "author": "alsmile123@qq.com",
   "license": "MIT",
