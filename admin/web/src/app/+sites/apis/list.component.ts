@@ -53,9 +53,9 @@ export class SitesApisListComponent{
 
   async onSelectEdited(item: any): Promise<any> {
     this.tree.selected = await this._sitesService.GetApi({id: item.id});
-    if (this.tree.selected.bodyParamsText)
+    if ((!this.tree.selected.bodyParams || this.tree.selected.bodyParams.length < 1) && this.tree.selected.bodyParamsText)
       this.tree.selected.bodyParams = this.strObjToArr(this.tree.selected.bodyParamsText);
-    if (this.tree.selected.responseParamsText)
+    if ((!this.tree.selected.responseParams || this.tree.selected.responseParams.length < 1) && this.tree.selected.responseParamsText)
       this.tree.selected.responseParams = this.strObjToArr(this.tree.selected.responseParamsText);
   }
 
