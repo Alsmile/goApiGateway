@@ -1,4 +1,6 @@
 import {Component, Input} from '@angular/core';
+import {HttpService} from '../../../core/http.service';
+import {SitesService} from '../sites.service';
 
 @Component({
   selector: 'api-edit',
@@ -7,27 +9,13 @@ import {Component, Input} from '@angular/core';
 export class ApiEditComponent {
   @Input() api: any = {};
   requestData: any;
-  constructor() {
+  constructor(protected http: HttpService, private _sitesService: SitesService) {
   }
 
-  ngOnInit() {
+  ngOnChanges() {
     this.api.method = this.api.method || 'GET';
     this.api.contentType = this.api.contentType || 'application/json';
     this.api.dataType = this.api.dataType || 'application/json';
-
-    // if (this.api.contentType === 'application/json' ||
-    //   this.api.contentType === 'multipart/form-data' ||
-    //   this.api.contentType === 'application/x-www-form-urlencoded') {
-    //   this.api.bodyParamsText = this.api.bodyParamsText || '{}';
-    //   this.api.bodyParamsObj = JSON.parse(this.api.bodyParamsText);
-    // }
-    //
-    // if (this.api.dataType === 'application/json' ||
-    //   this.api.dataType === 'multipart/form-data' ||
-    //   this.api.dataType === 'application/x-www-form-urlencoded') {
-    //   this.api.responseParamsText = this.api.responseParamsText || '{}';
-    //   this.api.responseParamsObj = JSON.parse(this.api.responseParamsObj);
-    // }
   }
 
   onAddHeader() {
@@ -120,9 +108,10 @@ export class ApiEditComponent {
       newItem.parentId = parentItem.id;
       newItem.level += parentItem.level;
       let i:number = pos+1;
-      for (; i < this.api.responseParams.length - 1; ++i) {
+      for (; i < this.api.responseParams.length; ++i) {
         if (this.api.responseParams[i].level < newItem.level) break;
       }
+
       this.api.responseParams.splice(i, 0, newItem);
     }
     else {
@@ -130,7 +119,38 @@ export class ApiEditComponent {
     }
   }
 
-  onRequestApi() {
+  requestRet: any = '';
+  async onRequestApi(): Promise<any> {
+    console.info(this.api)
+    let headers: any = {};
+    for (let item of this.api.headers) {
+      headers[item.name] = item.mock;
+    }
 
+    let queryParams: any = {
+      url:this.api.site.proxyValue + this.api.site.proxyKey + this.api.url,
+      dataType: this.api.dataType
+    };
+    for (let item of this.api.queryParams) {
+      queryParams[item.name] = item.mock;
+    }
+
+    let bodyParams: any = this.api.bodyParamsText;
+    if (this.api.contentType === 'application/json' ||
+      this.api.contentType === 'multipart/form-data' ||
+      this.api.contentType === 'application/x-www-form-urlencoded') {
+      this._sitesService.getMockObject(this.api.bodyParams);
+    }
+    if (this.api.method === 'GET') {
+      this.requestRet = await this.http.QueryString(queryParams).Get('/api/test', {headers: headers});
+    } else if (this.api.method === 'POST') {
+      this.requestRet = await this.http.QueryString(queryParams).Post('/api/test', bodyParams, {headers: headers});
+    } else if (this.api.method === 'PUT') {
+      this.requestRet = await this.http.QueryString(queryParams).Put('/api/test', bodyParams, {headers: headers});
+    } else if (this.api.method === 'DELETE') {
+      this.requestRet = await this.http.QueryString(queryParams).Delete('/api/test', {headers: headers});
+    }
+
+    this._sitesService.parseRequestData(this.api.responseParams, this.requestRet);
   }
 }

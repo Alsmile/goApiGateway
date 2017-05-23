@@ -13,10 +13,7 @@ import {CookieService, StoreService} from 'le5le-store';
 export class HttpService {
   baseUrl: string = '';
   queryParams: string = '';
-  headers: Headers = new Headers();
-
   public constructor(protected http: Http, protected store: StoreService) {
-    this.headers.append('Content-Type', 'application/json');
   }
 
   private getToken(): string {
@@ -54,28 +51,26 @@ export class HttpService {
     return this;
   }
 
-  AppendHeader(name: string, value: string): HttpService {
-    this.headers.set(name, value);
-    return this;
-  }
+  private setHeaders(options?: any): Headers {
+    let headers: Headers = new Headers();
+    headers.set('Content-Type', 'application/json');
+    headers.set('Authorization', 'Bearer ' + this.getToken());
 
-  private setHeaders(options?: any) {
-    this.headers.set('Authorization', 'Bearer ' + this.getToken());
+    if (!options || !options.headers) return headers;
 
-    if (!options || !options.headers) return;
+    Object.keys(options.headers).map((key: string) => {
+      if (options.headers[key]) headers.set(key, options.headers[key]);
+    });
 
-    Object.keys(options.headers).map(function (key) {
-      if (options.headers[key]) this.headers.set(key, options.headers[key]);
-    })
+    return headers;
   }
 
   async Get(url: string, options?: any): Promise<any> {
-    this.setHeaders(options);
     url += this.queryParams;
     this.queryParams = '';
     try {
       let response = await this.http
-        .get(this.baseUrl + url, {headers: this.headers})
+        .get(this.baseUrl + url, {headers: this.setHeaders(options)})
         .toPromise();
       return this.extractData(response);
     } catch (error) {
@@ -84,13 +79,12 @@ export class HttpService {
   }
 
   async Delete(url: string, options?: any): Promise<any> {
-    this.setHeaders(options);
     url += this.queryParams;
     this.queryParams = '';
 
     try {
       let response = await this.http
-        .delete(this.baseUrl + url, {headers: this.headers})
+        .delete(this.baseUrl + url, {headers: this.setHeaders(options)})
         .toPromise();
       return this.extractData(response);
     } catch (error) {
@@ -105,13 +99,12 @@ export class HttpService {
     } else {
       strBody = JSON.stringify(body);
     }
-    this.setHeaders(options);
     url += this.queryParams;
     this.queryParams = '';
 
     try {
       let response = await this.http
-        .post(this.baseUrl + url, strBody, {headers: this.headers})
+        .post(this.baseUrl + url, strBody, {headers: this.setHeaders(options)})
         .toPromise();
       return this.extractData(response);
     } catch (error) {
@@ -126,12 +119,12 @@ export class HttpService {
     } else {
       strBody = JSON.stringify(body);
     }
-    this.setHeaders(options);
+
     url += this.queryParams;
     this.queryParams = '';
     try {
       let response = await this.http
-        .put(this.baseUrl + url, strBody, {headers: this.headers})
+        .put(this.baseUrl + url, strBody, {headers: this.setHeaders(options)})
         .toPromise();
       return this.extractData(response);
     } catch (error) {
@@ -140,11 +133,10 @@ export class HttpService {
   }
 
   DownloadFile(url: string, fileName: string, options?: any) {
-    this.setHeaders(options);
     url += this.queryParams;
     this.queryParams = '';
     this.http.get(this.baseUrl + url, {
-      headers: this.headers,
+      headers: this.setHeaders(options),
       responseType: ResponseContentType.Blob
     }).subscribe(
       (res: Response) => {

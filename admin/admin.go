@@ -36,6 +36,8 @@ func Start() {
     admin.Post("/api/site/api/save", controllers.Auth, controllers.SiteApiSave)
     admin.Get("/api/site/api/get", controllers.Auth, controllers.SiteApiGet)
     admin.Get("/api/site/api/list", controllers.Auth, controllers.SiteApiList)
+
+    admin.Any("/api/test", proxy.ProxyTest)
   }
 
   app.Any("/:key/*url", proxy.ProxyDo)

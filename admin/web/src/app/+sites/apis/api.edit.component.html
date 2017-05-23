@@ -41,6 +41,7 @@
       <th>名称</th>
       <th>说明</th>
       <th style="min-width: 50px;">必需</th>
+      <th title="测试数据请求场景用">mock值</th>
       <th>操作</th>
     </tr>
     <tr *ngFor="let item of api.headers; let i = index">
@@ -66,6 +67,11 @@
           </label>
         </div>
       </td>
+      <td class="td-input">
+        <div class="flex middle">
+          <input class="input full" [(ngModel)]="item.mock">
+        </div>
+      </td>
       <td class="">
         <a class="mr10 mb5 nowrap" (click)="api.headers.splice(i,1)">删除</a>
       </td>
@@ -88,6 +94,7 @@
       <th>变量名</th>
       <th>说明</th>
       <th style="min-width: 50px;">必需</th>
+      <th title="测试数据请求场景用">mock值</th>
       <th>操作</th>
     </tr>
     <ng-template ngFor let-item let-i="index" [ngForOf]="api.queryParams" >
@@ -111,6 +118,11 @@
           <label class="radio ml10 mr10 nowrap">
             <input name="queryParams-required{{i}}" type="radio" value="false" [(ngModel)]="item.required"> <span>可选</span>
           </label>
+        </div>
+      </td>
+      <td class="td-input">
+        <div class="flex middle">
+          <input class="input full" [(ngModel)]="item.mock">
         </div>
       </td>
       <td class="">
@@ -146,6 +158,7 @@
           <th>类型</th>
           <th>说明</th>
           <th style="min-width: 50px;">必需</th>
+          <th title="测试数据请求场景用">mock值</th>
           <th>操作</th>
         </tr>
         <ng-template ngFor let-item let-i="index" [ngForOf]="api.bodyParams" >
@@ -189,10 +202,10 @@
                 </label>
               </div>
             </td>
-            <!--<td class="td-input">-->
-                <!--<textarea class="input full" [(ngModel)]="item.mock"-->
-                          <!--placeholder="{{(item.type&&item.type.indexOf('array')===0)?'请用双引号的json格式填写':''}}"></textarea>-->
-            <!--</td>-->
+            <td class="td-input">
+                <textarea class="input full" [(ngModel)]="item.mock"
+                          placeholder="{{(item.type&&item.type.indexOf('array')===0)?'请用双引号的json格式填写':''}}"></textarea>
+            </td>
             <td class="">
               <a *ngIf="item.type === 'object' || item.type === 'array<object>'" class="mr10 mb5 nowrap"
                  (click)="onAddBody(item, i)">添加子属性</a>
@@ -213,8 +226,8 @@
     <div *ngIf="api.contentType!=='application/json' && api.contentType!=='multipart/form-data' && api.contentType!=='application/x-www-form-urlencoded'">
       <div>body参数说明</div>
       <textarea class="input full" [(ngModel)]="api.bodyParamsTextDesc" rows="2"></textarea>
-      <!--<div class="mt10">body参数mock</div>-->
-      <!--<textarea class="input full" [(ngModel)]="api.bodyParamsText" rows="5"></textarea>-->
+      <div class="mt10" title="测试数据请求场景用">body参数mock</div>
+      <textarea class="input full" [(ngModel)]="api.bodyParamsText" rows="5"></textarea>
     </div>
     <br>
   </div>
@@ -237,7 +250,7 @@
         <th>类型</th>
         <th>说明</th>
         <th style="min-width: 50px;">必需</th>
-        <th>mock值</th>
+        <th title="api请求时mock返回值">mock值</th>
         <th>操作</th>
       </tr>
       <ng-template ngFor let-item let-i="index" [ngForOf]="api.responseParams" >
@@ -336,11 +349,17 @@
         <th>名称</th>
         <th>说明</th>
         <th>必需</th>
+        <th>mock值</th>
       </tr>
       <tr *ngFor="let item of api.headers">
         <td>{{item.name}}</td>
         <td>{{item.desc}}</td>
         <td [class.gray]="item.required === 'false'">{{item.required}}</td>
+        <td class="td-input">
+          <div class="flex middle">
+            <input class="input full" [(ngModel)]="item.mock">
+          </div>
+        </td>
       </tr>
       <tr *ngIf="!api.headers || api.headers.length === 0">
         <td class="text-center gray" colspan="5">
@@ -358,11 +377,17 @@
         <th>名称</th>
         <th>说明</th>
         <th>必需</th>
+        <th>mock值</th>
       </tr>
       <tr *ngFor="let item of api.queryParams">
         <td>{{item.name}}</td>
         <td>{{item.desc}}</td>
         <td [class.gray]="item.required === 'false'">{{item.required}}</td>
+        <td class="td-input">
+          <div class="flex middle">
+            <input class="input full" [(ngModel)]="item.mock">
+          </div>
+        </td>
       </tr>
       <tr *ngIf="!api.queryParams || api.queryParams.length === 0">
         <td class="text-center gray" colspan="5">
@@ -374,7 +399,10 @@
   </div>
 
   <div *ngIf="api.method === 'PUT' || api.method === 'POST'">
-    <h4 class="mt10 ">body参数列表</h4>
+    <div class="flex middle mt10 ">
+      <h4 class="mr30">body参数列表</h4>
+      <div>{{api.contentType}}</div>
+    </div>
     <div *ngIf="api.contentType==='application/json' || api.contentType==='multipart/form-data' || api.contentType==='application/x-www-form-urlencoded'">
       <table class="mb10">
         <tr>
@@ -421,7 +449,7 @@
       <div><b>body参数说明：</b></div>
       <p class="pre">{{api.bodyParamsTextDesc}}</p>
       <div class="mt10"><b>body参数mock：</b></div>
-      <p class="pre">{{api.bodyParamsText}}</p>
+      <textarea class="input full" [(ngModel)]="api.bodyParamsText"></textarea>
     </div>
     <br>
   </div>
@@ -512,8 +540,8 @@
           {{item.resValue}}
         </td>
         <td >
-          <i *ngIf="item.expected>0" class="iconfont icon-check success"></i>
-          <i *ngIf="item.expected<0" class="iconfont icon-close error"></i>
+          <i *ngIf="item.expected>0" class="iconfont icon-pass success"></i>
+          <i *ngIf="item.expected<0" class="iconfont icon-fail error"></i>
         </td>
       </tr>
     </ng-template>
@@ -523,10 +551,9 @@
       </td>
     </tr>
   </table>
-  <div *ngIf="requestData">
-    <br>
-    <h4 class="">测试数据请求返回结果</h4>
-    <textarea rows="10" class="input full" readonly="readonly" [value]="requestData | json"></textarea>
+  <div >
+    <h4 class="mb0">测试数据请求返回结果</h4>
+    <textarea rows="10" class="input full" readonly="readonly" [value]="requestRet | json"></textarea>
   </div>
 
 </div>

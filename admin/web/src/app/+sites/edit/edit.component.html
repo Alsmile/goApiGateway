@@ -85,7 +85,9 @@
       <label></label>
       <div>
         <button class="button primary" [btnSaving]="saving" >保存</button>
-        <a class="button " routerLink="/sites/home">取消</a>
+        <a class="button mr20" routerLink="/sites/home">取消</a>
+
+        <a *ngIf="site.id" class="button success" [routerLink]="['/sites/apis/list']" [queryParams]="{id:site.id}">查看APIS</a>
       </div>
     </div>
   </form >

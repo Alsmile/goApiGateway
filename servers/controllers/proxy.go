@@ -119,3 +119,11 @@ func proxy(ctx *iris.Context, method, dstUrl, dataType string) (err error) {
   err = nil
   return
 }
+
+func ProxyTest(ctx *iris.Context) {
+  method := string(ctx.Method())
+  url := ctx.URLParam("url")
+  dataType := ctx.URLParam("dataType")
+
+  proxy(ctx, method, url, dataType)
+}
