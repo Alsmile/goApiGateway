@@ -3,6 +3,7 @@ import {Router} from "@angular/router";
 import {StoreService} from 'le5le-store';
 
 import {HomeService} from "./home.service";
+import {SignType} from '../sign/sign.service';
 
 @Component({
   selector: 'home',
@@ -14,7 +15,7 @@ export class HomeComponent {
   }
 
   onNeedActive () {
-    this._storeService.set('needActive', 1);
+    this._storeService.set('needActive', SignType.NeedActiveDialog);
   }
 
 }

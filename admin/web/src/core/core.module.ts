@@ -30,13 +30,17 @@ export class CoreModule {
     this._storeService.get$('auth').subscribe(
       ret => {
         // 认证失败
-        if (!ret) {
+        if (!ret || ret === -1) {
           this._storeService.set('user', null);
           localStorage.removeItem("token");
           localStorage.removeItem("user.id");
           CookieService.delete("token");
 
           this._router.navigate(['/']);
+
+          if (!ret) {
+            this._storeService.set('needActive', 1);
+          }
         }
       }
     );

@@ -61,7 +61,7 @@ export class AppComponent implements OnInit {
     // 需要激活
     this._storeService.get$('needActive').subscribe(
       ret => {
-        if (ret) this.options.showSign = SignType.NeedActiveDialog;
+        this.options.showSign = ret;
       }
     );
 
@@ -95,7 +95,7 @@ export class AppComponent implements OnInit {
 
   onSignout () {
     this.options.showSign = null;
-    this._storeService.set('auth', null);
+    this._storeService.set('auth', -1);
   }
 
   onSignCancel (event:any) {

@@ -1,7 +1,9 @@
 import { Component, Input, ViewChild } from '@angular/core';
+import {Router} from '@angular/router';
 import { NgForm } from '@angular/forms';
 
 import { SignService, SignType } from "./sign.service";
+
 
 @Component({
   selector: 'sign-in',
@@ -13,7 +15,7 @@ export class SigninComponent {
   @Input() options: any;
   saving: boolean;
   @ViewChild('signinForm') currentForm: NgForm;
-  constructor(private _signService: SignService) {
+  constructor(private _signService: SignService,  private _router: Router) {
   }
 
   getCaptcha() {
@@ -33,9 +35,11 @@ export class SigninComponent {
 
     this.saving = true;
     let ret = await this._signService.Signin(this.user);
-    this.saving = false;
     if (ret.errorTip) {
       this.getCaptcha();
+    } else {
+      this._router.navigateByUrl('/sites/home');
     }
+    this.saving = false;
   }
 }
