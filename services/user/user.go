@@ -115,7 +115,7 @@ func ForgetPassword(u *models.User) (err error) {
   err =  mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionUsers).Find(
     bson.M{
       "profile.email": u.Profile.Email,
-    }).Select(bson.M{"_id":1}).One(&u)
+    }).Select(bson.M{"_id":1, "profile": 1}).One(&u)
   if err != nil || u.Id == "" {
     err = errors.New(services.ErrorUserNoExists)
     return
@@ -124,8 +124,8 @@ func ForgetPassword(u *models.User) (err error) {
   redisConn := redis.RedisPool.Get()
   defer redisConn.Close()
 
-  u.PasswordCode = utils.GetGuid()
-  _, err = redisConn.Do("SETEX", u.PasswordCode, services.TokenValidHours*3600, u.Id)
+  u.PasswordCode = bson.NewObjectId().Hex()
+  _, err = redisConn.Do("SETEX", u.PasswordCode, services.TokenValidHours*3600, u.Id.Hex())
   if err != nil {
     log.Printf("services.user.user.ForgetPassword: redis error=%v\r\n", err)
     err = errors.New(services.ErrorSave)
@@ -139,12 +139,12 @@ func ForgetPassword(u *models.User) (err error) {
 func NewPassword(u *models.User) (err error) {
   redisConn := redis.RedisPool.Get()
   defer redisConn.Close()
+
   val, err := redisConn.Do("GET", u.PasswordCode)
   if err != nil {
     err = errors.New(services.ErrorCaptchaCode)
     return
   }
-
   mongoSession := mongo.MgoSession.Clone()
   defer mongoSession.Close()
 
