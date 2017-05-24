@@ -9,6 +9,7 @@ import (
   "net/http"
   "io/ioutil"
   "github.com/alsmile/goApiGateway/utils"
+  "github.com/alsmile/goApiGateway/models"
 )
 
 func ServeJson(ctx *iris.Context, v interface{}) error {
@@ -49,10 +50,22 @@ func ProxyDo(ctx *iris.Context) {
     return
   }
 
-  // 查找api级别代理
+  // 查找site级别代理
   site, err := sites.GetSiteByProxyKey(subdomain, key)
   if err == nil {
     proxy(ctx, method, site.ProxyValue+url, "")
+
+    siteApi = &models.SiteApi{}
+
+    // 添加到自动发现
+    siteApi.AutoReg = true
+    siteApi.Site.Id = site.Id
+    siteApi.Method = method
+    siteApi.Url = url
+    siteApi.Visited = 1
+    siteApi.StatusCode = ctx.StatusCode()
+    sites.SaveApi(siteApi)
+
     return
   }
 

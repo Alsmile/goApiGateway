@@ -38,8 +38,8 @@ func (profile *UserProfile) GetUsername() {
 }
 
 type QuotedUser struct {
-  Id       bson.ObjectId `json:"id" bson:"_id"`
-  Email    string `json:"email" `
-  Phone    string `json:"phone" `
-  Username string `json:"username" `
+  Id       bson.ObjectId `json:"id" bson:"_id,omitempty"`
+  Email    string `json:"email" bson:"email,omitempty"`
+  Phone    string `json:"phone" bson:"phone,omitempty"`
+  Username string `json:"username" bson:"username,omitempty"`
 }

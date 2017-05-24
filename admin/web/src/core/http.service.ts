@@ -128,7 +128,7 @@ export class HttpService {
         .toPromise();
       return this.extractData(response);
     } catch (error) {
-      await this.handleError(error);
+      this.handleError(error);
     }
   }
 
@@ -164,7 +164,7 @@ export class HttpService {
       this.delToken();
       error.message = 'Authorization error';
     } else if (error.status != 404) {
-      console.error(error.message);
+      console.error(error.status, error.message);
     }
   }
 }

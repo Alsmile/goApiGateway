@@ -186,7 +186,26 @@ func GetApi(siteApi *models.SiteApi) (err error) {
   return
 }
 
-func ApiList(siteId bson.ObjectId, pageIndex, pageCount int) (apis []models.SiteApi,err error) {
+func DelApi(id string) (err error) {
+  if id == "" {
+    err = errors.New(services.ErrorParam)
+    return
+  }
+
+  mongoSession := mongo.MgoSession.Clone()
+  defer mongoSession.Close()
+
+  err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).RemoveId(bson.ObjectIdHex(id))
+
+  if err != nil {
+    log.Printf("[error]serivces.sites.DelApi: err=%v, id=%s\r\n", err, id)
+    err = errors.New(services.ErrorSave)
+  }
+
+  return
+}
+
+func ApiList(siteId bson.ObjectId, autoReg string, fieldType, pageIndex, pageCount int) (apis []models.SiteApi,err error) {
   if siteId == "" {
     err = errors.New(services.ErrorPermission)
     return
@@ -195,9 +214,30 @@ func ApiList(siteId bson.ObjectId, pageIndex, pageCount int) (apis []models.Site
   mongoSession := mongo.MgoSession.Clone()
   defer mongoSession.Close()
 
-  selected := bson.M{"_id": true, "name": true, "site._id": true, "site.proxyKey": true}
+  where := bson.M{"site._id": siteId, "deletedAt": bson.M{"$exists": false}}
+  if autoReg == "true" {
+    where["autoReg"] = true
+  } else if autoReg == "false" {
+    where["autoReg"] = bson.M{"$ne": true}
+  }
+
+  selected := bson.M{
+    "_id": true,
+    "name": true,
+    "site._id": true,
+    "site.proxyKey": true,
+    "url": true,
+    "method": true,
+    "visited": true,
+    "createdAt": true,
+    "updatedAt": true,
+  }
+  if fieldType == 1 {
+    selected = bson.M{"_id": true, "name": true, "site._id": true, "site.proxyKey": true}
+  }
+
   err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
-    Find(bson.M{"site._id": siteId, "deletedAt": bson.M{"$exists": false}}).
+    Find(where).
     Select(selected).
     Sort("-updatedAt").Skip((pageIndex-1)*pageCount).Limit(pageCount).
     All(&apis)
@@ -220,8 +260,11 @@ func GetApiByUrl(subdomain, method, key, url string) (siteApi *models.SiteApi, e
     One(&siteApi)
 
   if err != nil {
-    //log.Printf("[error]serivces.sites.GetApiByUrl: err=%v, method=%s, key=%s, url=%s\r\n", err, method, key, url)
     err = errors.New(services.ErrorRead)
+  } else {
+    // 计数+1
+    mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
+      Update(bson.M{"_id": siteApi.Id}, bson.M{"$inc": bson.M{"visited": 1}})
   }
 
   return

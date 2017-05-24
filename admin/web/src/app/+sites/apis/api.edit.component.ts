@@ -121,14 +121,13 @@ export class ApiEditComponent {
 
   requestRet: any = '';
   async onRequestApi(): Promise<any> {
-    console.info(this.api)
     let headers: any = {};
     for (let item of this.api.headers) {
       headers[item.name] = item.mock;
     }
 
     let queryParams: any = {
-      url:this.api.site.proxyValue + this.api.site.proxyKey + this.api.url,
+      url:this.api.site.proxyValue + this.api.url,
       dataType: this.api.dataType
     };
     for (let item of this.api.queryParams) {

@@ -35,6 +35,13 @@ export class SitesService {
     return ret;
   }
 
+  async DelApi(params: any): Promise<any> {
+    let ret = await this.http.QueryString(params).Get('/api/site/api/del');
+    if (!ret || ret.error) return false;
+
+    return true;
+  }
+
   async GetApiList(params: any): Promise<any> {
     let ret = await this.http.QueryString(params).Get('/api/site/api/list');
     if (!ret || ret.error) return [];

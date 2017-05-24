@@ -158,6 +158,33 @@ func SiteApiGet(ctx *iris.Context)  {
   ServeJson(ctx, siteApi)
 }
 
+func SiteApiDel(ctx *iris.Context)  {
+  ret := make(map[string]interface{})
+
+  id := ctx.URLParam("id")
+  if id == "" {
+    ret["error"] = services.ErrorParam
+    ServeJson(ctx, ret)
+    return
+  }
+
+  u := models.User{}
+  user.ValidToken(ctx, &u)
+
+  // 校验编辑权限
+  // ...
+  // End 校验编辑权限
+
+  err := sites.DelApi(id)
+  if err != nil {
+    ret["error"] = err.Error()
+    ServeJson(ctx, ret)
+    return
+  }
+
+  ServeJson(ctx, true)
+}
+
 func SiteApiList(ctx *iris.Context)  {
   ret := make(map[string]interface{})
   defer ServeJson(ctx, ret)
@@ -173,12 +200,14 @@ func SiteApiList(ctx *iris.Context)  {
     return
   }
 
+  auto := ctx.URLParam("auto")
+  fieldType, _ := ctx.URLParamInt("field")
 
   u := models.User{}
   user.ValidToken(ctx, &u)
 
   siteId := bson.ObjectIdHex(ctx.URLParam("siteId"))
-  list, err := sites.ApiList(siteId, pageIndex, pageCount)
+  list, err := sites.ApiList(siteId, auto, fieldType, pageIndex, pageCount)
 
   if err != nil {
     ret["error"] = err.Error()

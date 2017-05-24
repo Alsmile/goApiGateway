@@ -5,6 +5,7 @@ import (
   "github.com/dchest/captcha"
   "github.com/alsmile/goApiGateway/session"
   myCaptcha "github.com/alsmile/goApiGateway/services/captcha"
+  "strings"
 )
 
 
@@ -15,6 +16,18 @@ func Index(ctx *iris.Context) {
 
 func Browser(ctx *iris.Context) {
   ctx.ServeFile("./admin/web/dist/browser.html", true)
+}
+
+func NotFound(ctx *iris.Context) {
+  if strings.HasPrefix(ctx.Path(), "/api/") {
+    ret := make(map[string]interface{})
+    ret["error"] = "请求错误（Not found）：" + ctx.Path()
+    ctx.SetStatusCode(iris.StatusNotFound)
+    ServeJson(ctx,ret)
+  } else {
+    ctx.SetStatusCode(iris.StatusFound)
+    Index(ctx)
+  }
 }
 
 func Captcha(ctx *iris.Context) {

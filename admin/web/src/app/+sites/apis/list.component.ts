@@ -28,6 +28,10 @@ export class SitesApisListComponent{
   pageIndex: number = 1;
   pageCount: number = 100;
   saving: boolean;
+  foundApis: any[] = [];
+  foundIndex: number = 1;
+  foundCount: number = 10;
+  loadingFoundApis: boolean = false;
   constructor(private _sitesService: SitesService, private _storeService: StoreService,
               private _router: Router, private _activateRoute: ActivatedRoute) {
     this.user = _storeService.get('user');
@@ -44,7 +48,13 @@ export class SitesApisListComponent{
     if (!this.id) return this.loading = false;
 
     this.site = await this._sitesService.GetSite({id: this.id});
-    this.tree.edited = await this._sitesService.GetApiList({siteId: this.id, pageIndex: this.pageIndex, pageCount: this.pageCount});
+    this.tree.edited = await this._sitesService.GetApiList({
+      siteId: this.id,
+      auto: 'false',
+      field: 1,
+      pageIndex: this.pageIndex,
+      pageCount: this.pageCount
+    });
     if (this.tree.edited.length > 0) {
       await this.onSelectEdited(this.tree.edited[0]);
     }
@@ -52,6 +62,8 @@ export class SitesApisListComponent{
   }
 
   async onSelectEdited(item: any): Promise<any> {
+    this.tree.activeEdited = true;
+    this.tree.activeFound = false;
     this.tree.selected = await this._sitesService.GetApi({id: item.id});
     if ((!this.tree.selected.bodyParams || this.tree.selected.bodyParams.length < 1) && this.tree.selected.bodyParamsText)
       this.tree.selected.bodyParams = this._sitesService.strObjToArr(this.tree.selected.bodyParamsText);
@@ -66,9 +78,38 @@ export class SitesApisListComponent{
   }
 
   onTreeShowFound() {
-    this.tree.showFound = !this.tree.showFound;
     this.tree.activeEdited = false;
     this.tree.activeFound = true;
+    this.tree.selected = {};
+
+    this.foundIndex = 1;
+    this.getFoundApis();
+  }
+
+  async getFoundApis(): Promise<any> {
+    this.loadingFoundApis = true;
+    this.foundApis = await this._sitesService.GetApiList({
+      siteId: this.id,
+      auto: 'true',
+      pageIndex: this.foundIndex,
+      pageCount: this.foundCount
+    });
+    this.loadingFoundApis = false;
+  }
+
+  onLastPage() {
+    --this.foundIndex;
+    this.getFoundApis();
+  }
+
+  onNextPage() {
+    ++this.foundIndex;
+    this.getFoundApis();
+  }
+
+  onEditFound(item: any){
+    item.isEdit = true;
+    this.tree.selected = item;
   }
 
   onAdd() {
@@ -96,6 +137,28 @@ export class SitesApisListComponent{
     });
   }
 
+  onDelApi() {
+    let _noticeService: NoticeService = new NoticeService();
+    _noticeService.dialog({
+      title: '确认',
+      theme: '',
+      body: '确认删除此api？',
+      callback: async (ret:boolean): Promise<any> =>{
+        if (!await this._sitesService.DelApi({id: this.tree.selected.id})) return;
+
+        for (let i=0; i < this.tree.edited.length; i++) {
+          if (this.tree.selected.id === this.tree.edited[i].id) {
+            this.tree.edited.splice(i,1);
+            this.tree.selected = {};
+            if (this.tree.edited.length > 0) {
+              this.onSelectEdited(this.tree.edited[0]);
+            }
+          }
+        }
+      }
+    });
+  }
+
   onSaveMock(item) {
     if (item.isEdit) return;
     this.onSaveApi();
@@ -117,14 +180,21 @@ export class SitesApisListComponent{
     }
 
     this.tree.selected.site = this.site;
+    this.tree.selected.autoReg = false;
     let ret = await this._sitesService.SaveApi(this.tree.selected);
+    if (this.tree.activeFound) {
+      this.tree.edited.push(this.tree.selected);
+    }
     this.saving = false;
     if (!ret.id) return;
     this.tree.selected.isEdit=false;
   }
 
   onCancelEdit() {
-    // this.tree.selected.isEdit=false;
-    this.onSelectEdited(this.tree.selected);
+    if (this.tree.activeFound) {
+      this.tree.selected = {};
+    } else {
+      this.onSelectEdited(this.tree.selected);
+    }
   }
 }

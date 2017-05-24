@@ -13,7 +13,7 @@ type Site struct {
   Desc       string `json:"desc"`
   Gzip       bool `json:"gzip"`
   Https      string `json:"https"`
-  Subdomain   string `json:"subdomain" `
+  Subdomain  string `json:"subdomain" `
   ProxyKey   string `json:"proxyKey" bson:"proxyKey"`
   ProxyValue string `json:"proxyValue" bson:"proxyValue"`
   CreatedAt  time.Time `json:"createdAt,omitempty" bson:"createdAt,omitempty"`
@@ -41,6 +41,9 @@ type SiteApi struct {
   BodyParamsTextDesc     string `json:"bodyParamsTextDesc" bson:"bodyParamsTextDesc"`
   ResponseParamsText     string `json:"responseParamsText" bson:"responseParamsText"`
   ResponseParamsTextDesc string `json:"responseParamsTextDesc" bson:"responseParamsTextDesc"`
+  AutoReg                bool `json:"autoReg" bson:"autoReg,omitempty"`
+  Visited                uint64 `json:"visited" bson:"visited,omitempty"`
+  StatusCode             int `json:"statusCode" bson:"statusCode,omitempty"`
   CreatedAt              time.Time `json:"createdAt,omitempty" bson:"createdAt,omitempty"`
   UpdatedAt              time.Time `json:"updatedAt,omitempty" bson:"updatedAt,omitempty"`
   DeletedAt              time.Time `json:"deletedAt,omitempty" bson:"deletedAt,omitempty"`
@@ -62,7 +65,7 @@ type SiteParam struct {
   Id         bson.ObjectId `json:"id" bson:"_id"`
   Gzip       bool `json:"gzip"`
   Https      string `json:"https"`
-  Subdomain   string `json:"subdomain" `
+  Subdomain  string `json:"subdomain" `
   ProxyKey   string `json:"proxyKey" bson:"proxyKey"`
   ProxyValue string `json:"proxyValue" bson:"proxyValue"`
 }

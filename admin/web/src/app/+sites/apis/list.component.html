@@ -15,7 +15,7 @@
           自定义API
         </a>
         <ng-template ngFor let-item let-i="index" [ngForOf]="tree.edited" >
-          <div class="item" *ngIf="tree.showEdited" (click)="onSelectEdited(item)">
+          <div class="item" *ngIf="tree.showEdited" (click)="onSelectEdited(item, true)">
             <a class="ml10" [class.active]="item.id === tree.selected.id" >
               {{item.name}}
             </a>
@@ -24,15 +24,9 @@
       </div>
       <div class="item" >
         <a (click)="onTreeShowFound()" [class.active]="tree.activeFound">
-          <i class="iconfont" [class.icon-triangle-down]="tree.showFound" [class.icon-triangle-right]="!tree.showFound"></i>
+          <i class="iconfont icon-attentionfill"></i>
           自动发现API
         </a>
-        <div class="item" *ngIf="tree.showFound" (click)="tree.selected=item;">
-          <a >
-            <i class="iconfont icon-angle-right"></i>
-            ellipsis
-          </a>
-        </div>
       </div>
     </div>
   </div>
@@ -42,7 +36,7 @@
     </div>
     <div *ngIf="tree.selected && tree.selected.id" class="p20">
       <div>
-        <label class="font-2x">{{tree.selected.name}}</label>
+        <label class="font-2x">{{tree.selected.name || '（新建）'}}</label>
 
         <div class="fr mt10">
           <label class="checkbox mr20">
@@ -50,6 +44,7 @@
             <span>使用mock</span>
           </label>
           <button *ngIf="!tree.selected.isEdit" class="button primary " (click)="tree.selected.isEdit=true">编辑</button>
+          <button *ngIf="!tree.selected.isEdit" class="button " (click)="onDelApi()">删除</button>
           <button *ngIf="tree.selected.isEdit" class="button success" (click)="onSaveApi()" [btnSaving]="saving" >保存</button>
           <button *ngIf="tree.selected.isEdit" class="button" (click)="onCancelEdit()">取消</button>
         </div>
@@ -60,6 +55,48 @@
       <div class="mt10" *ngIf="tree.selected.isEdit">
         <button class="button success" (click)="onSaveApi()" [btnSaving]="saving" >保存</button>
         <button class="button" (click)="onCancelEdit()">取消</button>
+      </div>
+    </div>
+
+    <div *ngIf="!tree.selected.id && tree.activeFound" class="p20">
+      <label class="font-2x">自动发现API</label>
+      <ui-loading *ngIf="loadingFoundApis" class="block mt30" ></ui-loading>
+      <div *ngIf="!loadingFoundApis">
+        <table class="mb10" style="background-color: #fff">
+          <tr>
+            <th>url</th>
+            <th>方法</th>
+            <th>创建时间</th>
+            <th >访问次数</th>
+            <th>操作</th>
+          </tr>
+          <ng-template ngFor let-item let-i="index" [ngForOf]="foundApis">
+            <tr>
+              <td >
+                {{item.url}}
+              </td>
+              <td>
+                {{item.method}}
+              </td>
+              <td >
+                {{item.createdAt}}
+              </td>
+              <td>{{item.visited}}</td>
+              <td >
+                <a (click)="onEditFound(item)">编辑</a>
+              </td>
+            </tr>
+          </ng-template>
+          <tr *ngIf="!foundApis || foundApis.length === 0">
+            <td class="text-center" colspan="7">
+              暂无数据
+            </td>
+          </tr>
+        </table>
+        <div class="text-center mt10">
+          <button class="button primary" [disabled]="foundIndex<2" (click)="onLastPage()">上一页</button>
+          <button class="button primary" [disabled]="!foundApis || foundApis.length<10" (click)="onNextPage()">下一页</button>
+        </div>
       </div>
     </div>
   </div>
