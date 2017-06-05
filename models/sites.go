@@ -6,19 +6,21 @@ import (
 )
 
 type Site struct {
-  Id         bson.ObjectId `json:"id" bson:"_id"`
-  Owner      QuotedUser `json:"owner,omitempty"`
-  Editor     QuotedUser `json:"editor,omitempty"`
-  Name       string `json:"name"`
-  Desc       string `json:"desc"`
-  Gzip       bool `json:"gzip"`
-  Https      string `json:"https"`
-  Subdomain  string `json:"subdomain" `
-  ProxyKey   string `json:"proxyKey" bson:"proxyKey"`
-  ProxyValue string `json:"proxyValue" bson:"proxyValue"`
-  CreatedAt  time.Time `json:"createdAt,omitempty" bson:"createdAt,omitempty"`
-  UpdatedAt  time.Time `json:"updatedAt,omitempty" bson:"updatedAt,omitempty"`
-  DeletedAt  time.Time `json:"deletedAt,omitempty" bson:"deletedAt,omitempty"`
+  Id             bson.ObjectId `json:"id" bson:"_id"`
+  Owner          QuotedUser `json:"owner,omitempty"`
+  Editor         QuotedUser `json:"editor,omitempty"`
+  Name           string `json:"name"`
+  Desc           string `json:"desc"`
+  Gzip           bool `json:"gzip"`
+  Https          string `json:"https"`
+  Subdomain      string `json:"subdomain" `
+  IsCustomDomain bool `json:"isCustomDomain"  bson:"isCustomDomain"`
+  ApiDomain      string `json:"apiDomain" `
+  Group          string `json:"group" `
+  DstUrl         string `json:"dstUrl" bson:"dstUrl"`
+  CreatedAt      time.Time `json:"createdAt,omitempty" bson:"createdAt,omitempty"`
+  UpdatedAt      time.Time `json:"updatedAt,omitempty" bson:"updatedAt,omitempty"`
+  DeletedAt      time.Time `json:"deletedAt,omitempty" bson:"deletedAt,omitempty"`
 }
 
 type SiteApi struct {
@@ -27,6 +29,7 @@ type SiteApi struct {
   Owner                  QuotedUser `json:"owner,omitempty"`
   Editor                 QuotedUser `json:"editor,omitempty"`
   Name                   string `json:"name"`
+  ShortUrl               string `json:"shortUrl" bson:"shortUrl"`
   Url                    string `json:"url"`
   Desc                   string `json:"desc"`
   Method                 string `json:"method"`
@@ -62,16 +65,12 @@ type ApiParam struct {
 }
 
 type SiteParam struct {
-  Id         bson.ObjectId `json:"id" bson:"_id"`
-  Gzip       bool `json:"gzip"`
-  Https      string `json:"https"`
-  Subdomain  string `json:"subdomain" `
-  ProxyKey   string `json:"proxyKey" bson:"proxyKey"`
-  ProxyValue string `json:"proxyValue" bson:"proxyValue"`
-}
-
-func (api *SiteApi) GetMockData() {
-  if api.DataType == "application/json" || api.DataType == "multipart/form-data" || api.DataType == "application/x-www-form-urlencoded" {
-
-  }
+  Id             bson.ObjectId `json:"id" bson:"_id"`
+  Gzip           bool `json:"gzip"`
+  Https          string `json:"https"`
+  Subdomain      string `json:"subdomain" `
+  IsCustomDomain bool `json:"isCustomDomain"  bson:"isCustomDomain"`
+  ApiDomain      string `json:"apiDomain" bson:"apiDomain"`
+  Group          string `json:"group" `
+  DstUrl         string `json:"dstUrl" bson:"dstUrl"`
 }

@@ -1,7 +1,8 @@
 package controllers
 
 import (
-  "gopkg.in/kataras/iris.v6"
+  "github.com/kataras/iris"
+  "github.com/kataras/iris/context"
   "github.com/alsmile/goApiGateway/utils"
   "github.com/alsmile/goApiGateway/models"
   "github.com/alsmile/goApiGateway/services/user"
@@ -10,13 +11,13 @@ import (
   "github.com/alsmile/goApiGateway/services"
 )
 
-func GetSignConfig(ctx *iris.Context) {
-  ServeJson(ctx, utils.GlobalConfig.User)
+func GetSignConfig(ctx context.Context) {
+  ctx.JSON(utils.GlobalConfig.User)
 }
 
-func Login(ctx *iris.Context) {
+func Login(ctx context.Context) {
   ret := make(map[string]interface{})
-  defer ServeJson(ctx, ret)
+  defer ctx.JSON(ret)
 
   u := &models.User{}
   ctx.ReadJSON(u)
@@ -52,9 +53,9 @@ func Login(ctx *iris.Context) {
 }
 
 
-func SignUp(ctx *iris.Context) {
+func SignUp(ctx context.Context) {
   ret := make(map[string]interface{})
-  defer ServeJson(ctx, ret)
+  defer ctx.JSON(ret)
 
   u := &models.User{}
   ctx.ReadJSON(u)
@@ -70,9 +71,9 @@ func SignUp(ctx *iris.Context) {
   }
 }
 
-func SignActive(ctx *iris.Context) {
+func SignActive(ctx context.Context) {
   ret := make(map[string]interface{})
-  defer ServeJson(ctx, ret)
+  defer ctx.JSON(ret)
 
   u := &models.User{}
   ctx.ReadJSON(u)
@@ -88,9 +89,9 @@ func SignActive(ctx *iris.Context) {
   ret["token"] = user.GetToken(u, services.TokenValidHours)
 }
 
-func ForgetPassword(ctx *iris.Context) {
+func ForgetPassword(ctx context.Context) {
   ret := make(map[string]interface{})
-  defer ServeJson(ctx, ret)
+  defer ctx.JSON(ret)
 
   u := &models.User{}
   ctx.ReadJSON(u)
@@ -106,9 +107,9 @@ func ForgetPassword(ctx *iris.Context) {
   }
 }
 
-func NewPassword(ctx *iris.Context) {
+func NewPassword(ctx context.Context) {
   ret := make(map[string]interface{})
-  defer ServeJson(ctx, ret)
+  defer ctx.JSON(ret)
 
   u := &models.User{}
   ctx.ReadJSON(u)
@@ -125,21 +126,21 @@ func NewPassword(ctx *iris.Context) {
   ret["token"] = user.GetToken(u, services.TokenValidHours)
 }
 
-func UserProfile(ctx *iris.Context) {
+func UserProfile(ctx context.Context) {
   ret := make(map[string]interface{})
-  defer ServeJson(ctx, ret)
+  defer ctx.JSON(ret)
 
   u := models.User{}
   user.ValidToken(ctx, &u)
   if u.Id == "" {
-    ctx.SetStatusCode(iris.StatusUnauthorized)
+    ctx.StatusCode(iris.StatusUnauthorized)
     ret["error"] = services.ErrorNeedSign
     return
   }
 
   err := user.GetUserById(&u)
   if err != nil {
-    ctx.SetStatusCode(iris.StatusUnauthorized)
+    ctx.StatusCode(iris.StatusUnauthorized)
     ret["error"] = services.ErrorUserNoExists
     return
   }
@@ -149,14 +150,14 @@ func UserProfile(ctx *iris.Context) {
   ret["username"] = u.Profile.Username
 }
 
-func Auth(ctx *iris.Context) {
+func Auth(ctx context.Context) {
   u := models.User{}
   user.ValidToken(ctx, &u)
   if u.Id == "" {
-    ctx.SetStatusCode(iris.StatusUnauthorized)
+    ctx.StatusCode(iris.StatusUnauthorized)
     ret := make(map[string]interface{})
     ret["error"] = services.ErrorNeedSign
-    ServeJson(ctx, ret)
+    ctx.JSON(ret)
     return
   }
 

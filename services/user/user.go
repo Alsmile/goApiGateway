@@ -16,7 +16,7 @@ import (
   "strings"
   "github.com/alsmile/goApiGateway/services/email"
   "github.com/alsmile/goApiGateway/db/redis"
-  "gopkg.in/kataras/iris.v6"
+  "github.com/kataras/iris/context"
   "gopkg.in/mgo.v2/bson"
 )
 
@@ -188,10 +188,10 @@ func GetToken(u *models.User, hours int) (data string) {
   return
 }
 
-func ValidToken(ctx *iris.Context, user *models.User) {
-  data := ctx.RequestHeader("Authorization")
+func ValidToken(ctx context.Context, user *models.User) {
+  data := ctx.GetHeader("Authorization")
   if data == "" || !strings.HasPrefix(data, services.HeaderTrim) {
-    ctx.SetStatusCode(401)
+    ctx.StatusCode(401)
     return
   }
 

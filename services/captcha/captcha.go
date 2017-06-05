@@ -5,7 +5,7 @@ import (
   myRedis "github.com/alsmile/goApiGateway/db/redis"
   "github.com/garyburd/redigo/redis"
   "github.com/alsmile/goApiGateway/session"
-  "gopkg.in/kataras/iris.v6"
+  "github.com/kataras/iris/context"
 )
 
 const (
@@ -58,7 +58,7 @@ func ClearSignError(id string){
   return
 }
 
-func VerifyImage(ctx *iris.Context, code string) bool {
+func VerifyImage(ctx context.Context, code string) bool {
   captchaId, _ := redis.String(session.GetSession(ctx, CaptchaSessionName))
   if captchaId == "" {
     return false

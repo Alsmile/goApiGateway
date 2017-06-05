@@ -1,7 +1,8 @@
 package controllers
 
 import (
-  "gopkg.in/kataras/iris.v6"
+  "github.com/kataras/iris"
+  "github.com/kataras/iris/context"
   "github.com/alsmile/goApiGateway/models"
   "github.com/alsmile/goApiGateway/services/user"
   "github.com/alsmile/goApiGateway/services/sites"
@@ -9,9 +10,9 @@ import (
   "gopkg.in/mgo.v2/bson"
 )
 
-func SiteList(ctx *iris.Context)  {
+func SiteList(ctx context.Context)  {
   ret := make(map[string]interface{})
-  defer ServeJson(ctx, ret)
+  defer ctx.JSON(ret)
 
   pageIndex, err := ctx.URLParamInt(services.PageIndex)
   if err != nil || pageIndex < 1 {
@@ -37,13 +38,13 @@ func SiteList(ctx *iris.Context)  {
   ret["list"] = list
 }
 
-func SiteGet(ctx *iris.Context)  {
+func SiteGet(ctx context.Context)  {
   ret := make(map[string]interface{})
 
   id := ctx.URLParam("id")
   if id == "" {
     ret["error"] = services.ErrorParam
-    ServeJson(ctx, ret)
+    ctx.JSON(ret)
     return
   }
 
@@ -59,16 +60,16 @@ func SiteGet(ctx *iris.Context)  {
 
   if err != nil {
     ret["error"] = err.Error()
-    ServeJson(ctx, ret)
+    ctx.JSON(ret)
     return
   }
 
-  ServeJson(ctx, site)
+  ctx.JSON(site)
 }
 
-func SiteSave(ctx *iris.Context)  {
+func SiteSave(ctx context.Context)  {
   ret := make(map[string]interface{})
-  defer ServeJson(ctx, ret)
+  defer ctx.JSON(ret)
 
   site := &models.Site{}
   err := ctx.ReadJSON(site)
@@ -92,9 +93,9 @@ func SiteSave(ctx *iris.Context)  {
 }
 
 
-func SiteApiSave(ctx *iris.Context)  {
+func SiteApiSave(ctx context.Context)  {
   ret := make(map[string]interface{})
-  defer ServeJson(ctx, ret)
+  defer ctx.JSON(ret)
 
   siteApi := &models.SiteApi{}
   err := ctx.ReadJSON(siteApi)
@@ -110,7 +111,7 @@ func SiteApiSave(ctx *iris.Context)  {
   if siteApi.Id == "" && siteApi.Site.Id == "" {
     err = user.GetUserById(&u)
     if err != nil {
-      ctx.SetStatusCode(iris.StatusUnauthorized)
+      ctx.StatusCode(iris.StatusUnauthorized)
       ret["error"] = services.ErrorUserNoExists
       return
     }
@@ -129,13 +130,13 @@ func SiteApiSave(ctx *iris.Context)  {
   ret["id"] = siteApi.Id
 }
 
-func SiteApiGet(ctx *iris.Context)  {
+func SiteApiGet(ctx context.Context)  {
   ret := make(map[string]interface{})
 
   id := ctx.URLParam("id")
   if id == "" {
     ret["error"] = services.ErrorParam
-    ServeJson(ctx, ret)
+    ctx.JSON(ret)
     return
   }
 
@@ -151,20 +152,20 @@ func SiteApiGet(ctx *iris.Context)  {
 
   if err != nil {
     ret["error"] = err.Error()
-    ServeJson(ctx, ret)
+    ctx.JSON(ret)
     return
   }
 
-  ServeJson(ctx, siteApi)
+  ctx.JSON(siteApi)
 }
 
-func SiteApiDel(ctx *iris.Context)  {
+func SiteApiDel(ctx context.Context)  {
   ret := make(map[string]interface{})
 
   id := ctx.URLParam("id")
   if id == "" {
     ret["error"] = services.ErrorParam
-    ServeJson(ctx, ret)
+    ctx.JSON(ret)
     return
   }
 
@@ -178,16 +179,16 @@ func SiteApiDel(ctx *iris.Context)  {
   err := sites.DelApi(id)
   if err != nil {
     ret["error"] = err.Error()
-    ServeJson(ctx, ret)
+    ctx.JSON(ret)
     return
   }
 
-  ServeJson(ctx, true)
+  ctx.JSON(true)
 }
 
-func SiteApiList(ctx *iris.Context)  {
+func SiteApiList(ctx context.Context)  {
   ret := make(map[string]interface{})
-  defer ServeJson(ctx, ret)
+  defer ctx.JSON(ret)
 
   pageIndex, err := ctx.URLParamInt(services.PageIndex)
   if err != nil || pageIndex < 1 {

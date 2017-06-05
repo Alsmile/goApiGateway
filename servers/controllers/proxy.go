@@ -1,59 +1,41 @@
 package controllers
 
 import (
-  "gopkg.in/kataras/iris.v6"
+  "github.com/kataras/iris"
+  "github.com/kataras/iris/context"
   "github.com/alsmile/goApiGateway/services/sites"
   "log"
-  "encoding/json"
   "gopkg.in/mgo.v2/bson"
   "net/http"
   "io/ioutil"
-  "github.com/alsmile/goApiGateway/utils"
   "github.com/alsmile/goApiGateway/models"
+  "time"
 )
 
-func ServeJson(ctx *iris.Context, v interface{}) error {
-  code := ctx.StatusCode()
-  if code == 0 {
-    code = iris.StatusOK;
-  }
-  return ctx.RenderWithStatus(code, "application/json", v)
-}
-
-func ProxyDo(ctx *iris.Context) {
+func ProxyDo(ctx context.Context) {
   ret := make(map[string]interface{})
 
-  subdomain := ctx.Subdomain()
-  if ctx.VirtualHostname() == utils.GlobalConfig.Domain.Domain {
-    subdomain = ""
-  }
+  host := ctx.Host()
   method := string(ctx.Method())
-  key := "/" + ctx.Param("key")
-  url := ctx.Param("url")
+  group := "/" + ctx.Params().Get("group")
+  shortUrl := ctx.Params().Get("shortUrl")
+  url := group + shortUrl
 
   // 查找api级别代理
-  siteApi, err := sites.GetApiByUrl(subdomain, method, key, url)
+  siteApi, err := sites.GetApiByUrl(host, method, url)
   if err == nil {
     if siteApi.IsMock {
-      if siteApi.DataType == "application/json" ||
-        siteApi.DataType == "multipart/form-data" ||
-        siteApi.DataType == "application/x-www-form-urlencoded" {
-        var data bson.M
-        json.Unmarshal([]byte(siteApi.ResponseParamsText), &data)
-        ctx.RenderWithStatus(iris.StatusOK, siteApi.DataType, data)
-      } else {
-        ctx.RenderWithStatus(iris.StatusOK, siteApi.DataType, siteApi.ResponseParamsText)
-      }
+      ctx.WriteWithExpiration(http.StatusOK, []byte(siteApi.ResponseParamsText), siteApi.DataType, time.Now())
     } else {
-      proxy(ctx, method, siteApi.Site.ProxyValue+url, siteApi.DataType)
+      proxy(ctx, method, siteApi.Site.DstUrl+url, siteApi.DataType)
     }
     return
   }
 
   // 查找site级别代理
-  site, err := sites.GetSiteByProxyKey(subdomain, key)
+  site, err := sites.GetSiteByGroup(host, group)
   if err == nil {
-    proxy(ctx, method, site.ProxyValue+url, "")
+    proxy(ctx, method, site.DstUrl+url, "")
 
     siteApi = &models.SiteApi{}
 
@@ -63,7 +45,7 @@ func ProxyDo(ctx *iris.Context) {
     siteApi.Method = method
     siteApi.Url = url
     siteApi.Visited = 1
-    siteApi.StatusCode = ctx.StatusCode()
+    siteApi.StatusCode = ctx.GetStatusCode()
     sites.SaveApi(siteApi)
 
     return
@@ -71,69 +53,54 @@ func ProxyDo(ctx *iris.Context) {
 
   // log
   ret["method"] = method
-  ret["key"] = key
+  ret["group"] = group
+  ret["shortUrl"] = shortUrl
   ret["url"] = url
   ret["error"] = "Not found."
-  ctx.SetStatusCode(iris.StatusNotFound)
-  ServeJson(ctx, ret)
+  ctx.StatusCode(iris.StatusNotFound)
+  ctx.JSON(ret)
 }
 
-func proxy(ctx *iris.Context, method, dstUrl, dataType string) (err error) {
+func proxy(ctx context.Context, method, dstUrl, dataType string) (err error) {
   client := &http.Client{}
-  clientReq, err := http.NewRequest(method, dstUrl, ctx.Request.Body)
+  clientReq, err := http.NewRequest(method, dstUrl, ctx.Request().Body)
   if err != nil {
     log.Printf("[error]servers.controllers.proxy.proxy: method=%v, url=%v, proxyError=%v [[[[[[[[[[in NewRequest]]]]]]]]]]\r\n",
       method, dstUrl, err)
 
-    ctx.SetStatusCode(iris.StatusNotFound)
-    ServeJson(ctx, bson.M{"error": err.Error()})
+    ctx.StatusCode(iris.StatusNotFound)
+    ctx.JSON(bson.M{"error": err.Error()})
 
     return
   }
 
-  clientReq.Header = ctx.Request.Header
+  clientReq.Header = ctx.Request().Header
   clientResp, err := client.Do(clientReq)
 
   if err != nil {
-    ctx.SetStatusCode(iris.StatusNotFound)
-    ServeJson(ctx, bson.M{"error": err.Error()})
+    ctx.StatusCode(iris.StatusNotFound)
+    ctx.JSON(bson.M{"error": err.Error()})
     return
   }
-  ctx.SetStatusCode(clientResp.StatusCode)
+  ctx.StatusCode(clientResp.StatusCode)
 
   defer clientResp.Body.Close()
   body, err := ioutil.ReadAll(clientResp.Body)
   if err != nil {
     log.Printf("[error]servers.controllers.proxy.proxy: method=%v, url=%v, proxyError=%v, body=%v\r\n",
       method, dstUrl, err, body)
-    ServeJson(ctx, bson.M{"error": err.Error()})
+    ctx.JSON(bson.M{"error": err.Error()})
 
     return
   }
 
-  if dataType == "application/json" ||
-    dataType == "multipart/form-data" ||
-    dataType == "application/x-www-form-urlencoded" {
-    var data bson.M
-    json.Unmarshal(body, &data)
-    ctx.Render(dataType, data)
-  } else if dataType == "" {
-    var data bson.M
-    err = json.Unmarshal(body, &data)
-    if err == nil {
-      ctx.Render(dataType, data)
-    } else {
-      ctx.Render(dataType, string(body))
-    }
-  } else {
-    ctx.Render(dataType, string(body))
-  }
+  ctx.WriteWithExpiration(http.StatusOK, body, dataType, time.Now())
 
   err = nil
   return
 }
 
-func ProxyTest(ctx *iris.Context) {
+func ProxyTest(ctx context.Context) {
   method := string(ctx.Method())
   url := ctx.URLParam("url")
   dataType := ctx.URLParam("dataType")

@@ -1,7 +1,7 @@
 package session
 import (
   "net/http"
-  "gopkg.in/kataras/iris.v6"
+  "github.com/kataras/iris/context"
   "github.com/alsmile/goApiGateway/utils"
   "github.com/alsmile/goApiGateway/db/redis"
 )
@@ -12,7 +12,7 @@ const (
   SessionMaxAge = 10*60
 )
 
-func GetSessionId(ctx *iris.Context) (sessionId string) {
+func GetSessionId(ctx context.Context) (sessionId string) {
   sessionId = ctx.GetCookie(SessionId)
   if sessionId == "" {
     sessionId = utils.GetGuid()
@@ -27,7 +27,7 @@ func GetSessionId(ctx *iris.Context) (sessionId string) {
   return
 }
 
-func SetSession(ctx *iris.Context, name string, val interface{}) error {
+func SetSession(ctx context.Context, name string, val interface{}) error {
   sessionId := GetSessionId(ctx)
 
   if sessionId == "" {
@@ -40,7 +40,7 @@ func SetSession(ctx *iris.Context, name string, val interface{}) error {
   return err
 }
 
-func GetSession(ctx *iris.Context, name string) (val interface{}, err error) {
+func GetSession(ctx context.Context, name string) (val interface{}, err error) {
   sessionId := GetSessionId(ctx)
   if sessionId == "" {
     return

@@ -14,7 +14,7 @@ export class SitesEditComponent implements AfterViewChecked {
   loading: boolean = true;
   id: string;
   user: any;
-  site: any = {https: '', notFound: {code:404}, proxyKey: '', proxyValue: ''};
+  site: any = {https: '', notFound: {code:404}, isSubdomain: true};
   saving: boolean;
   formErrors: any = {};
   domain: string = document.domain.replace('admin', '');
@@ -49,8 +49,8 @@ export class SitesEditComponent implements AfterViewChecked {
   onValueChanged(dirty?: boolean) {
     if (!this.currentForm) { return; }
     const form = this.currentForm.form;
+    for (let item in this.formErrors) this.formErrors[item] = false;
     for (const field in form.controls) {
-      this.formErrors[field] = false;
       const control = form.get(field);
 
       if (control && (dirty || control.dirty) && !control.valid) {
@@ -65,6 +65,10 @@ export class SitesEditComponent implements AfterViewChecked {
 
     this.saving = true;
     this.site.editor = this.user;
+    if (!this.site.isCustomDomain) {
+      if (this.site.subdomain) this.site.apiDomain = this.site.subdomain + this.domain;
+      else this.site.apiDomain = this.domain.substring(1);
+    }
     let ret = await this._sitesService.Save(this.site);
     if (ret) {
       let _noticeService: NoticeService = new NoticeService();

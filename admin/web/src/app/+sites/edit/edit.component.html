@@ -5,9 +5,6 @@
   .input {
     min-width: 3rem;
   }
-  .input.short {
-    min-width: 1rem;
-  }
 </style>
 
 <div class="p20">
@@ -20,34 +17,48 @@
   <form class="panel site-edit mt10 p20"  #myForm="ngForm" (ngSubmit)="onSubmit()" [touchForm]="myForm" *ngIf="!loading">
     <div class="flex mb10">
       <label class="required">站名</label>
-      <div class="flex">
-        <div class="mr10">
-          <input class="input" name="name" [(ngModel)]="site.name" required placeholder="您的站点名称">
-          <div *ngIf="formErrors.name" class="error">
-            请填写站名
-          </div>
-        </div>
-        <div>
-          <input class="input" name="subdomain" [(ngModel)]="site.subdomain" placeholder="子域名，缺省空为网关域名">
-          {{domain}}
+      <div>
+        <input class="input" name="name" [(ngModel)]="site.name" required placeholder="您的站点名称">
+        <div *ngIf="formErrors.name" class="error">
+          请填写站名
         </div>
       </div>
     </div>
     <div class="flex mb10">
-      <label>proxy</label>
+      <label >域名</label>
+      <div>
+        <input *ngIf="!site.isCustomDomain" class="input" name="subdomain" [(ngModel)]="site.subdomain" placeholder="子域名">
+        <input *ngIf="site.isCustomDomain" class="input" name="apiDomain" [(ngModel)]="site.apiDomain" placeholder="自定义域名">
+
+        <label *ngIf="!site.isCustomDomain">{{domain}}</label>
+
+        <label class="checkbox ml20">
+          <input type="checkbox" name="isCustomDomain" [(ngModel)]="site.isCustomDomain">
+          <span>使用自定义域名</span>
+        </label>
+      </div>
+    </div>
+    <div class="flex mb10">
+      <label>子模块</label>
       <div class="flex">
         <div class="mr10">
-          <input class="input" name="proxyKey" [(ngModel)]="site.proxyKey" placeholder="代理url，例如： /api" proxyKey>
-          <div *ngIf="formErrors.proxyKey" class="error">
-            代理url必须为“/”+“字母或数字”格式，并且有且仅有一个“/”在开头。
+          <input class="input" name="group" [(ngModel)]="site.group" placeholder="子模块，例如： /user" proxyKey>
+          <div *ngIf="formErrors.group" class="error">
+            子模块必须为“/”+“字母或数字”格式，并且有且仅有一个“/”在开头。
           </div>
         </div>
-        <div>
-          <input class="input" name="proxyValue" [(ngModel)]="site.proxyValue" isUrl
-                 placeholder="代理地址，例如： https://www.domain.com/api">
-          <div *ngIf="formErrors.proxyValue" class="error">
-            代理地址必须以http://或https://开头
-          </div>
+        <div class="gray">
+          子模块用于域名相同，通过url第一个子节区分不同项目模块的场景。例如： api.cloudtogo.cn/sso, api.cloudtogo.cn/mart
+        </div>
+      </div>
+    </div>
+    <div class="flex mb10">
+      <label>代理地址</label>
+      <div>
+        <input class="input" name="dstUrl" [(ngModel)]="site.dstUrl" isUrl
+               placeholder="代理地址，例如： https://www.domain.com/api">
+        <div *ngIf="formErrors.dstUrl" class="error">
+          代理地址必须以http://或https://开头
         </div>
       </div>
     </div>

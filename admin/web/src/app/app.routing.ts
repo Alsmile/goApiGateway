@@ -2,8 +2,6 @@ import { ModuleWithProviders }  from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { HomeComponent } from "./home/home.component";
-import { UserModule } from './+user/user.module';
-import { SitesModule } from './+sites/sites.module';
 
 export const appRoutes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full'},

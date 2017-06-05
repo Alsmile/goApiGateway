@@ -181,6 +181,7 @@ export class SitesApisListComponent{
 
     this.tree.selected.site = this.site;
     this.tree.selected.autoReg = false;
+    this.tree.selected.url = this.site.group + this.tree.selected.shortUrl;
     let ret = await this._sitesService.SaveApi(this.tree.selected);
     if (this.tree.activeFound) {
       this.tree.edited.push(this.tree.selected);

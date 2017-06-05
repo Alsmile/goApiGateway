@@ -95,8 +95,11 @@ func Save(site *models.Site) (err error) {
     Id: site.Id,
     Gzip: site.Gzip,
     Https: site.Https,
-    ProxyKey: site.ProxyKey,
-    ProxyValue: site.ProxyValue,
+    Group: site.Group,
+    Subdomain: site.Subdomain,
+    IsCustomDomain: site.IsCustomDomain,
+    ApiDomain: site.ApiDomain,
+    DstUrl: site.DstUrl,
   }}})
 
   return
@@ -126,8 +129,10 @@ func SaveApi(siteApi *models.SiteApi) (err error) {
       siteApi.Site.Id = s.Id
       s.CreatedAt = s.UpdatedAt
       s.Subdomain = siteApi.Site.Subdomain
-      s.ProxyValue = siteApi.Site.ProxyValue
-      s.ProxyKey = siteApi.Site.ProxyKey
+      s.IsCustomDomain = siteApi.Site.IsCustomDomain
+      s.ApiDomain = siteApi.Site.ApiDomain
+      s.Group = siteApi.Site.Group
+      s.DstUrl = siteApi.Site.DstUrl
       s.Https = siteApi.Site.Https
       s.Gzip = siteApi.Site.Gzip
       s.Owner = siteApi.Owner
@@ -139,8 +144,11 @@ func SaveApi(siteApi *models.SiteApi) (err error) {
   } else {
     err = Get(s)
     if err == nil {
-      siteApi.Site.ProxyValue = s.ProxyValue
-      siteApi.Site.ProxyKey = s.ProxyKey
+      siteApi.Site.Subdomain = s.Subdomain
+      siteApi.Site.IsCustomDomain = s.IsCustomDomain
+      siteApi.Site.ApiDomain = s.ApiDomain
+      siteApi.Site.DstUrl = s.DstUrl
+      siteApi.Site.Group = s.Group
       siteApi.Site.Https = s.Https
       siteApi.Site.Gzip = s.Gzip
     } else {
@@ -225,7 +233,8 @@ func ApiList(siteId bson.ObjectId, autoReg string, fieldType, pageIndex, pageCou
     "_id": true,
     "name": true,
     "site._id": true,
-    "site.proxyKey": true,
+    "site.group": true,
+    "shortUrl": true,
     "url": true,
     "method": true,
     "visited": true,
@@ -250,12 +259,12 @@ func ApiList(siteId bson.ObjectId, autoReg string, fieldType, pageIndex, pageCou
   return
 }
 
-func GetApiByUrl(subdomain, method, key, url string) (siteApi *models.SiteApi, err error) {
+func GetApiByUrl(apiDomain, method, url string) (siteApi *models.SiteApi, err error) {
   mongoSession := mongo.MgoSession.Clone()
   defer mongoSession.Close()
 
   err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
-    Find(bson.M{"method": method, "site.subdomain": subdomain, "site.proxyKey": key, "url": url}).
+    Find(bson.M{"method": method, "site.apiDomain": apiDomain, "url": url}).
     Select(services.SelectHide).
     One(&siteApi)
 
@@ -270,17 +279,16 @@ func GetApiByUrl(subdomain, method, key, url string) (siteApi *models.SiteApi, e
   return
 }
 
-func GetSiteByProxyKey(subdomain, proxyKey string) (site *models.Site, err error) {
+func GetSiteByGroup(apiDomain, group string) (site *models.Site, err error) {
   mongoSession := mongo.MgoSession.Clone()
   defer mongoSession.Close()
 
   err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).
-    Find(bson.M{"subdomain": subdomain, "proxyKey": proxyKey}).
+    Find(bson.M{"apiDomain": apiDomain, "group": group}).
     Select(services.SelectHide).
     One(&site)
 
   if err != nil {
-    //log.Printf("[error]serivces.sites.GetSiteByProxyKey: err=%v,key=%s\r\n", err, site)
     err = errors.New(services.ErrorRead)
   }
 

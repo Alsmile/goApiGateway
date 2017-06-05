@@ -1,6 +1,7 @@
 package controllers
 import (
-  "gopkg.in/kataras/iris.v6"
+  "github.com/kataras/iris"
+  "github.com/kataras/iris/context"
   "github.com/garyburd/redigo/redis"
   "github.com/dchest/captcha"
   "github.com/alsmile/goApiGateway/session"
@@ -9,28 +10,28 @@ import (
 )
 
 
-func Index(ctx *iris.Context) {
-  ctx.SetStatusCode(iris.StatusOK)
+func Index(ctx context.Context) {
+  ctx.StatusCode(iris.StatusOK)
   ctx.ServeFile("./admin/web/dist/index.html", true)
 }
 
-func Browser(ctx *iris.Context) {
+func Browser(ctx context.Context) {
   ctx.ServeFile("./admin/web/dist/browser.html", true)
 }
 
-func NotFound(ctx *iris.Context) {
+func NotFound(ctx context.Context) {
   if strings.HasPrefix(ctx.Path(), "/api/") {
     ret := make(map[string]interface{})
     ret["error"] = "请求错误（Not found）：" + ctx.Path()
-    ctx.SetStatusCode(iris.StatusNotFound)
-    ServeJson(ctx,ret)
+    ctx.StatusCode(iris.StatusNotFound)
+    ctx.JSON(ret)
   } else {
-    ctx.SetStatusCode(iris.StatusFound)
+    ctx.StatusCode(iris.StatusFound)
     Index(ctx)
   }
 }
 
-func Captcha(ctx *iris.Context) {
+func Captcha(ctx context.Context) {
   captchaId, _ := redis.String(session.GetSession(ctx, myCaptcha.CaptchaSessionName))
 
   // Delete the old.
@@ -40,15 +41,8 @@ func Captcha(ctx *iris.Context) {
 
   captchaId = captcha.New()
   session.SetSession(ctx, myCaptcha.CaptchaSessionName, captchaId)
-  ctx.SetHeader("Content-Type", "image/png")
-  captcha.WriteImage(ctx.ResponseWriter, captchaId, 150, 50)
+  ctx.Header("Content-Type", "image/png")
+  captcha.WriteImage(ctx.ResponseWriter(), captchaId, 150, 50)
 }
 
-func ServeJson(ctx *iris.Context, v interface{}) error {
-  code :=  ctx.StatusCode()
-  if code == 0 {
-    code = iris.StatusOK;
-  }
-  return ctx.RenderWithStatus(code, "application/json", v)
-}
 
