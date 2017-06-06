@@ -1,16 +1,17 @@
-package admin
+package routers
 
 import (
-  "fmt"
   "strconv"
   "github.com/kataras/iris"
   "github.com/alsmile/goApiGateway/utils"
-  "github.com/alsmile/goApiGateway/admin/controllers"
-  proxy "github.com/alsmile/goApiGateway/servers/controllers"
+  "github.com/alsmile/goApiGateway/controllers"
 )
 
 func Start() {
   app := iris.New()
+
+  app.OnErrorCode(iris.StatusNotFound, controllers.NotFound)
+
   admin := app.Party(utils.GlobalConfig.Domain.AdminDomain)
   {
     admin.StaticWeb("/assets", "./admin/web/dist/assets")
@@ -36,14 +37,13 @@ func Start() {
     admin.Get("/api/site/api/del", controllers.Auth, controllers.SiteApiDel)
     admin.Get("/api/site/api/list", controllers.Auth, controllers.SiteApiList)
 
-    admin.Any("/api/test", proxy.ProxyTest)
+    admin.Post("/api/site/api/list/by/domains", controllers.Auth, controllers.SiteApiListByDomains)
+
+    admin.Any("/api/test", controllers.ProxyTest)
   }
 
-  app.Any("/{group:string}/{shortUrl:path}", proxy.ProxyDo)
+  app.Any("/{group:string}/{shortUrl:path}", controllers.ProxyDo)
 
-  app.OnErrorCode(iris.StatusNotFound, controllers.NotFound)
-
-  fmt.Printf("[log]Listen: %d\r\n", utils.GlobalConfig.Domain.Port)
   strPort := strconv.Itoa(int(utils.GlobalConfig.Domain.Port))
   app.Run(iris.Addr(":" + strPort))
 }

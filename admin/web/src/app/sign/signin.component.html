@@ -3,7 +3,7 @@
     登  录
   </h2>
   <div class="input-group">
-    <i class="fa fa-envelope-o"></i>
+    <i class="iconfont icon-mail"></i>
     <input class="input no-radius full block" name="email" placeholder="邮箱"
            [(ngModel)]="user.profile.email" #email="ngModel" required isEmail>
   </div>
@@ -12,7 +12,7 @@
   </div>
 
   <div class="input-group mt10">
-    <i class="fa fa-lock"></i>
+    <i class="iconfont icon-lock"></i>
     <input class="input no-radius full block" type="password" name="password" placeholder="密码"
            [(ngModel)]="user.password" #password="ngModel" required isPassword (keyup.enter)="onSubmit()">
   </div>

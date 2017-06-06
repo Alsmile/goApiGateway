@@ -6,7 +6,7 @@ import (
   "gopkg.in/natefinch/lumberjack.v2"
   "github.com/alsmile/goApiGateway/utils"
   "github.com/alsmile/goApiGateway/db"
-  "github.com/alsmile/goApiGateway/admin"
+  "github.com/alsmile/goApiGateway/routers"
   "github.com/alsmile/goApiGateway/db/mongo"
 )
 
@@ -45,7 +45,10 @@ func main() {
   }
   defer mongo.MgoSession.Close()
 
+  // 内部sdk服务
+  go routers.SdkServer()
+
   // 后台管理web + proxy
-  admin.Start()
+  routers.Start()
 }
 

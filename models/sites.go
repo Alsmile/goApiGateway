@@ -14,8 +14,8 @@ type Site struct {
   Gzip           bool `json:"gzip"`
   Https          string `json:"https"`
   Subdomain      string `json:"subdomain" `
-  IsCustomDomain bool `json:"isCustomDomain"  bson:"isCustomDomain"`
-  ApiDomain      string `json:"apiDomain" `
+  IsCustomDomain bool `json:"isCustomDomain" bson:"isCustomDomain"`
+  ApiDomain      string `json:"apiDomain" bson:"apiDomain"`
   Group          string `json:"group" `
   DstUrl         string `json:"dstUrl" bson:"dstUrl"`
   CreatedAt      time.Time `json:"createdAt,omitempty" bson:"createdAt,omitempty"`

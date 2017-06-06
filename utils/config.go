@@ -13,9 +13,10 @@ type AppConfig struct {
   Website string `json:"website"`
   Cpu     int `json:"cpu"`
   Domain struct {
-    Domain string `json:"domain"`
+    Domain      string `json:"domain"`
     AdminDomain string `json:"adminDomain"`
-    Port uint16 `json:"port"`
+    Port        uint16 `json:"port"`
+    SdkPort     uint16 `json:"sdkPort"`
   } `json:"domain"`
   User struct {
     LoginUrl  string `json:"loginUrl"`

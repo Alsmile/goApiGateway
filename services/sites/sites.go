@@ -17,7 +17,7 @@ func ListAll() (sites []models.Site, err error) {
 
   err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).
     Find(bson.M{"deletedAt": bson.M{"$exists": false}}).
-    Select(bson.M{"domain": true, "gzip" : true,  "https" : true, "notFound": true, "statics":true, "proxies": true}).
+    Select(bson.M{"apiDomain": true, "gzip" : true,  "https" : true, "notFound": true, "statics":true, "proxies": true}).
     All(&sites)
 
   if err != nil {
@@ -73,6 +73,28 @@ func Get(site *models.Site) (err error) {
   return
 }
 
+func GetByGroup(site *models.Site) (err error) {
+  if site.Id == "" {
+    err = errors.New(services.ErrorParam)
+    return
+  }
+
+  mongoSession := mongo.MgoSession.Clone()
+  defer mongoSession.Close()
+
+  err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).
+    Find(bson.M{"apiDomain": site.ApiDomain, "group": site.Group}).
+    Select(services.SelectHide).
+    One(&site)
+
+  if err != nil {
+    log.Printf("[error]serivces.sites.GetByGroup: err=%v, data=%s\r\n", err, site)
+    err = errors.New(services.ErrorRead)
+  }
+
+  return
+}
+
 func Save(site *models.Site) (err error) {
   site.UpdatedAt = time.Now().UTC()
   if site.Id == "" {
@@ -101,6 +123,29 @@ func Save(site *models.Site) (err error) {
     ApiDomain: site.ApiDomain,
     DstUrl: site.DstUrl,
   }}})
+
+  return
+}
+
+func DelSite(site *models.Site) (err error) {
+  mongoSession := mongo.MgoSession.Clone()
+  defer mongoSession.Close()
+
+  _, err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).
+    RemoveAll(bson.M{"apiDomain": site.ApiDomain, "group": site.Group})
+
+  if err != nil {
+    log.Printf("[error]serivces.sites.DelSite - CollectionSites: err=%v, site=%s\r\n", err, site)
+    err = errors.New(services.ErrorSave)
+  }
+
+  _, errApis := mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
+    RemoveAll(bson.M{"site.apiDomain": site.ApiDomain, "site.group": site.Group})
+
+  if errApis != nil {
+    log.Printf("[error]serivces.sites.DelSite - CollectionApis: err=%v, site=%s\r\n", err, site)
+    err = errors.New(services.ErrorSave)
+  }
 
   return
 }
@@ -166,6 +211,19 @@ func SaveApi(siteApi *models.SiteApi) (err error) {
   if err != nil {
     siteApi.Id = ""
     log.Printf("[error]serivces.sites.SaveApi: err=%v, data=%s\r\n", err, siteApi)
+    err = errors.New(services.ErrorSave)
+  }
+
+  return
+}
+
+func SaveApis(apis []interface{}) (err error) {
+  mongoSession := mongo.MgoSession.Clone()
+  defer mongoSession.Close()
+
+  err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).Insert(apis...)
+  if err != nil {
+    log.Printf("[error]serivces.sites.SaveApis: err=%v, data=%s\r\n", err, apis)
     err = errors.New(services.ErrorSave)
   }
 
@@ -242,7 +300,7 @@ func ApiList(siteId bson.ObjectId, autoReg string, fieldType, pageIndex, pageCou
     "updatedAt": true,
   }
   if fieldType == 1 {
-    selected = bson.M{"_id": true, "name": true, "site._id": true, "site.proxyKey": true}
+    selected = bson.M{"_id": true, "name": true, "site._id": true, "site.group": true}
   }
 
   err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
@@ -289,6 +347,47 @@ func GetSiteByGroup(apiDomain, group string) (site *models.Site, err error) {
     One(&site)
 
   if err != nil {
+    err = errors.New(services.ErrorRead)
+  }
+
+  return
+}
+
+func ApiListByDomains(domain []string, autoReg string, fieldType, pageIndex, pageCount int) (apis []models.SiteApi,err error) {
+  mongoSession := mongo.MgoSession.Clone()
+  defer mongoSession.Close()
+
+  where := bson.M{"site.apiDomain": bson.M{"$in": domain}, "deletedAt": bson.M{"$exists": false}}
+  if autoReg == "true" {
+    where["autoReg"] = true
+  } else if autoReg == "false" {
+    where["autoReg"] = bson.M{"$ne": true}
+  }
+
+  selected := bson.M{
+    "_id": true,
+    "name": true,
+    "site._id": true,
+    "site.group": true,
+    "shortUrl": true,
+    "url": true,
+    "method": true,
+    "visited": true,
+    "createdAt": true,
+    "updatedAt": true,
+  }
+  if fieldType == 1 {
+    selected = bson.M{"_id": true, "name": true, "site._id": true, "site.group": true}
+  }
+
+  err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
+    Find(where).
+    Select(selected).
+    Sort("-updatedAt").Skip((pageIndex-1)*pageCount).Limit(pageCount).
+    All(&apis)
+
+  if err != nil {
+    log.Printf("[error]serivces.sites.ApiListByDomains: err=%v, data=%s\r\n", err, domain)
     err = errors.New(services.ErrorRead)
   }
 

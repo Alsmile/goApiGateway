@@ -6,7 +6,8 @@
   "domain": {
     "domain": "api.local.cloudtogo.cn",
     "adminDomain": "admin.",
-    "port": 8500
+    "port": 8500,
+    "sdkPort": 3200
   },
   "user": {
     "loginUrl": "",

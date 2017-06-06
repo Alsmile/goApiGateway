@@ -216,3 +216,36 @@ func SiteApiList(ctx context.Context)  {
 
   ret["list"] = list
 }
+
+func SiteApiListByDomains(ctx context.Context)  {
+  ret := make(map[string]interface{})
+  defer ctx.JSON(ret)
+
+  pageIndex, err := ctx.URLParamInt(services.PageIndex)
+  if err != nil || pageIndex < 1 {
+    ret["error"] = services.ErrorParamPage
+    return
+  }
+  pageCount, err := ctx.URLParamInt(services.PageCount)
+  if err != nil || pageCount < 1 {
+    ret["error"] = services.ErrorParamPage
+    return
+  }
+
+  auto := ctx.URLParam("auto")
+  fieldType, _ := ctx.URLParamInt("field")
+
+  var domains []string
+  err = ctx.ReadJSON(domains)
+  if err != nil || len(domains) < 1 {
+    ret["error"] = services.ErrorParam
+  }
+
+  list, err := sites.ApiListByDomains(domains, auto, fieldType, pageIndex, pageCount)
+
+  if err != nil {
+    ret["error"] = err.Error()
+  }
+
+  ret["list"] = list
+}
