@@ -341,8 +341,9 @@ func GetSiteByGroup(apiDomain, group string) (site *models.Site, err error) {
   mongoSession := mongo.MgoSession.Clone()
   defer mongoSession.Close()
 
+  groups := [2]string{group, ""}
   err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).
-    Find(bson.M{"apiDomain": apiDomain, "group": group}).
+    Find(bson.M{"apiDomain": apiDomain, "group": bson.M{"$in": groups}}).
     Select(services.SelectHide).
     One(&site)
 
