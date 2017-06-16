@@ -17,9 +17,7 @@ func ProxyDo(ctx context.Context) {
 
   host := ctx.Host()
   method := string(ctx.Method())
-  group := "/" + ctx.Params().Get("group")
-  shortUrl := ctx.Params().Get("shortUrl")
-  url := group + shortUrl
+  url := ctx.Params().Get("url")
 
   // 查找api级别代理
   siteApi, err := sites.GetApiByUrl(host, method, url)
@@ -33,7 +31,8 @@ func ProxyDo(ctx context.Context) {
   }
 
   // 查找site级别代理
-  site, err := sites.GetSiteByGroup(host, group)
+  site, err := sites.GetSiteByDomain(host)
+
   if err == nil {
     proxy(ctx, method, site.DstUrl+url, "")
 
@@ -53,8 +52,6 @@ func ProxyDo(ctx context.Context) {
 
   // log
   ret["method"] = method
-  ret["group"] = group
-  ret["shortUrl"] = shortUrl
   ret["url"] = url
   ret["error"] = "Not found."
   ctx.StatusCode(iris.StatusNotFound)

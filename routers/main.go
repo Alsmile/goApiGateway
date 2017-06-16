@@ -42,7 +42,7 @@ func Start() {
     admin.Any("/api/test", controllers.ProxyTest)
   }
 
-  app.Any("/{group:string}/{shortUrl:path}", controllers.ProxyDo)
+  app.Any("/{url:path}", controllers.ProxyDo)
 
   strPort := strconv.Itoa(int(utils.GlobalConfig.Domain.Port))
   app.Run(iris.Addr(":" + strPort))

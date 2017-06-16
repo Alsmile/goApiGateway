@@ -337,13 +337,12 @@ func GetApiByUrl(apiDomain, method, url string) (siteApi *models.SiteApi, err er
   return
 }
 
-func GetSiteByGroup(apiDomain, group string) (site *models.Site, err error) {
+func GetSiteByDomain(apiDomain string) (site *models.Site, err error) {
   mongoSession := mongo.MgoSession.Clone()
   defer mongoSession.Close()
 
-  groups := [2]string{group, ""}
   err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).
-    Find(bson.M{"apiDomain": apiDomain, "group": bson.M{"$in": groups}}).
+    Find(bson.M{"apiDomain": apiDomain}).
     Select(services.SelectHide).
     One(&site)
 
