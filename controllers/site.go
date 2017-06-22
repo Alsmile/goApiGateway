@@ -236,7 +236,7 @@ func SiteApiListByDomains(ctx context.Context)  {
   fieldType, _ := ctx.URLParamInt("field")
 
   var domains []string
-  err = ctx.ReadJSON(domains)
+  err = ctx.ReadJSON(&domains)
   if err != nil || len(domains) < 1 {
     ret["error"] = services.ErrorParam
   }

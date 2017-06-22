@@ -207,6 +207,9 @@ func SaveApi(siteApi *models.SiteApi) (err error) {
     siteApi.Id = bson.NewObjectId()
     siteApi.CreatedAt = siteApi.UpdatedAt
   }
+  if siteApi.Url == "" {
+    siteApi.Url = siteApi.Site.Group + siteApi.ShortUrl
+  }
   _, err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).Upsert(bson.M{"_id": siteApi.Id}, siteApi)
   if err != nil {
     siteApi.Id = ""
@@ -337,6 +340,26 @@ func GetApiByUrl(apiDomain, method, url string) (siteApi *models.SiteApi, err er
   return
 }
 
+func GetApiByDstUrl(dstUrl, method, url string) (siteApi *models.SiteApi, err error) {
+  mongoSession := mongo.MgoSession.Clone()
+  defer mongoSession.Close()
+
+  err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
+    Find(bson.M{"method": method, "site.dstUrl": dstUrl, "url": url}).
+    Select(services.SelectHide).
+    One(&siteApi)
+
+  if err != nil {
+    err = errors.New(services.ErrorRead)
+  } else {
+    // 计数+1
+    mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
+      Update(bson.M{"_id": siteApi.Id}, bson.M{"$inc": bson.M{"visited": 1}})
+  }
+
+  return
+}
+
 func GetSiteByDomain(apiDomain string) (site *models.Site, err error) {
   mongoSession := mongo.MgoSession.Clone()
   defer mongoSession.Close()
@@ -377,7 +400,7 @@ func ApiListByDomains(domain []string, autoReg string, fieldType, pageIndex, pag
     "updatedAt": true,
   }
   if fieldType == 1 {
-    selected = bson.M{"_id": true, "name": true, "site._id": true, "site.group": true}
+    selected = bson.M{"_id": true, "name": true, "site._id": true, "site.group": true, "site.apiDomain": true}
   }
 
   err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).

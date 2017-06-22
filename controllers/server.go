@@ -63,6 +63,10 @@ func ApisSet(ctx context.Context) {
     apis[i].UpdatedAt = time.Now().UTC()
     apis[i].CreatedAt = apis[i].UpdatedAt
 
+    if apis[i].Url == "" {
+      apis[i].Url = site.Group + apis[i].ShortUrl
+    }
+
     docs[i] = apis[i]
   }
   sites.SaveApis(docs)

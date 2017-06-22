@@ -99,8 +99,15 @@ func proxy(ctx context.Context, method, dstUrl, dataType string) (err error) {
 
 func ProxyTest(ctx context.Context) {
   method := string(ctx.Method())
+  host := ctx.URLParam("host")
   url := ctx.URLParam("url")
   dataType := ctx.URLParam("dataType")
 
-  proxy(ctx, method, url, dataType)
+  siteApi, err := sites.GetApiByDstUrl(host, method, url)
+  if err == nil && siteApi.IsMock{
+    ctx.WriteWithExpiration(http.StatusOK, []byte(siteApi.ResponseParamsText), siteApi.DataType, time.Now())
+    return
+  }
+
+  proxy(ctx, method, host + url, dataType)
 }

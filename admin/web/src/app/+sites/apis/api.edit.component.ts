@@ -127,7 +127,8 @@ export class ApiEditComponent {
     }
 
     let queryParams: any = {
-      url:this.api.site.proxyValue + this.api.url,
+      host: this.api.site.dstUrl,
+      url: this.api.url,
       dataType: this.api.dataType
     };
     for (let item of this.api.queryParams) {
