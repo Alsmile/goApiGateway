@@ -7,6 +7,7 @@ import (
   "crypto/hmac"
   "crypto/sha256"
   "encoding/hex"
+  "encoding/base64"
   "errors"
   "github.com/dgrijalva/jwt-go"
   "github.com/alsmile/goApiGateway/models"
@@ -177,7 +178,7 @@ func GetToken(u *models.User, hours int) (data string) {
     return
   }
 
-  token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+  token := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
     "uid": u.Id,
     "exp": time.Now().Add(time.Hour * time.Duration(hours)).Unix(),
   })
@@ -188,8 +189,14 @@ func GetToken(u *models.User, hours int) (data string) {
   return
 }
 
-func ValidToken(ctx context.Context, user *models.User) {
+func ValidToken(ctx context.Context, user *models.User) (uid string) {
   data := ctx.GetHeader("Authorization")
+  if data == "" {
+    data = ctx.GetHeader("token")
+    if data != "" {
+      data = services.HeaderTrim + data
+    }
+  }
   if data == "" || !strings.HasPrefix(data, services.HeaderTrim) {
     ctx.StatusCode(401)
     return
@@ -204,6 +211,16 @@ func ValidToken(ctx context.Context, user *models.User) {
   })
 
   if err != nil {
+    // secret base64 encoded
+    token, err = jwt.Parse(t, func(token *jwt.Token) (interface{}, error) {
+      if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+        return nil, fmt.Errorf("签名方法错误: %v", token.Header["alg"])
+      }
+      return base64.StdEncoding.DecodeString(utils.GlobalConfig.Jwt)
+    })
+  }
+
+  if err != nil {
     log.Printf("service.user.ValidToken.Parse: error= %s", err)
     return
   }
@@ -212,6 +229,11 @@ func ValidToken(ctx context.Context, user *models.User) {
   if !ok || !token.Valid {
     return
   }
-  user.Id = bson.ObjectIdHex(utils.String(claims["uid"]))
+
+  uid = utils.String(claims["uid"])
+  if bson.IsObjectIdHex(uid) {
+    user.Id = bson.ObjectIdHex(utils.String(claims["uid"]))
+  }
+
   return
 }

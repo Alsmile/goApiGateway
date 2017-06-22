@@ -152,8 +152,8 @@ func UserProfile(ctx context.Context) {
 
 func Auth(ctx context.Context) {
   u := models.User{}
-  user.ValidToken(ctx, &u)
-  if u.Id == "" {
+  uid := user.ValidToken(ctx, &u)
+  if uid == "" {
     ctx.StatusCode(iris.StatusUnauthorized)
     ret := make(map[string]interface{})
     ret["error"] = services.ErrorNeedSign
