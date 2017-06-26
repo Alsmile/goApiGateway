@@ -5,6 +5,7 @@ import (
   "github.com/kataras/iris"
   "github.com/alsmile/goApiGateway/utils"
   "github.com/alsmile/goApiGateway/controllers"
+  "github.com/kataras/iris/context"
 )
 
 func Start() {
@@ -39,7 +40,21 @@ func Start() {
 
     admin.Post("/api/site/api/list/by/domains", controllers.Auth, controllers.SiteApiListByDomains)
 
-    admin.Any("/api/test", controllers.ProxyTest)
+    admin.Get("/api/test", controllers.ProxyTest)
+    admin.Post("/api/test", controllers.ProxyTest)
+    admin.Put("/api/test", controllers.ProxyTest)
+    admin.Delete("/api/test", controllers.ProxyTest)
+
+    admin.Options("/api/{url:path}", func(ctx context.Context) {
+      ctx.Header("Access-Control-Allow-Origin", "*")
+      ctx.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, token, X-Requested-With")
+      ctx.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+      method := string(ctx.Method())
+      if method == "OPTIONS" {
+        ctx.JSON(true)
+        return
+      }
+    })
   }
 
   app.Any("/{url:path}", controllers.ProxyDo)

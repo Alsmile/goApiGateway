@@ -151,6 +151,8 @@ func UserProfile(ctx context.Context) {
 }
 
 func Auth(ctx context.Context) {
+  ctx.Header("Access-Control-Allow-Origin", "*")
+
   u := models.User{}
   uid := user.ValidToken(ctx, &u)
   if uid == "" {
