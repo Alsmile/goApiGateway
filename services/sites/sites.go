@@ -325,11 +325,11 @@ func GetApiByUrl(apiDomain, method, url string) (siteApi *models.SiteApi, err er
   defer mongoSession.Close()
 
   err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
-    Find(bson.M{"method": method, "site.apiDomain": apiDomain, "url": url}).
+    Find(bson.M{"method": method, "site.apiDomain": apiDomain, "url": url, "autoReg": bson.M{"$ne": true}}).
     Select(services.SelectHide).
     One(&siteApi)
 
-  if err != nil {
+  if err != nil || siteApi.Url == "" {
     err = errors.New(services.ErrorRead)
   } else {
     // 计数+1

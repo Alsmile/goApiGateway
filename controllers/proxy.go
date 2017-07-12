@@ -1,15 +1,15 @@
 package controllers
 
 import (
+  "log"
+  "net/http"
+  "time"
+  "io"
+  "gopkg.in/mgo.v2/bson"
   "github.com/kataras/iris"
   "github.com/kataras/iris/context"
-  "github.com/alsmile/goApiGateway/services/sites"
-  "log"
-  "gopkg.in/mgo.v2/bson"
-  "net/http"
-  "io/ioutil"
   "github.com/alsmile/goApiGateway/models"
-  "time"
+  "github.com/alsmile/goApiGateway/services/sites"
 )
 
 func ProxyDo(ctx context.Context) {
@@ -25,16 +25,15 @@ func ProxyDo(ctx context.Context) {
     if siteApi.IsMock {
       ctx.WriteWithExpiration(http.StatusOK, []byte(siteApi.ResponseParamsText), siteApi.DataType, time.Now())
     } else {
-      proxy(ctx, method, siteApi.Site.DstUrl+url, siteApi.DataType)
+      proxy(ctx, method, siteApi.Site.DstUrl+url)
     }
     return
   }
 
   // 查找site级别代理
   site, err := sites.GetSiteByDomain(host)
-
   if err == nil {
-    proxy(ctx, method, site.DstUrl+url, "")
+    proxy(ctx, method, site.DstUrl+url)
 
     siteApi = &models.SiteApi{}
 
@@ -58,7 +57,7 @@ func ProxyDo(ctx context.Context) {
   ctx.JSON(ret)
 }
 
-func proxy(ctx context.Context, method, dstUrl, dataType string) (err error) {
+func proxy(ctx context.Context, method, dstUrl string) (err error) {
   client := &http.Client{}
   clientReq, err := http.NewRequest(method, dstUrl, ctx.Request().Body)
   if err != nil {
@@ -75,24 +74,20 @@ func proxy(ctx context.Context, method, dstUrl, dataType string) (err error) {
   clientResp, err := client.Do(clientReq)
 
   if err != nil {
-    ctx.StatusCode(iris.StatusNotFound)
+    ctx.StatusCode(iris.StatusBadGateway)
     ctx.JSON(bson.M{"error": err.Error()})
     return
   }
   ctx.StatusCode(clientResp.StatusCode)
 
-  defer clientResp.Body.Close()
-  body, err := ioutil.ReadAll(clientResp.Body)
-  if err != nil {
-    log.Printf("[error]servers.controllers.proxy.proxy: method=%v, url=%v, proxyError=%v, body=%v\r\n",
-      method, dstUrl, err, body)
-    ctx.JSON(bson.M{"error": err.Error()})
-
-    return
+  for key, value := range clientResp.Header {
+    for _, v := range value {
+      ctx.Header(key, v)
+    }
   }
 
-  ctx.WriteWithExpiration(http.StatusOK, body, dataType, time.Now())
-
+  io.Copy(ctx.ResponseWriter(), clientResp.Body)
+  clientResp.Body.Close()
   err = nil
   return
 }
@@ -101,7 +96,6 @@ func ProxyTest(ctx context.Context) {
   method := string(ctx.Method())
   host := ctx.URLParam("host")
   url := ctx.URLParam("url")
-  dataType := ctx.URLParam("dataType")
 
   siteApi, err := sites.GetApiByDstUrl(host, method, url)
   if err == nil && siteApi.IsMock{
@@ -109,5 +103,5 @@ func ProxyTest(ctx context.Context) {
     return
   }
 
-  proxy(ctx, method, host + url, dataType)
+  proxy(ctx, method, host + url)
 }
