@@ -12,7 +12,7 @@ func NewPool() (err error) {
   RedisPool = &redis.Pool{
     MaxIdle:     utils.GlobalConfig.Redis.ConnectNum * 2,
     MaxActive:   utils.GlobalConfig.Redis.ConnectNum,
-    IdleTimeout: time.Duration(utils.GlobalConfig.Redis.IdleTimeout) * time.Second,
+    IdleTimeout: time.Duration(utils.GlobalConfig.Redis.Timeout) * time.Second,
     Dial: func() (redis.Conn, error) {
       var c redis.Conn
       c, err = redis.Dial("tcp", utils.GlobalConfig.Redis.Address)

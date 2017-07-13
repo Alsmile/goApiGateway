@@ -16,33 +16,22 @@
   },
   "jwt": "ds3785hf%*&fsdf",
   "secret": "2DF4sdgfs3ky45",
-  "postgresSql": {
-    "host": "localhost",
-    "port": 5432,
-    "database": "apiGateway",
-    "user": "",
-    "password": "",
-    "maxConnections": 1,
-    "acquireTimeout": 30,
-    "showSql": true,
-    "logLevel": 1,
-    "sslMode": "disable"
-  },
   "mongo": {
     "address": "localhost:27017",
     "database": "apiGateway",
     "user": "",
     "password": "",
-    "maxConnections": 1,
-    "acquireTimeout": 30,
+    "maxConnections": 10,
+    "timeout": 30,
     "logLevel": 1,
-    "debug ": true
+    "mechanism": "SCRAM-SHA-1",
+    "debug ": false
   },
   "redis": {
     "connectNum": 10,
     "address": "127.0.0.1:6379",
     "password": "123123",
-    "idleTimeout": 180,
+    "timeout": 30,
     "db": "2"
   },
   "log": {

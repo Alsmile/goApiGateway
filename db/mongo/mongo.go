@@ -3,6 +3,7 @@ package mongo
 import (
   mgo "gopkg.in/mgo.v2"
   "github.com/alsmile/goApiGateway/utils"
+  "time"
 )
 
 const (
@@ -22,6 +23,7 @@ func InitSession() (err error) {
     Source: utils.GlobalConfig.Mongo.Database,
     Mechanism: utils.GlobalConfig.Mongo.Mechanism,
     PoolLimit: utils.GlobalConfig.Mongo.MaxConnections,
+    Timeout: time.Duration(utils.GlobalConfig.Mongo.Timeout) * time.Second,
   })
   if err == nil {
     if utils.GlobalConfig.Mongo.Debug {

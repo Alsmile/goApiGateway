@@ -20,6 +20,9 @@ func Int(v interface{}) int {
   case []byte:
     n, _ := strconv.ParseInt(string(reply), 10, 0)
     return int(n)
+  case string:
+    n, _ := strconv.ParseInt(reply, 10, 0)
+    return int(n)
   case nil:
     return 0
   case float64:
