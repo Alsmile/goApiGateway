@@ -27,12 +27,14 @@ func main() {
   log.Printf("[config] %v\r\n", utils.GlobalConfig)
 
   // 设置log
-  log.SetOutput(&lumberjack.Logger{
-    Filename:   utils.GlobalConfig.Log.Filename,
-    MaxSize:    utils.GlobalConfig.Log.MaxSize, // mb
-    MaxBackups: utils.GlobalConfig.Log.MaxBackups,
-    MaxAge:     utils.GlobalConfig.Log.MaxAge, // days
-  })
+  if utils.GlobalConfig.Log.Filename != "" {
+    log.SetOutput(&lumberjack.Logger{
+      Filename:   utils.GlobalConfig.Log.Filename,
+      MaxSize:    utils.GlobalConfig.Log.MaxSize, // mb
+      MaxBackups: utils.GlobalConfig.Log.MaxBackups,
+      MaxAge:     utils.GlobalConfig.Log.MaxAge, // days
+    })
+  }
 
   // cpu
   runtime.GOMAXPROCS(utils.GlobalConfig.Cpu)

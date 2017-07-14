@@ -4,7 +4,8 @@ import (
   "strings"
   "os"
   "github.com/jinzhu/configor"
-  "github.com/martingallagher/go-jsonmp"
+  "github.com/InVisionApp/conjungo"
+  "reflect"
 )
 
 type AppConfig struct {
@@ -59,19 +60,66 @@ type AppConfig struct {
 var GlobalConfig AppConfig
 
 func ReadConfig() error {
-  var defaultConfig AppConfig
-  err := configor.Load(&defaultConfig, "./config/default.json")
+  err := configor.Load(&GlobalConfig, "./config/default.json")
   if err != nil {
     return err
   }
 
-  files, err := WalkDir("./config", ".json")
   var config AppConfig
+  configor.Load(&config, "/etc/goApiGateway.json")
+  opts := conjungo.NewOptions()
+  opts.MergeFuncs.SetTypeMergeFunc(
+    reflect.TypeOf(""),  // string
+    func(t, s reflect.Value, o *conjungo.Options) (reflect.Value, error) {
+      iT, _ := t.Interface().(string)
+      iS, _ := s.Interface().(string)
+      if iS != ""{
+        return reflect.ValueOf(iS), nil
+      }
+      return reflect.ValueOf(iT), nil
+    },
+  )
+
+  opts.MergeFuncs.SetTypeMergeFunc(
+    reflect.TypeOf(0),  // int
+    func(t, s reflect.Value, o *conjungo.Options) (reflect.Value, error) {
+      iT, _ := t.Interface().(int)
+      iS, _ := s.Interface().(int)
+      if iS != 0 {
+        return reflect.ValueOf(iS), nil
+      }
+      return reflect.ValueOf(iT), nil
+    },
+  )
+  opts.MergeFuncs.SetTypeMergeFunc(
+    reflect.TypeOf(true),  // int
+    func(t, s reflect.Value, o *conjungo.Options) (reflect.Value, error) {
+      iT, _ := t.Interface().(bool)
+      iS, _ := s.Interface().(bool)
+      if iS {
+        return reflect.ValueOf(iS), nil
+      }
+      return reflect.ValueOf(iT), nil
+    },
+  )
+  opts.MergeFuncs.SetTypeMergeFunc(
+    reflect.TypeOf(uint16(0)),  // int
+    func(t, s reflect.Value, o *conjungo.Options) (reflect.Value, error) {
+      iT, _ := t.Interface().(uint16)
+      iS, _ := s.Interface().(uint16)
+      if iS > 0 {
+        return reflect.ValueOf(iS), nil
+      }
+      return reflect.ValueOf(iT), nil
+    },
+  )
+  conjungo.Merge(&GlobalConfig, config, opts)
+
+  files, err := WalkDir("./config", ".json")
   for _, v := range files {
-    err = configor.Load(&config, v)
-    if err == nil && strings.Contains(v, "default.json") == false {
-      jsonmp.PatchValue(defaultConfig, config, &GlobalConfig)
-      defaultConfig = GlobalConfig
+    if strings.Contains(v, "default.json") == false {
+      configor.Load(&config, v)
+      conjungo.Merge(&GlobalConfig, config, opts)
     }
   }
 
