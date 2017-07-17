@@ -23,7 +23,7 @@ RUN chmod +x $APIGATEWAY_HOME/goApiGateway
 EXPOSE 80
 ENTRYPOINT ["./goApiGateway"]
 
-# docker run --name goApiGateway -p 80:80 [-v /etc/goApiGateway.json:/etc/goApiGateway.json] 或 [-e configKey=configValue]
+# docker run --name goApiGateway -p 80:80 [-v /etc/goApiGateway.json:/etc/goApiGateway.json] 或 [-e configKey=configValue] [--net=host] <image name:tag>
 #挂载配置文件和使用环境变量任选一种。其中，环境变量参数将覆盖配置文件中的参数
 # 环境变量参数:
 #   ApiGateway_Website：网站的后台管理web首页网址，例如：http://admin.apicloudtogo.cn
