@@ -23,7 +23,8 @@ func ProxyDo(ctx context.Context) {
   siteApi, err := sites.GetApiByUrl(host, method, url)
   if err == nil {
     if siteApi.IsMock {
-      ctx.WriteWithExpiration(http.StatusOK, []byte(siteApi.ResponseParamsText), siteApi.DataType, time.Now())
+      ctx.ResponseWriter().Header().Set("Content-Type", siteApi.DataType)
+      ctx.WriteWithExpiration([]byte(siteApi.ResponseParamsText), time.Now())
     } else {
       proxy(ctx, method, siteApi.Site.DstUrl+url)
     }
@@ -99,7 +100,8 @@ func ProxyTest(ctx context.Context) {
 
   siteApi, err := sites.GetApiByDstUrl(host, method, url)
   if err == nil && siteApi.IsMock{
-    ctx.WriteWithExpiration(http.StatusOK, []byte(siteApi.ResponseParamsText), siteApi.DataType, time.Now())
+    ctx.ResponseWriter().Header().Set("Content-Type", siteApi.DataType)
+    ctx.WriteWithExpiration([]byte(siteApi.ResponseParamsText), time.Now())
     return
   }
 
