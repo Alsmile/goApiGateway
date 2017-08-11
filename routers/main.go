@@ -9,6 +9,7 @@ import (
 	"github.com/kataras/iris/context"
 )
 
+// Start 路由初始化
 func Start() {
 	app := iris.New()
 
@@ -47,7 +48,7 @@ func Start() {
 		admin.Put("/api/test", controllers.ProxyTest)
 		admin.Delete("/api/test", controllers.ProxyTest)
 
-		admin.Options("/api/{url:path}", func(ctx context.Context) {
+		admin.Options("/api/{url:path}", controllers.Cors, func(ctx context.Context) {
 			method := string(ctx.Method())
 			if method == "OPTIONS" {
 				ctx.JSON(true)
@@ -56,7 +57,17 @@ func Start() {
 		})
 	}
 
-	app.Any("/{url:path}", controllers.ProxyDo)
+	app.Options("/{url:path}", controllers.Cors, func(ctx context.Context) {
+		method := string(ctx.Method())
+		if method == "OPTIONS" {
+			ctx.JSON(true)
+			return
+		}
+	})
+	app.Get("/{url:path}", controllers.ProxyDo)
+	app.Post("/{url:path}", controllers.ProxyDo)
+	app.Put("/{url:path}", controllers.ProxyDo)
+	app.Delete("/{url:path}", controllers.ProxyDo)
 
 	strPort := strconv.Itoa(int(utils.GlobalConfig.Domain.Port))
 	app.Run(iris.Addr(":" + strPort))

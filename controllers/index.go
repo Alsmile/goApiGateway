@@ -51,5 +51,6 @@ func Cors(ctx context.Context) {
 	ctx.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, token, X-Requested-With")
 	ctx.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
 
+	ctx.StatusCode(iris.StatusOK)
 	ctx.Next()
 }
