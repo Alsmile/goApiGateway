@@ -32,6 +32,12 @@ func NotFound(ctx context.Context) {
 	}
 }
 
+func Assets(ctx context.Context) {
+	path := ctx.Params().Get("path")
+	ctx.StatusCode(iris.StatusOK)
+	ctx.ServeFile("./admin/web/dist/assets/"+path, true)
+}
+
 func Captcha(ctx context.Context) {
 	captchaId, _ := redis.String(session.GetSession(ctx, myCaptcha.CaptchaSessionName))
 

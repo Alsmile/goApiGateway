@@ -110,36 +110,15 @@ module.exports = function (options) {
       })
     ],
     node: {
-        global: true,
-        crypto: 'empty',
-        __dirname: true,
-        __filename: true,
-        Buffer: false,
-        clearImmediate: false,
-        setImmediate: false
-    },
-    devServer: {
-      port: 8101,
-      host: 'localhost',
-      historyApiFallback: true,
-      watchOptions: {
-        aggregateTimeout: 300,
-        poll: 1000
-      },
-      proxy: {
-        "/api": {
-          target: "http://www.i-dengta.com/api/proxy/58c965d26025d75788966da0",
-          changeOrigin: true,
-          // headers: {host: 'www.i-dengta.com'},
-          secure: false
-        },
-        "/captcha": {
-          target: "http://www.i-dengta.com",
-          changeOrigin: true,
-          // headers: {host: 'www.i-dengta.com'},
-          secure: false
-        }
-      }
+      "fs": "empty",
+      "global": true,
+      "crypto": "empty",
+      "tls": "empty",
+      "net": "empty",
+      "process": true,
+      "module": false,
+      "clearImmediate": false,
+      "setImmediate": false
     }
   };
 }

@@ -18,7 +18,8 @@ func Start() {
 	admin := app.Party(utils.GlobalConfig.Domain.AdminDomain)
 	admin.Use(controllers.Cors)
 	{
-		admin.StaticWeb("/assets", "./admin/web/dist/assets")
+		// admin.StaticWeb("/assets", "./admin/web/dist/assets")
+		admin.Get("/assets/{path:path}", controllers.Assets)
 
 		admin.Get("/", controllers.Index)
 		admin.Get("/browser.html", controllers.Browser)
