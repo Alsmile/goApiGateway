@@ -87,7 +87,7 @@ func proxy(ctx context.Context, method, dstURL string) (err error) {
 
 	for key, value := range clientResp.Header {
 		for _, v := range value {
-			ctx.Header(key, v)
+			ctx.ResponseWriter().Header().Set(key, v)
 		}
 	}
 

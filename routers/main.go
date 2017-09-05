@@ -61,7 +61,7 @@ func Start() {
 	}
 
 	app.Options("/{url:path}", func(ctx context.Context) {
-		method := string(ctx.Method())
+		method := ctx.Method()
 		if method == "OPTIONS" {
 			ctx.JSON("")
 			return
