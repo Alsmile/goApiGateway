@@ -25,6 +25,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// EncodePassword 密码加盐
 func EncodePassword(pwd string) string {
 	mac := hmac.New(sha256.New, []byte(utils.GlobalConfig.Secret))
 	mac.Write([]byte(pwd))
@@ -33,6 +34,7 @@ func EncodePassword(pwd string) string {
 	return str
 }
 
+// AddUser 添加用户
 func AddUser(u *models.User) (err error) {
 	if u.Profile.Email == "" && u.Profile.Phone == "" {
 		err = errors.New(services.ErrorEmailEmpty)
@@ -72,6 +74,7 @@ func AddUser(u *models.User) (err error) {
 	return
 }
 
+// GetUserByPassword 通过邮箱和密码查找用户
 func GetUserByPassword(u *models.User) (err error) {
 	mongoSession := mongo.MgoSession.Clone()
 	defer mongoSession.Close()
@@ -92,6 +95,7 @@ func GetUserByPassword(u *models.User) (err error) {
 	return
 }
 
+// Active 用户激活
 func Active(u *models.User) (err error) {
 	mongoSession := mongo.MgoSession.Clone()
 	defer mongoSession.Close()
@@ -113,6 +117,7 @@ func Active(u *models.User) (err error) {
 	return
 }
 
+// ForgetPassword 忘记密码请求
 func ForgetPassword(u *models.User) (err error) {
 	mongoSession := mongo.MgoSession.Clone()
 	defer mongoSession.Close()
@@ -141,6 +146,7 @@ func ForgetPassword(u *models.User) (err error) {
 	return
 }
 
+// NewPassword 忘记密码时设置新密码
 func NewPassword(u *models.User) (err error) {
 	redisConn := redis.RedisPool.Get()
 	defer redisConn.Close()
@@ -164,7 +170,8 @@ func NewPassword(u *models.User) (err error) {
 	return
 }
 
-func GetUserById(u *models.User) (err error) {
+// GetUserByID 根据用户id查询用户信息
+func GetUserByID(u *models.User) (err error) {
 	mongoSession := mongo.MgoSession.Clone()
 	defer mongoSession.Close()
 
@@ -177,6 +184,7 @@ func GetUserById(u *models.User) (err error) {
 	return
 }
 
+// GetToken 根据小时数，计算一个有效时长的token
 func GetToken(u *models.User, hours int) (data string) {
 	if u == nil {
 		return
@@ -196,6 +204,9 @@ func GetToken(u *models.User, hours int) (data string) {
 // ValidToken 通过token校验用户身份
 func ValidToken(ctx context.Context) (uid string) {
 	data := ctx.GetHeader("Authorization")
+	if data == "" {
+		data = ctx.GetHeader("token")
+	}
 	if data == "" {
 		ctx.StatusCode(401)
 		return
