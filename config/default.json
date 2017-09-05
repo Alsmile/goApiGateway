@@ -11,8 +11,9 @@
   },
   "user": {
     "loginUrl": "",
-    "signUpUrl": "",
-    "infoUrl": ""
+    "profileUrl": "",
+    "profileType": 0,
+    "desc": "【这仅仅是一个备注字段，不产生任何作用】loginUrl为空时，表示使用内置账户。非空，（例如http://sso.cloudtogo.cn?_r=），跳转到loginUrl地址登录（其中，loginUrl需要带一个query参数名和=，例如前面的_r，表示登录成功后的重定向地址参数。重定向地址自动添加当前url）；profileType则指示profileUrl所采用的数据格式"
   },
   "jwt": "ds3785hf%*&fsdf",
   "secret": "2DF4sdgfs3ky45",

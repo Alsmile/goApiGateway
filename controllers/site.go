@@ -1,251 +1,223 @@
 package controllers
 
 import (
-  "github.com/kataras/iris"
-  "github.com/kataras/iris/context"
-  "github.com/alsmile/goApiGateway/models"
-  "github.com/alsmile/goApiGateway/services/user"
-  "github.com/alsmile/goApiGateway/services/sites"
-  "github.com/alsmile/goApiGateway/services"
-  "gopkg.in/mgo.v2/bson"
+	"github.com/alsmile/goApiGateway/models"
+	"github.com/alsmile/goApiGateway/services"
+	"github.com/alsmile/goApiGateway/services/sites"
+	"github.com/kataras/iris/context"
+	"gopkg.in/mgo.v2/bson"
 )
 
-func SiteList(ctx context.Context)  {
-  ret := make(map[string]interface{})
-  defer ctx.JSON(ret)
+// SiteList 获取用户网站列表
+func SiteList(ctx context.Context) {
+	ret := make(map[string]interface{})
+	defer ctx.JSON(ret)
 
-  pageIndex, err := ctx.URLParamInt(services.PageIndex)
-  if err != nil || pageIndex < 1 {
-    ret["error"] = services.ErrorParamPage
-    return
-  }
-  pageCount, err := ctx.URLParamInt(services.PageCount)
-  if err != nil || pageCount < 1 {
-    ret["error"] = services.ErrorParamPage
-    return
-  }
+	pageIndex, err := ctx.URLParamInt(services.PageIndex)
+	if err != nil || pageIndex < 1 {
+		ret["error"] = services.ErrorParamPage
+		return
+	}
+	pageCount, err := ctx.URLParamInt(services.PageCount)
+	if err != nil || pageCount < 1 {
+		ret["error"] = services.ErrorParamPage
+		return
+	}
 
+	list, err := sites.List(ctx.Values().GetString("uid"), pageIndex, pageCount)
 
-  u := models.User{}
-  user.ValidToken(ctx, &u)
+	if err != nil {
+		ret["error"] = err.Error()
+	}
 
-  list, err := sites.List(u.Id, pageIndex, pageCount)
-
-  if err != nil {
-    ret["error"] = err.Error()
-  }
-
-  ret["list"] = list
+	ret["list"] = list
 }
 
-func SiteGet(ctx context.Context)  {
-  ret := make(map[string]interface{})
+// SiteGet 获取具体的网站信息
+func SiteGet(ctx context.Context) {
+	ret := make(map[string]interface{})
 
-  id := ctx.URLParam("id")
-  if id == "" {
-    ret["error"] = services.ErrorParam
-    ctx.JSON(ret)
-    return
-  }
+	id := ctx.URLParam("id")
+	if id == "" {
+		ret["error"] = services.ErrorParam
+		ctx.JSON(ret)
+		return
+	}
 
-  u := models.User{}
-  user.ValidToken(ctx, &u)
+	site := &models.Site{ID: bson.ObjectIdHex(id)}
+	err := sites.Get(site, ctx.Values().GetString("uid"))
 
-  // 校验编辑权限
-  // ...
-  // End 校验编辑权限
+	if err != nil {
+		ret["error"] = err.Error()
+		ctx.JSON(ret)
+		return
+	}
 
-  site := &models.Site{Id:bson.ObjectIdHex(id)}
-  err := sites.Get(site)
-
-  if err != nil {
-    ret["error"] = err.Error()
-    ctx.JSON(ret)
-    return
-  }
-
-  ctx.JSON(site)
+	ctx.JSON(site)
 }
 
-func SiteSave(ctx context.Context)  {
-  ret := make(map[string]interface{})
-  defer ctx.JSON(ret)
+// SiteSave 保存网站信息
+func SiteSave(ctx context.Context) {
+	ret := make(map[string]interface{})
+	defer ctx.JSON(ret)
 
-  site := &models.Site{}
-  err := ctx.ReadJSON(site)
-  if err != nil {
-    ret["error"] = services.ErrorParam
-    ret["errorConsole"] = err.Error()
-  }
+	site := &models.Site{}
+	err := ctx.ReadJSON(site)
+	if err != nil {
+		ret["error"] = services.ErrorParam
+		ret["errorConsole"] = err.Error()
+	}
 
-  u := models.User{}
-  user.ValidToken(ctx, &u)
+	err = sites.Save(site, ctx.Values().GetString("uid"))
 
-  // 校验编辑权限
-  // ...
-  // End 校验编辑权限
-
-  err = sites.Save(site)
-
-  if err != nil {
-    ret["error"] = err.Error()
-  }
+	if err != nil {
+		ret["error"] = err.Error()
+	}
 }
 
+// SiteDel 删除网站
+func SiteDel(ctx context.Context) {
+	ret := make(map[string]interface{})
 
-func SiteApiSave(ctx context.Context)  {
-  ret := make(map[string]interface{})
-  defer ctx.JSON(ret)
+	id := ctx.URLParam("id")
+	if id == "" {
+		ret["error"] = services.ErrorParam
+		ctx.JSON(ret)
+		return
+	}
 
-  siteApi := &models.SiteApi{}
-  err := ctx.ReadJSON(siteApi)
-  if err != nil {
-    ret["error"] = services.ErrorParam
-    ret["errorConsole"] = err.Error()
-  }
+	err := sites.DelSite(id, ctx.Values().GetString("uid"))
+	if err != nil {
+		ret["error"] = err.Error()
+		ctx.JSON(ret)
+		return
+	}
 
-  u := models.User{}
-  user.ValidToken(ctx, &u)
-
-  //  site id不存在，表示自动根据api信息保存site
-  if siteApi.Id == "" && siteApi.Site.Id == "" {
-    err = user.GetUserById(&u)
-    if err != nil {
-      ctx.StatusCode(iris.StatusUnauthorized)
-      ret["error"] = services.ErrorUserNoExists
-      return
-    }
-
-    siteApi.Owner.Id = u.Id
-    siteApi.Owner.Email = u.Profile.Email
-    siteApi.Owner.Phone = u.Profile.Phone
-    siteApi.Owner.Username = u.Profile.Username
-    siteApi.Editor = siteApi.Owner
-  }
-
-  err = sites.SaveApi(siteApi)
-  if err != nil {
-    ret["error"] = err.Error()
-  }
-  ret["id"] = siteApi.Id
+	ctx.JSON(true)
 }
 
-func SiteApiGet(ctx context.Context)  {
-  ret := make(map[string]interface{})
+// SiteAPISave 保存网站下的api
+func SiteAPISave(ctx context.Context) {
+	ret := make(map[string]interface{})
+	defer ctx.JSON(ret)
 
-  id := ctx.URLParam("id")
-  if id == "" {
-    ret["error"] = services.ErrorParam
-    ctx.JSON(ret)
-    return
-  }
+	siteAPI := &models.SiteAPI{}
+	err := ctx.ReadJSON(siteAPI)
+	if err != nil {
+		ret["error"] = services.ErrorParam
+		ret["errorConsole"] = err.Error()
+	}
 
-  u := models.User{}
-  user.ValidToken(ctx, &u)
-
-  // 校验编辑权限
-  // ...
-  // End 校验编辑权限
-
-  siteApi := &models.SiteApi{Id:bson.ObjectIdHex(id)}
-  err := sites.GetApi(siteApi)
-
-  if err != nil {
-    ret["error"] = err.Error()
-    ctx.JSON(ret)
-    return
-  }
-
-  ctx.JSON(siteApi)
+	err = sites.SaveAPI(siteAPI, ctx.Values().GetString("uid"))
+	if err != nil {
+		ret["error"] = err.Error()
+	}
+	ret["id"] = siteAPI.ID
 }
 
-func SiteApiDel(ctx context.Context)  {
-  ret := make(map[string]interface{})
+// SiteAPIGet 获取网站下的api
+func SiteAPIGet(ctx context.Context) {
+	ret := make(map[string]interface{})
 
-  id := ctx.URLParam("id")
-  if id == "" {
-    ret["error"] = services.ErrorParam
-    ctx.JSON(ret)
-    return
-  }
+	id := ctx.URLParam("id")
+	if id == "" {
+		ret["error"] = services.ErrorParam
+		ctx.JSON(ret)
+		return
+	}
 
-  u := models.User{}
-  user.ValidToken(ctx, &u)
+	siteAPI := &models.SiteAPI{ID: bson.ObjectIdHex(id)}
+	err := sites.GetAPI(siteAPI, ctx.Values().GetString("uid"))
 
-  // 校验编辑权限
-  // ...
-  // End 校验编辑权限
+	if err != nil {
+		ret["error"] = err.Error()
+		ctx.JSON(ret)
+		return
+	}
 
-  err := sites.DelApi(id)
-  if err != nil {
-    ret["error"] = err.Error()
-    ctx.JSON(ret)
-    return
-  }
-
-  ctx.JSON(true)
+	ctx.JSON(siteAPI)
 }
 
-func SiteApiList(ctx context.Context)  {
-  ret := make(map[string]interface{})
-  defer ctx.JSON(ret)
+// SiteAPIDel 删除网站下的api
+func SiteAPIDel(ctx context.Context) {
+	ret := make(map[string]interface{})
 
-  pageIndex, err := ctx.URLParamInt(services.PageIndex)
-  if err != nil || pageIndex < 1 {
-    ret["error"] = services.ErrorParamPage
-    return
-  }
-  pageCount, err := ctx.URLParamInt(services.PageCount)
-  if err != nil || pageCount < 1 {
-    ret["error"] = services.ErrorParamPage
-    return
-  }
+	id := ctx.URLParam("id")
+	if id == "" {
+		ret["error"] = services.ErrorParam
+		ctx.JSON(ret)
+		return
+	}
 
-  auto := ctx.URLParam("auto")
-  fieldType, _ := ctx.URLParamInt("field")
+	err := sites.DelAPI(id, ctx.Values().GetString("uid"))
+	if err != nil {
+		ret["error"] = err.Error()
+		ctx.JSON(ret)
+		return
+	}
 
-  u := models.User{}
-  user.ValidToken(ctx, &u)
-
-  siteId := bson.ObjectIdHex(ctx.URLParam("siteId"))
-  list, err := sites.ApiList(siteId, auto, fieldType, pageIndex, pageCount)
-
-  if err != nil {
-    ret["error"] = err.Error()
-  }
-
-  ret["list"] = list
+	ctx.JSON(true)
 }
 
-func SiteApiListByDomains(ctx context.Context)  {
-  ret := make(map[string]interface{})
-  defer ctx.JSON(ret)
+// SiteAPIList api列表
+func SiteAPIList(ctx context.Context) {
+	ret := make(map[string]interface{})
+	defer ctx.JSON(ret)
 
-  pageIndex, err := ctx.URLParamInt(services.PageIndex)
-  if err != nil || pageIndex < 1 {
-    ret["error"] = services.ErrorParamPage
-    return
-  }
-  pageCount, err := ctx.URLParamInt(services.PageCount)
-  if err != nil || pageCount < 1 {
-    ret["error"] = services.ErrorParamPage
-    return
-  }
+	pageIndex, err := ctx.URLParamInt(services.PageIndex)
+	if err != nil || pageIndex < 1 {
+		ret["error"] = services.ErrorParamPage
+		return
+	}
+	pageCount, err := ctx.URLParamInt(services.PageCount)
+	if err != nil || pageCount < 1 {
+		ret["error"] = services.ErrorParamPage
+		return
+	}
 
-  auto := ctx.URLParam("auto")
-  fieldType, _ := ctx.URLParamInt("field")
+	auto := ctx.URLParam("auto")
+	fieldType, _ := ctx.URLParamInt("field")
 
-  var domains []string
-  err = ctx.ReadJSON(&domains)
-  if err != nil || len(domains) < 1 {
-    ret["error"] = services.ErrorParam
-  }
+	siteID := bson.ObjectIdHex(ctx.URLParam("siteId"))
+	list, err := sites.APIList(ctx.Values().GetString("uid"), siteID, auto, fieldType, pageIndex, pageCount)
 
-  list, err := sites.ApiListByDomains(domains, auto, fieldType, pageIndex, pageCount)
+	if err != nil {
+		ret["error"] = err.Error()
+	}
 
-  if err != nil {
-    ret["error"] = err.Error()
-  }
+	ret["list"] = list
+}
 
-  ret["list"] = list
+// SiteAPIListByDomains 查找指定域名下的api
+func SiteAPIListByDomains(ctx context.Context) {
+	ret := make(map[string]interface{})
+	defer ctx.JSON(ret)
+
+	pageIndex, err := ctx.URLParamInt(services.PageIndex)
+	if err != nil || pageIndex < 1 {
+		ret["error"] = services.ErrorParamPage
+		return
+	}
+	pageCount, err := ctx.URLParamInt(services.PageCount)
+	if err != nil || pageCount < 1 {
+		ret["error"] = services.ErrorParamPage
+		return
+	}
+
+	auto := ctx.URLParam("auto")
+	fieldType, _ := ctx.URLParamInt("field")
+
+	var domains []string
+	err = ctx.ReadJSON(&domains)
+	if err != nil || len(domains) < 1 {
+		ret["error"] = services.ErrorParam
+	}
+
+	list, err := sites.APIListByDomains(ctx.Values().GetString("uid"), domains, auto, fieldType, pageIndex, pageCount)
+
+	if err != nil {
+		ret["error"] = err.Error()
+	}
+
+	ret["list"] = list
 }

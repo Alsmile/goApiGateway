@@ -1,15 +1,17 @@
-let webpack = require('webpack');
-let path = require('path');
-let webpackMerge = require('webpack-merge');
-let HtmlWebpackPlugin = require('html-webpack-plugin');
-let CompressionPlugin = require("compression-webpack-plugin");
-let ngtools = require('@ngtools/webpack');
+const webpack = require('webpack');
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CompressionPlugin = require("compression-webpack-plugin");
+const ngtools = require('@ngtools/webpack');
 
-let ExtractTextPlugin = require('extract-text-webpack-plugin');
-let CopyWebpackPlugin = require('copy-webpack-plugin');
-let LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
 
 module.exports = function (options) {
+  if (!options) options = {};
+  if (!options.env) options.env = 'production';
+
   return {
     entry: {
       polyfills: './src/polyfills.ts',
@@ -49,9 +51,18 @@ module.exports = function (options) {
           })
         },
         {
+          test: /\.css$/,
+          loader: ExtractTextPlugin.extract({
+            fallback: "style-loader",
+            use: [{
+              loader: "css-loader"
+            }]
+          })
+        },
+        {
           test: /\.html$/,
           use: 'raw-loader',
-          exclude: ['./src/index.html']
+          exclude: ['./src/index.html', './src/index.inner.html']
         },
         {
           test: /\.(jpg|png|gif)$/,
@@ -60,6 +71,11 @@ module.exports = function (options) {
       ]
     },
     plugins: [
+      new webpack.DefinePlugin({
+        'process.env': {
+          NODE_ENV: JSON.stringify(options.env)
+        }
+      }),
       new ngtools.AotPlugin({
         tsConfigPath: './tsconfig.json',
         skipMetadataEmit: true,
@@ -79,11 +95,12 @@ module.exports = function (options) {
       new webpack.optimize.UglifyJsPlugin(),
       new CopyWebpackPlugin([
         { from: 'src/assets/img', to: 'img' },
-        { from: 'src/browser.html', to: '../browser.html' },
+        { from: 'src/assets/font', to: 'font' },
+        { from: 'src/browser.html', to: '../browser.html' }
       ]),
       new HtmlWebpackPlugin({
         filename: '../index.html',
-        template: 'src/index.html'
+        template: 'src/index.inner.html'
       }),
       new LoaderOptionsPlugin({
         minimize: true,
@@ -101,12 +118,12 @@ module.exports = function (options) {
                   'Explorer >= 10',
                   'iOS >= 7',
                   'Opera >= 12',
-                  'Safari >= 7.1',
+                  'Safari >= 7.1'
                 ]
               })
             ];
-          },
-        },
+          }
+        }
       })
     ],
     node: {
@@ -121,4 +138,4 @@ module.exports = function (options) {
       "setImmediate": false
     }
   };
-}
+};

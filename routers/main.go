@@ -13,10 +13,12 @@ import (
 func Start() {
 	app := iris.New()
 
+	// 跨域设置，暂时设置允许所有跨域
+	app.Use(controllers.Cors)
+
 	app.OnErrorCode(iris.StatusNotFound, controllers.NotFound)
 
 	admin := app.Party(utils.GlobalConfig.Domain.AdminDomain)
-	admin.Use(controllers.Cors)
 	{
 		// admin.StaticWeb("/assets", "./admin/web/dist/assets")
 		admin.Get("/assets/{path:path}", controllers.Assets)
@@ -30,38 +32,38 @@ func Start() {
 		admin.Post("/api/sign/active", controllers.SignActive)
 		admin.Post("/api/forget/password", controllers.ForgetPassword)
 		admin.Post("/api/sign/new/password", controllers.NewPassword)
-		admin.Get("/api/user/profile", controllers.UserProfile)
-
-		admin.Get("/api/sign/config", controllers.GetSignConfig)
+		admin.Get("/api/user/profile", controllers.Auth, controllers.UserProfile)
 
 		admin.Get("/api/site/list", controllers.Auth, controllers.SiteList)
 		admin.Get("/api/site/get", controllers.Auth, controllers.SiteGet)
 		admin.Post("/api/site/save", controllers.Auth, controllers.SiteSave)
-		admin.Post("/api/site/api/save", controllers.Auth, controllers.SiteApiSave)
-		admin.Get("/api/site/api/get", controllers.Auth, controllers.SiteApiGet)
-		admin.Get("/api/site/api/del", controllers.Auth, controllers.SiteApiDel)
-		admin.Get("/api/site/api/list", controllers.Auth, controllers.SiteApiList)
+		admin.Get("/api/site/del", controllers.Auth, controllers.SiteDel)
 
-		admin.Post("/api/site/api/list/by/domains", controllers.Auth, controllers.SiteApiListByDomains)
+		admin.Post("/api/site/api/save", controllers.Auth, controllers.SiteAPISave)
+		admin.Get("/api/site/api/get", controllers.Auth, controllers.SiteAPIGet)
+		admin.Get("/api/site/api/del", controllers.Auth, controllers.SiteAPIDel)
+		admin.Get("/api/site/api/list", controllers.Auth, controllers.SiteAPIList)
+
+		admin.Post("/api/site/api/list/by/domains", controllers.Auth, controllers.SiteAPIListByDomains)
 
 		admin.Get("/api/test", controllers.ProxyTest)
 		admin.Post("/api/test", controllers.ProxyTest)
 		admin.Put("/api/test", controllers.ProxyTest)
 		admin.Delete("/api/test", controllers.ProxyTest)
 
-		admin.Options("/api/{url:path}", controllers.Cors, func(ctx context.Context) {
+		admin.Options("/api/{url:path}", func(ctx context.Context) {
 			method := string(ctx.Method())
 			if method == "OPTIONS" {
-				ctx.JSON(true)
+				ctx.JSON("")
 				return
 			}
 		})
 	}
 
-	app.Options("/{url:path}", controllers.Cors, func(ctx context.Context) {
+	app.Options("/{url:path}", func(ctx context.Context) {
 		method := string(ctx.Method())
 		if method == "OPTIONS" {
-			ctx.JSON(true)
+			ctx.JSON("")
 			return
 		}
 	})

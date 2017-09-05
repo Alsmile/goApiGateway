@@ -11,15 +11,18 @@ import (
 	"github.com/kataras/iris/context"
 )
 
+// Index 首页静态文件
 func Index(ctx context.Context) {
 	ctx.StatusCode(iris.StatusOK)
 	ctx.ServeFile("./admin/web/dist/index.html", true)
 }
 
+// Browser 浏览器不兼容静态文件
 func Browser(ctx context.Context) {
 	ctx.ServeFile("./admin/web/dist/browser.html", true)
 }
 
+// NotFound 404
 func NotFound(ctx context.Context) {
 	if strings.HasPrefix(ctx.Path(), "/api/") {
 		ret := make(map[string]interface{})
@@ -32,26 +35,29 @@ func NotFound(ctx context.Context) {
 	}
 }
 
+// Assets 静态文件
 func Assets(ctx context.Context) {
 	path := ctx.Params().Get("path")
 	ctx.StatusCode(iris.StatusOK)
 	ctx.ServeFile("./admin/web/dist/assets/"+path, true)
 }
 
+// Captcha 验证码
 func Captcha(ctx context.Context) {
-	captchaId, _ := redis.String(session.GetSession(ctx, myCaptcha.CaptchaSessionName))
+	captchaID, _ := redis.String(session.GetSession(ctx, myCaptcha.CaptchaSessionName))
 
 	// Delete the old.
-	if captchaId != "" {
-		captcha.VerifyString(captchaId, "")
+	if captchaID != "" {
+		captcha.VerifyString(captchaID, "")
 	}
 
-	captchaId = captcha.New()
-	session.SetSession(ctx, myCaptcha.CaptchaSessionName, captchaId)
+	captchaID = captcha.New()
+	session.SetSession(ctx, myCaptcha.CaptchaSessionName, captchaID)
 	ctx.Header("Content-Type", "image/png")
-	captcha.WriteImage(ctx.ResponseWriter(), captchaId, 150, 50)
+	captcha.WriteImage(ctx.ResponseWriter(), captchaID, 150, 50)
 }
 
+// Cors 跨域设置
 func Cors(ctx context.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, token, X-Requested-With")

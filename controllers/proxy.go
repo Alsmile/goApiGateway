@@ -22,13 +22,13 @@ func ProxyDo(ctx context.Context) {
 	url := "/" + ctx.Params().Get("url")
 
 	// 查找api级别代理
-	siteAPI, err := sites.GetApiByUrl(host, method, url)
+	siteAPI, err := sites.GetAPIByURL(host, method, url)
 	if err == nil {
 		if siteAPI.IsMock {
 			ctx.ResponseWriter().Header().Set("Content-Type", siteAPI.DataType)
 			ctx.WriteWithExpiration([]byte(siteAPI.ResponseParamsText), time.Now())
 		} else {
-			proxy(ctx, method, siteAPI.Site.DstUrl+url)
+			proxy(ctx, method, siteAPI.Site.DstURL+url)
 		}
 		return
 	}
@@ -36,18 +36,18 @@ func ProxyDo(ctx context.Context) {
 	// 查找site级别代理
 	site, err := sites.GetSiteByDomain(host)
 	if err == nil {
-		proxy(ctx, method, site.DstUrl+url)
+		proxy(ctx, method, site.DstURL+url)
 
-		siteAPI = &models.SiteApi{}
+		siteAPI = &models.SiteAPI{}
 
 		// 添加到自动发现
 		siteAPI.AutoReg = true
-		siteAPI.Site.Id = site.Id
+		siteAPI.Site.ID = site.ID
 		siteAPI.Method = method
-		siteAPI.Url = url
+		siteAPI.URL = url
 		siteAPI.Visited = 1
 		siteAPI.StatusCode = ctx.GetStatusCode()
-		sites.SaveApi(siteAPI)
+		sites.SaveAPI(siteAPI, site.OwnerID)
 
 		return
 	}
@@ -103,7 +103,7 @@ func ProxyTest(ctx context.Context) {
 	host := ctx.URLParam("host")
 	url := ctx.URLParam("url")
 
-	siteAPI, err := sites.GetApiByDstUrl(host, method, url)
+	siteAPI, err := sites.GetAPIByDstURL(host, method, url)
 	if err == nil && siteAPI.IsMock {
 		ctx.ResponseWriter().Header().Set("Content-Type", siteAPI.DataType)
 		ctx.WriteWithExpiration([]byte(siteAPI.ResponseParamsText), time.Now())

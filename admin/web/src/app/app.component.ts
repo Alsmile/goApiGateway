@@ -4,8 +4,7 @@ import {StoreService} from 'le5le-store';
 
 import {NoticeService} from 'le5le-components';
 
-import {SignService, SignType} from './sign/sign.service'
-import {AppService} from './app.service';
+import { SignService, SignType } from './sign/sign.service';
 
 @Component({
   selector: 'app',
@@ -13,14 +12,12 @@ import {AppService} from './app.service';
 })
 export class AppComponent implements OnInit {
   user: any;
-  signConfig: any;
   options: any = {showSign: null};
   email: string;
   newPasswordCode: string;
   myStyle: any = {};
   constructor(private _router: Router, private _activateRoute: ActivatedRoute,
-              private _storeService: StoreService, private _appService: AppService,
-              private _signService: SignService) {
+              private _storeService: StoreService, private _signService: SignService) {
     this.myStyle = {
       'margin-top': '.6rem',
       'min-height': (document.documentElement.clientHeight - 120) + 'px'
@@ -64,8 +61,6 @@ export class AppComponent implements OnInit {
         this.options.showSign = ret;
       }
     );
-
-    this.signConfig = await this._appService.GetSignConfig() || {};
   }
 
   isActive (strUrl: string) {
@@ -78,18 +73,10 @@ export class AppComponent implements OnInit {
   }
 
   onSignin () {
-    if (this.signConfig.loginUrl) {
-      window.location.href = this.signConfig.loginUrl+ '?redirect_uri=' + window.location.href;
-      return
-    }
     this.options.showSign = SignType.SignInDialog;
   }
 
   onSignup () {
-    if (this.signConfig.signUpUrl) {
-      window.location.href = this.signConfig.signUpUrl+ '?redirect_uri=' + window.location.href;
-      return
-    }
     this.options.showSign = SignType.SignUpDialog;
   }
 

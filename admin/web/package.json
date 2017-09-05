@@ -7,8 +7,10 @@
     "clean": "npm run rimraf -- dist ",
     "lint": "npm run tslint \"src/**/*.ts\"",
     "rimraf": "rimraf",
+    "dev": "npm run clean && webpack --config webpack.dev.aot.js --colors --progress",
     "start": "webpack-dev-server --config webpack.config.js --open --progress --profile --watch --content-base src/",
-    "build": "npm run clean && webpack --config webpack.aot.ts --colors --progress",
+    "build": "npm run clean && webpack --config webpack.aot.js --colors --progress",
+    "inner": "npm run clean && webpack --config webpack.inner.aot.js --colors --progress",
     "test": "npm run lint && karma start"
   },
   "keywords": [
@@ -37,6 +39,8 @@
     "le5le-components": "~0.1.1",
     "le5le-store": "~0.0.5",
     "normalize.css": "~4.1.1",
+    "xterm": "^2.9.2",
+    "monaco-editor": "^0.9.0",
     "file-saver": "*"
   },
   "devDependencies": {

@@ -2,8 +2,8 @@ import { ModuleWithProviders, NgModule, Optional, SkipSelf } from '@angular/core
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
-import { Le5leStoreModule, StoreService, CookieService } from "le5le-store";
-import { NoticeService } from "le5le-components";
+import { Le5leStoreModule, StoreService, CookieService } from 'le5le-store';
+import { NoticeService } from 'le5le-components';
 import { HttpService } from './http.service';
 
 @NgModule({
@@ -32,9 +32,11 @@ export class CoreModule {
         // 认证失败
         if (!ret || ret === -1) {
           this._storeService.set('user', null);
-          localStorage.removeItem("token");
-          localStorage.removeItem("user.id");
-          CookieService.delete("token");
+          localStorage.removeItem((<any> window).token);
+          CookieService.delete((<any> window).token, {domain: document.domain.split('.').slice(-2).join('.')});
+
+          let loginUrl = this._storeService.get('loginUrl');
+          if (loginUrl) return window.location.href = loginUrl + window.location.href;
 
           this._router.navigate(['/']);
 
@@ -45,13 +47,13 @@ export class CoreModule {
       }
     );
 
-    let token: string = localStorage.getItem('rememberMe')? localStorage.getItem('token'): CookieService.get('token');
-    if (token) this.onProfile();
+    this.onProfile();
   }
 
   async onProfile(): Promise<void> {
     let ret = await this._httpService.Get('/api/user/profile');
     if (ret && !ret.error) this._storeService.set('user', ret);
+    else this._storeService.set('auth', -1);
   }
 
   static forRoot(): ModuleWithProviders {

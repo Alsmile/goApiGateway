@@ -12,24 +12,8 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func ListAll() (sites []models.Site, err error) {
-	mongoSession := mongo.MgoSession.Clone()
-	defer mongoSession.Close()
-
-	err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).
-		Find(bson.M{"deletedAt": bson.M{"$exists": false}}).
-		Select(bson.M{"apiDomain": true, "gzip": true, "https": true, "notFound": true, "statics": true, "proxies": true}).
-		All(&sites)
-
-	if err != nil {
-		log.Printf("[error]serivces.sites.ListAll: err=%v\r\n", err)
-		err = errors.New(services.ErrorRead)
-	}
-
-	return
-}
-
-func List(uid bson.ObjectId, pageIndex, pageCount int) (sites []models.Site, err error) {
+// List 网站列表
+func List(uid string, pageIndex, pageCount int) (sites []models.Site, err error) {
 	if uid == "" {
 		err = errors.New(services.ErrorPermission)
 		return
@@ -39,7 +23,7 @@ func List(uid bson.ObjectId, pageIndex, pageCount int) (sites []models.Site, err
 	defer mongoSession.Close()
 
 	err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).
-		Find(bson.M{"owner._id": uid, "deletedAt": bson.M{"$exists": false}}).
+		Find(bson.M{"ownerId": uid, "deletedAt": bson.M{"$exists": false}}).
 		Select(services.SelectHide).
 		Sort("-updatedAt").Skip((pageIndex - 1) * pageCount).Limit(pageCount).
 		All(&sites)
@@ -52,8 +36,9 @@ func List(uid bson.ObjectId, pageIndex, pageCount int) (sites []models.Site, err
 	return
 }
 
-func Get(site *models.Site) (err error) {
-	if site.Id == "" {
+// Get 获取具体网站
+func Get(site *models.Site, uid string) (err error) {
+	if site.ID == "" {
 		err = errors.New(services.ErrorParam)
 		return
 	}
@@ -62,169 +47,184 @@ func Get(site *models.Site) (err error) {
 	defer mongoSession.Close()
 
 	err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).
-		Find(bson.M{"_id": site.Id}).
+		Find(bson.M{"_id": site.ID, "ownerId": uid}).
 		Select(services.SelectHide).
 		One(&site)
 
 	if err != nil {
-		log.Printf("[error]serivces.sites.Get: err=%v, data=%s\r\n", err, site)
+		log.Printf("[error]serivces.sites.Get: err=%v, data=%v\r\n", err, site)
 		err = errors.New(services.ErrorRead)
 	}
 
 	return
 }
 
-func GetByGroup(site *models.Site) (err error) {
-	if site.Id == "" {
-		err = errors.New(services.ErrorParam)
-		return
-	}
-
+// Save 保存网站信息
+func Save(site *models.Site, uid string) (err error) {
 	mongoSession := mongo.MgoSession.Clone()
 	defer mongoSession.Close()
 
-	err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).
-		Find(bson.M{"apiDomain": site.ApiDomain, "group": site.Group}).
-		Select(services.SelectHide).
-		One(&site)
-
-	if err != nil {
-		log.Printf("[error]serivces.sites.GetByGroup: err=%v, data=%s\r\n", err, site)
-		err = errors.New(services.ErrorRead)
-	}
-
-	return
-}
-
-func Save(site *models.Site) (err error) {
 	site.UpdatedAt = time.Now().UTC()
-	if site.Id == "" {
-		site.Id = bson.NewObjectId()
+	site.EditorID = uid
+	if site.ID == "" {
+		site.ID = bson.NewObjectId()
 		site.CreatedAt = site.UpdatedAt
+		site.OwnerID = uid
+	} else {
+		mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
+			Update(bson.M{"site._id": site.ID, "ownerId": uid}, bson.M{"$set": bson.M{"site": models.SiteParam{
+				ID:             site.ID,
+				Gzip:           site.Gzip,
+				HTTPS:          site.HTTPS,
+				Group:          site.Group,
+				Subdomain:      site.Subdomain,
+				IsCustomDomain: site.IsCustomDomain,
+				APIDomain:      site.APIDomain,
+				DstURL:         site.DstURL,
+			}}})
+
 	}
 
-	mongoSession := mongo.MgoSession.Clone()
-	defer mongoSession.Close()
-
-	_, err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).Upsert(bson.M{"_id": site.Id}, site)
+	_, err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).
+		Upsert(bson.M{"_id": site.ID}, site)
 
 	if err != nil {
-		log.Printf("[error]serivces.sites.Save: err=%v, data=%s\r\n", err, site)
+		log.Printf("[error]serivces.sites.Save: err=%v, data=%v\r\n", err, site)
 		err = errors.New(services.ErrorSave)
 	}
 
+	return
+}
+
+// DelSite 删除网站
+func DelSite(id, uid string) (err error) {
+	if id == "" {
+		err = errors.New(services.ErrorParam)
+		return
+	}
+
+	mongoSession := mongo.MgoSession.Clone()
+	defer mongoSession.Close()
+
+	err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).
+		Remove(bson.M{"_id": bson.ObjectIdHex(id), "ownerId": uid})
+
+	if err != nil {
+		log.Printf("[error]serivces.sites.DelSite: err=%v, id=%s\r\n", err, id)
+		err = errors.New(services.ErrorPermission)
+	}
+
 	mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
-		UpdateAll(bson.M{"site._id": site.Id}, bson.M{"$set": bson.M{"site": models.SiteParam{
-			Id:             site.Id,
-			Gzip:           site.Gzip,
-			Https:          site.Https,
-			Group:          site.Group,
-			Subdomain:      site.Subdomain,
-			IsCustomDomain: site.IsCustomDomain,
-			ApiDomain:      site.ApiDomain,
-			DstUrl:         site.DstUrl,
-		}}})
+		RemoveAll(bson.M{"site._id": bson.ObjectIdHex(id)})
 
 	return
 }
 
-func DelSite(site *models.Site) (err error) {
+// DelSiteBySDK 删除网站，仅平台内部使用
+func DelSiteBySDK(site *models.Site) (err error) {
 	mongoSession := mongo.MgoSession.Clone()
 	defer mongoSession.Close()
 
 	_, err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).
-		RemoveAll(bson.M{"apiDomain": site.ApiDomain, "group": site.Group})
+		RemoveAll(bson.M{"apiDomain": site.APIDomain, "group": site.Group})
 
 	if err != nil {
-		log.Printf("[error]serivces.sites.DelSite - CollectionSites: err=%v, site=%s\r\n", err, site)
+		log.Printf("[error]serivces.sites.DelSiteBySDK - CollectionSites: err=%v, site=%v\r\n", err, site)
 		err = errors.New(services.ErrorSave)
 	}
 
 	_, errApis := mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
-		RemoveAll(bson.M{"site.apiDomain": site.ApiDomain, "site.group": site.Group})
+		RemoveAll(bson.M{"site.apiDomain": site.APIDomain, "site.group": site.Group})
 
 	if errApis != nil {
-		log.Printf("[error]serivces.sites.DelSite - CollectionApis: err=%v, site=%s\r\n", err, site)
+		log.Printf("[error]serivces.sites.DelSiteBySDK - CollectionApis: err=%v, site=%v\r\n", err, site)
 		err = errors.New(services.ErrorSave)
 	}
 
 	return
 }
 
-func SaveApi(siteApi *models.SiteApi) (err error) {
+// SaveAPI 保存api
+func SaveAPI(siteAPI *models.SiteAPI, uid string) (err error) {
 	mongoSession := mongo.MgoSession.Clone()
 	defer mongoSession.Close()
 
-	siteApi.UpdatedAt = time.Now().UTC()
+	siteAPI.EditorID = uid
+	siteAPI.UpdatedAt = time.Now().UTC()
 
-	s := &models.Site{Id: siteApi.Site.Id}
+	s := &models.Site{ID: siteAPI.Site.ID}
 
 	//  site id不存在，表示自动根据api信息保存site
-	if siteApi.Id == "" && siteApi.Site.Id == "" && siteApi.Site.Subdomain != "" {
+	if siteAPI.ID == "" && siteAPI.Site.ID == "" && siteAPI.Site.Subdomain != "" {
 		tempSite := bson.M{}
 		err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).
-			Find(bson.M{"subdomain": siteApi.Site.Subdomain}).
+			Find(bson.M{"subdomain": siteAPI.Site.Subdomain}).
 			Select(bson.M{"_id": true}).
 			One(&tempSite)
 
 		// 不存在site，插入保存
 		if err != nil {
 			s.UpdatedAt = time.Now().UTC()
-			s.Id = bson.NewObjectId()
-			siteApi.Site.Id = s.Id
+			s.ID = bson.NewObjectId()
+			siteAPI.Site.ID = s.ID
 			s.CreatedAt = s.UpdatedAt
-			s.Subdomain = siteApi.Site.Subdomain
-			s.IsCustomDomain = siteApi.Site.IsCustomDomain
-			s.ApiDomain = siteApi.Site.ApiDomain
-			s.Group = siteApi.Site.Group
-			s.DstUrl = siteApi.Site.DstUrl
-			s.Https = siteApi.Site.Https
-			s.Gzip = siteApi.Site.Gzip
-			s.Owner = siteApi.Owner
-			s.Editor = siteApi.Editor
-			s.Name = "[system]" + siteApi.Site.Subdomain
+			s.Subdomain = siteAPI.Site.Subdomain
+			s.IsCustomDomain = siteAPI.Site.IsCustomDomain
+			s.APIDomain = siteAPI.Site.APIDomain
+			s.Group = siteAPI.Site.Group
+			s.DstURL = siteAPI.Site.DstURL
+			s.HTTPS = siteAPI.Site.HTTPS
+			s.Gzip = siteAPI.Site.Gzip
+			s.OwnerID = uid
+			s.EditorID = uid
+			s.Name = "[system]" + siteAPI.Site.Subdomain
 			s.Desc = "[system]根据api自动保存site信息"
 			mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionSites).Insert(s)
 		}
 	} else {
-		err = Get(s)
+		err = Get(s, uid)
 		if err == nil {
-			siteApi.Site.Subdomain = s.Subdomain
-			siteApi.Site.IsCustomDomain = s.IsCustomDomain
-			siteApi.Site.ApiDomain = s.ApiDomain
-			siteApi.Site.DstUrl = s.DstUrl
-			siteApi.Site.Group = s.Group
-			siteApi.Site.Https = s.Https
-			siteApi.Site.Gzip = s.Gzip
+			siteAPI.Site.Subdomain = s.Subdomain
+			siteAPI.Site.IsCustomDomain = s.IsCustomDomain
+			siteAPI.Site.APIDomain = s.APIDomain
+			siteAPI.Site.DstURL = s.DstURL
+			siteAPI.Site.Group = s.Group
+			siteAPI.Site.HTTPS = s.HTTPS
+			siteAPI.Site.Gzip = s.Gzip
 		} else {
-			log.Printf("[error]serivces.sites.SaveApi: get site err=%v, data=%s\r\n", err, siteApi)
+			log.Printf("[error]serivces.sites.SaveAPI: get site err=%v, data=%v\r\n", err, siteAPI)
 			err = errors.New(services.ErrorRead)
 			return
 		}
 	}
 
-	if siteApi.Url == "" {
-		siteApi.Url = siteApi.Site.Group + siteApi.ShortUrl
+	if siteAPI.URL == "" {
+		siteAPI.URL = siteAPI.Site.Group + siteAPI.ShortURL
 	}
 
-	if siteApi.Id == "" {
+	if siteAPI.ID == "" {
 		err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
-			Find(bson.M{"method": siteApi.Method, "site.apiDomain": siteApi.Site.ApiDomain, "url": siteApi.Url}).
+			Find(bson.M{"method": siteAPI.Method, "site.apiDomain": siteAPI.Site.APIDomain, "url": siteAPI.URL}).
 			Select(services.SelectHide).
-			One(&siteApi)
+			One(&siteAPI)
 
 		if err != nil {
-			siteApi.Id = bson.NewObjectId()
-			siteApi.CreatedAt = siteApi.UpdatedAt
-		} else if siteApi.AutoReg {
-			siteApi.Visited = siteApi.Visited + 1
+			siteAPI.ID = bson.NewObjectId()
+			siteAPI.CreatedAt = siteAPI.UpdatedAt
+		} else if siteAPI.AutoReg {
+			siteAPI.Visited = siteAPI.Visited + 1
 		}
 	}
 
-	_, err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).Upsert(bson.M{"_id": siteApi.Id}, siteApi)
+	if siteAPI.OwnerID == "" {
+		siteAPI.OwnerID = uid
+	}
+
+	_, err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
+		Upsert(bson.M{"_id": siteAPI.ID}, siteAPI)
 	if err != nil {
-		siteApi.Id = ""
-		log.Printf("[error]serivces.sites.SaveApi: err=%v, data=%s\r\n", err, siteApi)
+		siteAPI.ID = ""
+		log.Printf("[error]serivces.sites.SaveAPI: err=%v, data=%v\r\n", err, siteAPI)
 		err = errors.New(services.ErrorSave)
 	}
 
@@ -244,8 +244,9 @@ func SaveApis(apis []interface{}) (err error) {
 	return
 }
 
-func GetApi(siteApi *models.SiteApi) (err error) {
-	if siteApi.Id == "" {
+// GetAPI 获取api信息
+func GetAPI(siteAPI *models.SiteAPI, uid string) (err error) {
+	if siteAPI.ID == "" {
 		err = errors.New(services.ErrorParam)
 		return
 	}
@@ -254,19 +255,20 @@ func GetApi(siteApi *models.SiteApi) (err error) {
 	defer mongoSession.Close()
 
 	err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
-		Find(bson.M{"_id": siteApi.Id}).
+		Find(bson.M{"_id": siteAPI.ID, "ownerId": uid}).
 		Select(services.SelectHide).
-		One(&siteApi)
+		One(&siteAPI)
 
 	if err != nil {
-		log.Printf("[error]serivces.sites.GetApi: err=%v, data=%s\r\n", err, siteApi)
-		err = errors.New(services.ErrorRead)
+		log.Printf("[error]serivces.sites.GetAPI: err=%v, data=%v\r\n", err, siteAPI)
+		err = errors.New(services.ErrorPermission)
 	}
 
 	return
 }
 
-func DelApi(id string) (err error) {
+// DelAPI 删除api
+func DelAPI(id, uid string) (err error) {
 	if id == "" {
 		err = errors.New(services.ErrorParam)
 		return
@@ -275,26 +277,28 @@ func DelApi(id string) (err error) {
 	mongoSession := mongo.MgoSession.Clone()
 	defer mongoSession.Close()
 
-	err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).RemoveId(bson.ObjectIdHex(id))
+	err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
+		Remove(bson.M{"_id": bson.ObjectIdHex(id), "ownerId": uid})
 
 	if err != nil {
-		log.Printf("[error]serivces.sites.DelApi: err=%v, id=%s\r\n", err, id)
-		err = errors.New(services.ErrorSave)
+		log.Printf("[error]serivces.sites.DelAPI: err=%v, id=%s\r\n", err, id)
+		err = errors.New(services.ErrorPermission)
 	}
 
 	return
 }
 
-func ApiList(siteId bson.ObjectId, autoReg string, fieldType, pageIndex, pageCount int) (apis []models.SiteApi, err error) {
-	if siteId == "" {
-		err = errors.New(services.ErrorPermission)
+// APIList api列表
+func APIList(uid string, siteID bson.ObjectId, autoReg string, fieldType, pageIndex, pageCount int) (apis []models.SiteAPI, err error) {
+	if siteID == "" {
+		err = errors.New(services.ErrorParam)
 		return
 	}
 
 	mongoSession := mongo.MgoSession.Clone()
 	defer mongoSession.Close()
 
-	where := bson.M{"site._id": siteId, "deletedAt": bson.M{"$exists": false}}
+	where := bson.M{"ownerId": uid, "site._id": siteID, "deletedAt": bson.M{"$exists": false}}
 	if autoReg == "true" {
 		where["autoReg"] = true
 	} else if autoReg == "false" {
@@ -324,53 +328,56 @@ func ApiList(siteId bson.ObjectId, autoReg string, fieldType, pageIndex, pageCou
 		All(&apis)
 
 	if err != nil {
-		log.Printf("[error]serivces.sites.ApiList: err=%v, data=%s\r\n", err, siteId)
-		err = errors.New(services.ErrorRead)
+		log.Printf("[error]serivces.sites.APIList: err=%v, siteID=%v\r\n", err, siteID)
+		err = errors.New(services.ErrorPermission)
 	}
 
 	return
 }
 
-func GetApiByUrl(apiDomain, method, url string) (siteApi *models.SiteApi, err error) {
+// GetAPIByURL 请求代理时，通过url查找api
+func GetAPIByURL(apiDomain, method, url string) (siteAPI *models.SiteAPI, err error) {
 	mongoSession := mongo.MgoSession.Clone()
 	defer mongoSession.Close()
 
 	err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
 		Find(bson.M{"method": method, "site.apiDomain": apiDomain, "url": url, "autoReg": bson.M{"$ne": true}}).
 		Select(services.SelectHide).
-		One(&siteApi)
+		One(&siteAPI)
 
-	if err != nil || siteApi.Url == "" {
+	if err != nil || siteAPI.URL == "" {
 		err = errors.New(services.ErrorRead)
 	} else {
 		// 计数+1
 		mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
-			Update(bson.M{"_id": siteApi.Id}, bson.M{"$inc": bson.M{"visited": 1}})
+			Update(bson.M{"_id": siteAPI.ID}, bson.M{"$inc": bson.M{"visited": 1}})
 	}
 
 	return
 }
 
-func GetApiByDstUrl(dstUrl, method, url string) (siteApi *models.SiteApi, err error) {
+// GetAPIByDstURL 通过url和dstUrl查找api
+func GetAPIByDstURL(dstURL, method, URL string) (siteAPI *models.SiteAPI, err error) {
 	mongoSession := mongo.MgoSession.Clone()
 	defer mongoSession.Close()
 
 	err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
-		Find(bson.M{"method": method, "site.dstUrl": dstUrl, "url": url}).
+		Find(bson.M{"method": method, "site.dstUrl": dstURL, "url": URL}).
 		Select(services.SelectHide).
-		One(&siteApi)
+		One(&siteAPI)
 
 	if err != nil {
 		err = errors.New(services.ErrorRead)
 	} else {
 		// 计数+1
 		mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
-			Update(bson.M{"_id": siteApi.Id}, bson.M{"$inc": bson.M{"visited": 1}})
+			Update(bson.M{"_id": siteAPI.ID}, bson.M{"$inc": bson.M{"visited": 1}})
 	}
 
 	return
 }
 
+// GetSiteByDomain 通过域名查找网站信息（请求代理时用）
 func GetSiteByDomain(apiDomain string) (site *models.Site, err error) {
 	mongoSession := mongo.MgoSession.Clone()
 	defer mongoSession.Close()
@@ -387,11 +394,12 @@ func GetSiteByDomain(apiDomain string) (site *models.Site, err error) {
 	return
 }
 
-func ApiListByDomains(domain []string, autoReg string, fieldType, pageIndex, pageCount int) (apis []models.SiteApi, err error) {
+// APIListByDomains 查找指定域名下的api
+func APIListByDomains(uid string, domain []string, autoReg string, fieldType, pageIndex, pageCount int) (apis []models.SiteAPI, err error) {
 	mongoSession := mongo.MgoSession.Clone()
 	defer mongoSession.Close()
 
-	where := bson.M{"site.apiDomain": bson.M{"$in": domain}, "deletedAt": bson.M{"$exists": false}}
+	where := bson.M{"ownerId": uid, "site.apiDomain": bson.M{"$in": domain}, "deletedAt": bson.M{"$exists": false}}
 	if autoReg == "true" {
 		where["autoReg"] = true
 	} else if autoReg == "false" {
@@ -421,8 +429,8 @@ func ApiListByDomains(domain []string, autoReg string, fieldType, pageIndex, pag
 		All(&apis)
 
 	if err != nil {
-		log.Printf("[error]serivces.sites.ApiListByDomains: err=%v, data=%s\r\n", err, domain)
-		err = errors.New(services.ErrorRead)
+		log.Printf("[error]serivces.sites.APIListByDomains: err=%v, domain=%s\r\n", err, domain)
+		err = errors.New(services.ErrorPermission)
 	}
 
 	return
