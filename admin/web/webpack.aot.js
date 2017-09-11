@@ -130,15 +130,13 @@ module.exports = function (options) {
       })
     ],
     node: {
-      "fs": "empty",
-      "global": true,
-      "crypto": "empty",
-      "tls": "empty",
-      "net": "empty",
-      "process": true,
-      "module": false,
-      "clearImmediate": false,
-      "setImmediate": false
+      global: true,
+      crypto: 'empty',
+      __dirname: true,
+      __filename: true,
+      Buffer: false,
+      clearImmediate: false,
+      setImmediate: false
     }
   };
 };
