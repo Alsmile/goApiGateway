@@ -63,7 +63,12 @@ var GlobalConfig AppConfig
 
 // ReadConfig 读取全局配置文件
 func ReadConfig() error {
-	err := configor.Load(&GlobalConfig, "./config/default.json")
+	err := configor.Load(&GlobalConfig, "/etc/goApiGateway.json")
+	if err == nil {
+		return nil
+	}
+
+	err = configor.Load(&GlobalConfig, "./config/default.json")
 	if err != nil {
 		return err
 	}
