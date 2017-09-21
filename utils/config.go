@@ -64,7 +64,8 @@ var GlobalConfig AppConfig
 // ReadConfig 读取全局配置文件
 func ReadConfig() error {
 	err := configor.Load(&GlobalConfig, "/etc/goApiGateway.json")
-	if err == nil {
+	// 文件不存在时，err不报错
+	if GlobalConfig.Mongo.Address != "" || GlobalConfig.Redis.Address != "" {
 		return nil
 	}
 
