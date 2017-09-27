@@ -9,12 +9,11 @@ import (
 	"github.com/alsmile/goApiGateway/models"
 	"github.com/alsmile/goApiGateway/services/sites"
 	"github.com/kataras/iris"
-	"github.com/kataras/iris/context"
 	"gopkg.in/mgo.v2/bson"
 )
 
 // ProxyDo 收到代理请求并处理
-func ProxyDo(ctx context.Context) {
+func ProxyDo(ctx iris.Context) {
 	ret := make(map[string]interface{})
 
 	host := ctx.Host()
@@ -61,7 +60,7 @@ func ProxyDo(ctx context.Context) {
 }
 
 // proxy 执行具体代理
-func proxy(ctx context.Context, method, dstURL string) (err error) {
+func proxy(ctx iris.Context, method, dstURL string) (err error) {
 	client := &http.Client{}
 	query := "?" + ctx.Request().URL.Query().Encode()
 	clientReq, err := http.NewRequest(method, dstURL+query, ctx.Request().Body)
@@ -98,7 +97,7 @@ func proxy(ctx context.Context, method, dstURL string) (err error) {
 }
 
 // ProxyTest web请求代理测试，用于查看代理数据是否正确
-func ProxyTest(ctx context.Context) {
+func ProxyTest(ctx iris.Context) {
 	method := string(ctx.Method())
 	host := ctx.URLParam("host")
 	url := ctx.URLParam("url")

@@ -7,12 +7,12 @@ import (
 	"github.com/alsmile/goApiGateway/models"
 	"github.com/alsmile/goApiGateway/services"
 	"github.com/alsmile/goApiGateway/services/sites"
-	"github.com/kataras/iris/context"
+	"github.com/kataras/iris"
 	"gopkg.in/mgo.v2/bson"
 )
 
 // ApisSet 批量设置api
-func ApisSet(ctx context.Context) {
+func ApisSet(ctx iris.Context) {
 	ret := make(map[string]interface{})
 	defer ctx.JSON(ret)
 
@@ -75,7 +75,7 @@ func ApisSet(ctx context.Context) {
 }
 
 // ApisDelete 批量删除api
-func ApisDelete(ctx context.Context) {
+func ApisDelete(ctx iris.Context) {
 	ret := make(map[string]interface{})
 	defer ctx.JSON(ret)
 

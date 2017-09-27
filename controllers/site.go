@@ -4,12 +4,12 @@ import (
 	"github.com/alsmile/goApiGateway/models"
 	"github.com/alsmile/goApiGateway/services"
 	"github.com/alsmile/goApiGateway/services/sites"
-	"github.com/kataras/iris/context"
+	"github.com/kataras/iris"
 	"gopkg.in/mgo.v2/bson"
 )
 
 // SiteList 获取用户网站列表
-func SiteList(ctx context.Context) {
+func SiteList(ctx iris.Context) {
 	ret := make(map[string]interface{})
 	defer ctx.JSON(ret)
 
@@ -34,7 +34,7 @@ func SiteList(ctx context.Context) {
 }
 
 // SiteGet 获取具体的网站信息
-func SiteGet(ctx context.Context) {
+func SiteGet(ctx iris.Context) {
 	ret := make(map[string]interface{})
 
 	id := ctx.URLParam("id")
@@ -57,7 +57,7 @@ func SiteGet(ctx context.Context) {
 }
 
 // SiteSave 保存网站信息
-func SiteSave(ctx context.Context) {
+func SiteSave(ctx iris.Context) {
 	ret := make(map[string]interface{})
 	defer ctx.JSON(ret)
 
@@ -76,7 +76,7 @@ func SiteSave(ctx context.Context) {
 }
 
 // SiteDel 删除网站
-func SiteDel(ctx context.Context) {
+func SiteDel(ctx iris.Context) {
 	ret := make(map[string]interface{})
 
 	id := ctx.URLParam("id")
@@ -97,7 +97,7 @@ func SiteDel(ctx context.Context) {
 }
 
 // SiteAPISave 保存网站下的api
-func SiteAPISave(ctx context.Context) {
+func SiteAPISave(ctx iris.Context) {
 	ret := make(map[string]interface{})
 	defer ctx.JSON(ret)
 
@@ -116,7 +116,7 @@ func SiteAPISave(ctx context.Context) {
 }
 
 // SiteAPIGet 获取网站下的api
-func SiteAPIGet(ctx context.Context) {
+func SiteAPIGet(ctx iris.Context) {
 	ret := make(map[string]interface{})
 
 	id := ctx.URLParam("id")
@@ -139,7 +139,7 @@ func SiteAPIGet(ctx context.Context) {
 }
 
 // SiteAPIDel 删除网站下的api
-func SiteAPIDel(ctx context.Context) {
+func SiteAPIDel(ctx iris.Context) {
 	ret := make(map[string]interface{})
 
 	id := ctx.URLParam("id")
@@ -160,7 +160,7 @@ func SiteAPIDel(ctx context.Context) {
 }
 
 // SiteAPIList api列表
-func SiteAPIList(ctx context.Context) {
+func SiteAPIList(ctx iris.Context) {
 	ret := make(map[string]interface{})
 	defer ctx.JSON(ret)
 
@@ -189,7 +189,7 @@ func SiteAPIList(ctx context.Context) {
 }
 
 // SiteAPIListByDomains 查找指定域名下的api
-func SiteAPIListByDomains(ctx context.Context) {
+func SiteAPIListByDomains(ctx iris.Context) {
 	ret := make(map[string]interface{})
 	defer ctx.JSON(ret)
 

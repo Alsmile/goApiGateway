@@ -14,15 +14,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
+	"github.com/kataras/iris"
+	"gopkg.in/mgo.v2/bson"
+
 	"github.com/alsmile/goApiGateway/db/mongo"
 	"github.com/alsmile/goApiGateway/db/redis"
 	"github.com/alsmile/goApiGateway/models"
 	"github.com/alsmile/goApiGateway/services"
 	"github.com/alsmile/goApiGateway/services/email"
 	"github.com/alsmile/goApiGateway/utils"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/kataras/iris/context"
-	"gopkg.in/mgo.v2/bson"
 )
 
 // EncodePassword 密码加盐
@@ -202,7 +203,7 @@ func GetToken(u *models.User, hours int) (data string) {
 }
 
 // ValidToken 通过token校验用户身份
-func ValidToken(ctx context.Context) (uid string) {
+func ValidToken(ctx iris.Context) (uid string) {
 	data := ctx.GetHeader("Authorization")
 	if data == "" {
 		data = ctx.GetHeader("token")

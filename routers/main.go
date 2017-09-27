@@ -6,7 +6,6 @@ import (
 	"github.com/alsmile/goApiGateway/controllers"
 	"github.com/alsmile/goApiGateway/utils"
 	"github.com/kataras/iris"
-	"github.com/kataras/iris/context"
 )
 
 // Start 路由初始化
@@ -51,7 +50,7 @@ func Start() {
 		admin.Put("/api/test", controllers.ProxyTest)
 		admin.Delete("/api/test", controllers.ProxyTest)
 
-		admin.Options("/api/{url:path}", func(ctx context.Context) {
+		admin.Options("/api/{url:path}", func(ctx iris.Context) {
 			method := string(ctx.Method())
 			if method == "OPTIONS" {
 				ctx.JSON("")
@@ -60,7 +59,7 @@ func Start() {
 		})
 	}
 
-	app.Options("/{url:path}", func(ctx context.Context) {
+	app.Options("/{url:path}", func(ctx iris.Context) {
 		method := ctx.Method()
 		if method == "OPTIONS" {
 			ctx.JSON("")

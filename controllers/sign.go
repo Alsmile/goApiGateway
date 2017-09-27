@@ -8,11 +8,10 @@ import (
 	"github.com/alsmile/goApiGateway/session"
 	"github.com/alsmile/goApiGateway/utils"
 	"github.com/kataras/iris"
-	"github.com/kataras/iris/context"
 )
 
 // Login 登录
-func Login(ctx context.Context) {
+func Login(ctx iris.Context) {
 	ret := make(map[string]interface{})
 	defer ctx.JSON(ret)
 
@@ -50,7 +49,7 @@ func Login(ctx context.Context) {
 }
 
 // SignUp 注册
-func SignUp(ctx context.Context) {
+func SignUp(ctx iris.Context) {
 	ret := make(map[string]interface{})
 	defer ctx.JSON(ret)
 
@@ -69,7 +68,7 @@ func SignUp(ctx context.Context) {
 }
 
 // SignActive 用户激活
-func SignActive(ctx context.Context) {
+func SignActive(ctx iris.Context) {
 	ret := make(map[string]interface{})
 	defer ctx.JSON(ret)
 
@@ -88,7 +87,7 @@ func SignActive(ctx context.Context) {
 }
 
 // ForgetPassword 忘记密码请求
-func ForgetPassword(ctx context.Context) {
+func ForgetPassword(ctx iris.Context) {
 	ret := make(map[string]interface{})
 	defer ctx.JSON(ret)
 
@@ -107,7 +106,7 @@ func ForgetPassword(ctx context.Context) {
 }
 
 // NewPassword 忘记密码时，设置新密码
-func NewPassword(ctx context.Context) {
+func NewPassword(ctx iris.Context) {
 	ret := make(map[string]interface{})
 	defer ctx.JSON(ret)
 
@@ -127,7 +126,7 @@ func NewPassword(ctx context.Context) {
 }
 
 // UserProfile 获取用户基本信息
-func UserProfile(ctx context.Context) {
+func UserProfile(ctx iris.Context) {
 	ret := make(map[string]interface{})
 	defer ctx.JSON(ret)
 
@@ -147,7 +146,7 @@ func UserProfile(ctx context.Context) {
 }
 
 // Auth 身份认证中间件
-func Auth(ctx context.Context) {
+func Auth(ctx iris.Context) {
 	uid := user.ValidToken(ctx)
 	if uid == "" {
 		ctx.StatusCode(iris.StatusUnauthorized)

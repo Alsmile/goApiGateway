@@ -20,8 +20,8 @@ ADD ./config/default.json $APIGATEWAY_HOME/config/
 
 RUN chmod +x $APIGATEWAY_HOME/goApiGateway
 
-EXPOSE 80
-EXPOSE 3200
+EXPOSE 80 3200
+
 ENTRYPOINT ["./goApiGateway"]
 
 # docker run --name goApiGateway -p 80:80 -p 3200:3200 [-v /etc/goApiGateway.json:/etc/goApiGateway.json] [--net=host] <image name:tag>

@@ -8,22 +8,21 @@ import (
 	"github.com/dchest/captcha"
 	"github.com/garyburd/redigo/redis"
 	"github.com/kataras/iris"
-	"github.com/kataras/iris/context"
 )
 
 // Index 首页静态文件
-func Index(ctx context.Context) {
+func Index(ctx iris.Context) {
 	ctx.StatusCode(iris.StatusOK)
 	ctx.ServeFile("./admin/web/dist/index.html", true)
 }
 
 // Browser 浏览器不兼容静态文件
-func Browser(ctx context.Context) {
+func Browser(ctx iris.Context) {
 	ctx.ServeFile("./admin/web/dist/browser.html", true)
 }
 
 // NotFound 404
-func NotFound(ctx context.Context) {
+func NotFound(ctx iris.Context) {
 	if strings.HasPrefix(ctx.Path(), "/api/") {
 		ret := make(map[string]interface{})
 		ret["error"] = "请求错误（Not found）：" + ctx.Path()
@@ -36,14 +35,14 @@ func NotFound(ctx context.Context) {
 }
 
 // Assets 静态文件
-func Assets(ctx context.Context) {
+func Assets(ctx iris.Context) {
 	path := ctx.Params().Get("path")
 	ctx.StatusCode(iris.StatusOK)
 	ctx.ServeFile("./admin/web/dist/assets/"+path, true)
 }
 
 // Captcha 验证码
-func Captcha(ctx context.Context) {
+func Captcha(ctx iris.Context) {
 	captchaID, _ := redis.String(session.GetSession(ctx, myCaptcha.CaptchaSessionName))
 
 	// Delete the old.
@@ -58,7 +57,7 @@ func Captcha(ctx context.Context) {
 }
 
 // Cors 跨域设置
-func Cors(ctx context.Context) {
+func Cors(ctx iris.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, token, X-Requested-With")
 	ctx.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
