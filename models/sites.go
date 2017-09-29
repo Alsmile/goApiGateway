@@ -37,12 +37,14 @@ type SiteAPI struct {
 	Desc                   string        `json:"desc"`
 	Method                 string        `json:"method"`
 	IsMock                 bool          `json:"isMock" bson:"isMock"`
-	Headers                []APIParam    `json:"headers"`
+	URLReg                 string        `json:"urlReg"  bson:"urlReg"`
+	URLParams              []*APIParam   `json:"urlParams"  bson:"urlParams"`
+	Headers                []*APIParam   `json:"headers"`
 	ContentType            string        `json:"contentType" bson:"contentType"`
 	DataType               string        `json:"dataType" bson:"dataType"`
-	QueryParams            []APIParam    `json:"queryParams" bson:"queryParams"`
-	BodyParams             []APIParam    `json:"bodyParams" bson:"bodyParams"`
-	ResponseParams         []APIParam    `json:"responseParams" bson:"responseParams"`
+	QueryParams            []*APIParam   `json:"queryParams" bson:"queryParams"`
+	BodyParams             []*APIParam   `json:"bodyParams" bson:"bodyParams"`
+	ResponseParams         []*APIParam   `json:"responseParams" bson:"responseParams"`
 	BodyParamsText         string        `json:"bodyParamsText" bson:"bodyParamsText"`
 	BodyParamsTextDesc     string        `json:"bodyParamsTextDesc" bson:"bodyParamsTextDesc"`
 	ResponseParamsText     string        `json:"responseParamsText" bson:"responseParamsText"`

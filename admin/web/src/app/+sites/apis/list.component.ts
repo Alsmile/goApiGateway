@@ -188,7 +188,7 @@ export class SitesApisListComponent{
     }
     this.saving = false;
     if (!ret.id) return;
-    this.tree.selected.isEdit=false;
+    this.tree.selected.isEdit = false;
   }
 
   onCancelEdit() {

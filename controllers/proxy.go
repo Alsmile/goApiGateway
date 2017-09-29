@@ -36,7 +36,6 @@ func ProxyDo(ctx iris.Context) {
 	site, err := sites.GetSiteByDomain(host)
 	if err == nil {
 		proxy(ctx, method, site.DstURL+url)
-
 		siteAPI = &models.SiteAPI{}
 
 		// 添加到自动发现
@@ -73,23 +72,19 @@ func proxy(ctx iris.Context, method, dstURL string) (err error) {
 
 		return
 	}
-
 	clientReq.Header = ctx.Request().Header
 	clientResp, err := client.Do(clientReq)
-
 	if err != nil {
 		ctx.StatusCode(iris.StatusBadGateway)
 		ctx.JSON(bson.M{"error": err.Error()})
 		return
 	}
 	ctx.StatusCode(clientResp.StatusCode)
-
 	for key, value := range clientResp.Header {
 		for _, v := range value {
 			ctx.ResponseWriter().Header().Set(key, v)
 		}
 	}
-
 	io.Copy(ctx.ResponseWriter(), clientResp.Body)
 	clientResp.Body.Close()
 	err = nil

@@ -340,8 +340,22 @@ func GetAPIByURL(apiDomain, method, url string) (siteAPI *models.SiteAPI, err er
 	mongoSession := mongo.MgoSession.Clone()
 	defer mongoSession.Close()
 
+	js := `function(){return this.urlReg && new RegExp(this.urlReg).test("` + url + `")}`
+
 	err = mongoSession.DB(utils.GlobalConfig.Mongo.Database).C(mongo.CollectionApis).
-		Find(bson.M{"method": method, "site.apiDomain": apiDomain, "url": url, "autoReg": bson.M{"$ne": true}}).
+		Find(bson.M{
+			"method":         method,
+			"site.apiDomain": apiDomain,
+			"$or": []bson.M{
+				bson.M{"url": url},
+				bson.M{
+					"$where": bson.JavaScript{
+						Code: js,
+					},
+				},
+			},
+			"autoReg": bson.M{"$ne": true},
+		}).
 		Select(services.SelectHide).
 		One(&siteAPI)
 

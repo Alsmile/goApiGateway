@@ -3,10 +3,18 @@
     <label class="mr10" style="width: .5rem">名称： </label>
     <input class="input full" [(ngModel)]="api.name" placeholder="API名称">
   </div>
-  <div class="flex middle mb20">
+  <div class="flex mb20">
     <label class="mr10" style="width: .5rem">Url： </label>
-    <span class="mr5">{{api.site.group}}</span>
-    <input class="input full" [(ngModel)]="api.shortUrl" placeholder="/api/your/url">
+    <div>
+      <div class="flex middle">
+        <span *ngIf="api.site.group"  class="mr5">{{api.site.group}}</span>
+        <input class="input full" [(ngModel)]="api.shortUrl" placeholder="/api/user/<userId=([0-9]+)>/your/url" (change)="onChangedUrl()">
+      </div>
+      <div class="gray">
+        支持用“&lt;&gt;”表示动态参数，格式为：&lt;动态参数名=(正则表达式)&gt;。其中“=”及其后面的正则表达式可省略，表示匹配任意字符。例如：&lt;userId=([0-9]+)&gt;<br>
+        您应该尽量避免使用动态参数而采用“?”形式的query查询参数（定义url时不必输入）或者post、put中的body参数等，因为查询效率将大大降低。
+      </div>
+    </div>
   </div>
   <div class="flex middle mb20">
     <label class="mr10" style="width: .5rem">方法：</label>
@@ -33,6 +41,33 @@
     <label class="mr10" style="width: .5rem">描述： </label>
     <textarea class="input full" rows="2" [(ngModel)]="api.desc" placeholder="建议简洁清晰。更多信息应该在您的详细设计文档。"></textarea>
   </div>
+
+  <div class="flex middle mt10 ">
+    <h4 class="mr30">url参数列表</h4>
+  </div>
+  <table class="mb10">
+    <tr>
+      <th>名称</th>
+      <th>说明</th>
+    </tr>
+    <tr *ngFor="let item of api.urlParams; let i = index">
+      <td >
+         {{item.name}}
+      </td>
+      <td class="td-input">
+        <div class="flex middle">
+          <input class="input full" [(ngModel)]="item.desc">
+        </div>
+      </td>
+    </tr>
+    <tr *ngIf="!api.urlParams || api.urlParams.length === 0">
+      <td class="text-center gray" colspan="7">
+        没有url参数
+      </td>
+    </tr>
+  </table>
+
+
   <div class="flex middle mt10 ">
     <h4 class="mr30">header列表</h4>
   </div>
@@ -342,6 +377,28 @@
       {{api.desc}}
     </div>
   </div>
+  <div class="flex middle mt10 ">
+    <h4 class="mr30">url参数列表</h4>
+  </div>
+  <table class="mb10">
+    <tr>
+      <th>名称</th>
+      <th>说明</th>
+    </tr>
+    <tr *ngFor="let item of api.urlParams; let i = index">
+      <td>
+        {{item.name}}
+      </td>
+      <td>
+       {{item.desc}}
+      </td>
+    </tr>
+    <tr *ngIf="!api.urlParams || api.urlParams.length === 0">
+      <td class="text-center gray" colspan="7">
+        没有url参数
+      </td>
+    </tr>
+  </table>
   <div class="pt10" *ngIf="api.headers && api.headers.length > 0">
     <h4 class="mt20 ">headers列表</h4>
     <table class="mb10">

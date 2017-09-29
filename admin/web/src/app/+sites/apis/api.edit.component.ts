@@ -40,10 +40,10 @@ export class ApiEditComponent {
 
     let show: boolean = true;
     let level = arr[i].level;
-    for (let j=i-1; j > -1; --j) {
+    for (let j = i - 1; j > -1; --j) {
       if (show && arr[j].level < level) {
         level = arr[j].level;
-        show = arr[j].hide?false: true;
+        show = arr[j].hide ? false : true;
       }
     }
 
@@ -142,15 +142,85 @@ export class ApiEditComponent {
       this._sitesService.getMockObject(this.api.bodyParams);
     }
     if (this.api.method === 'GET') {
-      this.requestRet = await this.http.QueryString(queryParams).Get('/api/test', {headers: headers});
+      this.requestRet =
+        await this.http.QueryString(queryParams).Get('/api/test', { headers: headers });
     } else if (this.api.method === 'POST') {
-      this.requestRet = await this.http.QueryString(queryParams).Post('/api/test', bodyParams, {headers: headers});
+      this.requestRet =
+        await this.http.QueryString(queryParams).Post('/api/test', bodyParams, { headers: headers });
     } else if (this.api.method === 'PUT') {
-      this.requestRet = await this.http.QueryString(queryParams).Put('/api/test', bodyParams, {headers: headers});
+      this.requestRet =
+        await this.http.QueryString(queryParams).Put('/api/test', bodyParams, { headers: headers });
     } else if (this.api.method === 'DELETE') {
-      this.requestRet = await this.http.QueryString(queryParams).Delete('/api/test', {headers: headers});
+      this.requestRet =
+        await this.http.QueryString(queryParams).Delete('/api/test', { headers: headers });
     }
 
     this._sitesService.parseRequestData(this.api.responseParams, this.requestRet);
+  }
+
+  extractUrlParams(str: string) {
+    let ret: any = {
+      urlReg: '',
+      urlParams: [],
+      urlParamSrcs: []
+    };
+
+    if (!str) return ret;
+
+    ret.urlParamSrcs = str.match(/\/<.*?>/g);
+    if (!ret.urlParamSrcs) return ret;
+
+    for (let item of ret.urlParamSrcs) {
+      let s = item.replace(/\/<(.+?)\s*>/, '$1').split('=')[0];
+      if (!s || s === item) continue;
+      let isFind = false;
+      for (let i of ret.urlParams) {
+        if (i === s) {
+          isFind = true;
+          break;
+        }
+      }
+
+      if (!isFind) {
+        let newItem: any = { name: s };
+        for (let i of this.api.urlParams) {
+          if (i.name === s) {
+            newItem.desc = i.desc;
+            break;
+          }
+        }
+        ret.urlParams.push(newItem);
+      }
+
+      let arr = item.split('=');
+      if (arr[1]) str = str.replace(item, '/' + arr[1].substr(0, arr[1].length - 1));
+      else str = str.replace(item, '/(.+)');
+    }
+    ret.urlReg = '^' + str.replace(/\//g, '\/') + '$';
+
+    return ret;
+  }
+
+  onChangedUrl() {
+    if (!this.api.shortUrl) {
+      this.api.urlReg = '';
+      this.api.urlParams = [];
+      return;
+    }
+
+    let index = this.api.shortUrl.indexOf('?');
+    if (index === 0) {
+      this.api.shortUrl = '';
+      this.api.urlReg = '';
+      this.api.urlParams = [];
+      return;
+    }
+    else if (index > 0) {
+      this.api.shortUrl = this.api.shortUrl.substr(0, index);
+    }
+
+    let urlParams = this.extractUrlParams(this.api.shortUrl);
+    this.api.urlParams = urlParams.urlParams;
+    this.api.urlReg = urlParams.urlReg;
   }
 }

@@ -19,6 +19,9 @@ ADD ./assets/ $APIGATEWAY_HOME/assets/
 ADD ./config/default.json $APIGATEWAY_HOME/config/
 
 RUN chmod +x $APIGATEWAY_HOME/goApiGateway
+#安装访问https的证书
+RUN apt-get -y update
+RUN apt-get -y install curl
 
 EXPOSE 80 3200
 
