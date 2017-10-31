@@ -14,6 +14,11 @@ import (
 
 // ProxyDo 收到代理请求并处理
 func ProxyDo(ctx iris.Context) {
+	if ctx.GetHeader("Upgrade") == "websocket" {
+		ctx.Next()
+		return
+	}
+
 	ret := make(map[string]interface{})
 
 	host := ctx.Host()

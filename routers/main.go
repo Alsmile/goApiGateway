@@ -66,10 +66,13 @@ func Start() {
 			return
 		}
 	})
-	app.Get("/{url:path}", controllers.ProxyDo)
+
+	// app.Get("/{url:path}", controllers.ProxyDo)
 	app.Post("/{url:path}", controllers.ProxyDo)
 	app.Put("/{url:path}", controllers.ProxyDo)
 	app.Delete("/{url:path}", controllers.ProxyDo)
+
+	controllers.SetupWebsocket(app)
 
 	strPort := strconv.Itoa(int(utils.GlobalConfig.Domain.Port))
 	app.Run(iris.Addr(":" + strPort))

@@ -35,20 +35,20 @@ type SiteAPI struct {
 	ShortURL               string        `json:"shortUrl" bson:"shortUrl"`
 	URL                    string        `json:"url"`
 	Desc                   string        `json:"desc"`
-	Method                 string        `json:"method"`
-	IsMock                 bool          `json:"isMock" bson:"isMock"`
-	URLReg                 string        `json:"urlReg"  bson:"urlReg"`
-	URLParams              []*APIParam   `json:"urlParams"  bson:"urlParams"`
-	Headers                []*APIParam   `json:"headers"`
-	ContentType            string        `json:"contentType" bson:"contentType"`
-	DataType               string        `json:"dataType" bson:"dataType"`
-	QueryParams            []*APIParam   `json:"queryParams" bson:"queryParams"`
-	BodyParams             []*APIParam   `json:"bodyParams" bson:"bodyParams"`
-	ResponseParams         []*APIParam   `json:"responseParams" bson:"responseParams"`
-	BodyParamsText         string        `json:"bodyParamsText" bson:"bodyParamsText"`
-	BodyParamsTextDesc     string        `json:"bodyParamsTextDesc" bson:"bodyParamsTextDesc"`
-	ResponseParamsText     string        `json:"responseParamsText" bson:"responseParamsText"`
-	ResponseParamsTextDesc string        `json:"responseParamsTextDesc" bson:"responseParamsTextDesc"`
+	Method                 string        `json:"method" bson:"method,omitempty"`
+	IsMock                 bool          `json:"isMock" bson:"isMock,omitempty"`
+	URLReg                 string        `json:"urlReg"  bson:"urlReg,omitempty"`
+	URLParams              []*APIParam   `json:"urlParams" bson:"urlParams,omitempty"`
+	Headers                []*APIParam   `json:"headers" bson:"headers,omitempty"`
+	ContentType            string        `json:"contentType" bson:"contentType,omitempty"`
+	DataType               string        `json:"dataType" bson:"dataType,omitempty"`
+	QueryParams            []*APIParam   `json:"queryParams" bson:"queryParams,omitempty"`
+	BodyParams             []*APIParam   `json:"bodyParams" bson:"bodyParams,omitempty"`
+	ResponseParams         []*APIParam   `json:"responseParams" bson:"responseParams,omitempty"`
+	BodyParamsText         string        `json:"bodyParamsText" bson:"bodyParamsText,omitempty"`
+	BodyParamsTextDesc     string        `json:"bodyParamsTextDesc" bson:"bodyParamsTextDesc,omitempty"`
+	ResponseParamsText     string        `json:"responseParamsText" bson:"responseParamsText,omitempty"`
+	ResponseParamsTextDesc string        `json:"responseParamsTextDesc" bson:"responseParamsTextDesc,omitempty"`
 	AutoReg                bool          `json:"autoReg" bson:"autoReg,omitempty"`
 	Visited                uint64        `json:"visited" bson:"visited,omitempty"`
 	StatusCode             int           `json:"statusCode" bson:"statusCode,omitempty"`
