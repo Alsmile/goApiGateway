@@ -1,19 +1,21 @@
 package controllers
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/alsmile/goApiGateway/models"
+	"github.com/alsmile/goApiGateway/services"
 	"github.com/alsmile/goApiGateway/services/sites"
 	"github.com/kataras/iris"
 	"gopkg.in/mgo.v2/bson"
 )
 
-// ProxyDo 收到代理请求并处理
-func ProxyDo(ctx iris.Context) {
+// ProxyRequest 收到代理请求并处理
+func ProxyRequest(ctx iris.Context) {
 	if ctx.GetHeader("Upgrade") == "websocket" {
 		ctx.Next()
 		return
@@ -24,6 +26,7 @@ func ProxyDo(ctx iris.Context) {
 	host := ctx.Host()
 	method := string(ctx.Method())
 	url := "/" + ctx.Params().Get("url")
+	fmt.Println(ctx.RemoteAddr())
 
 	// 查找api级别代理
 	siteAPI, err := sites.GetAPIByURL(host, method, url)
@@ -35,24 +38,25 @@ func ProxyDo(ctx iris.Context) {
 			proxy(ctx, method, siteAPI.Site.DstURL+url)
 		}
 		return
-	}
+	} else if err.Error() != services.ErrorAPIPause {
 
-	// 查找site级别代理
-	site, err := sites.GetSiteByDomain(host)
-	if err == nil {
-		proxy(ctx, method, site.DstURL+url)
-		siteAPI = &models.SiteAPI{}
+		// 查找site级别代理
+		site, err := sites.GetSiteByDomain(host)
+		if err == nil {
+			proxy(ctx, method, site.DstURL+url)
+			siteAPI = &models.SiteAPI{}
 
-		// 添加到自动发现
-		siteAPI.AutoReg = true
-		siteAPI.Site.ID = site.ID
-		siteAPI.Method = method
-		siteAPI.URL = url
-		siteAPI.Visited = 1
-		siteAPI.StatusCode = ctx.GetStatusCode()
-		sites.SaveAPI(siteAPI, site.OwnerID)
+			// 添加到自动发现
+			siteAPI.AutoReg = true
+			siteAPI.Site.ID = site.ID
+			siteAPI.Method = method
+			siteAPI.URL = url
+			siteAPI.Visited = 1
+			siteAPI.StatusCode = ctx.GetStatusCode()
+			sites.SaveAPI(siteAPI, site.OwnerID)
 
-		return
+			return
+		}
 	}
 
 	// log

@@ -17,7 +17,7 @@ func SetupWebsocket(app *iris.Application) {
 	})
 	ws.OnConnection(wsConnection)
 
-	app.Get("/{url:path}", ProxyDo, ws.Handler())
+	app.Get("/{url:path}", ProxyRequest, ws.Handler())
 }
 
 func wsConnection(conn websocket.Connection) {

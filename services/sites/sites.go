@@ -81,6 +81,7 @@ func Save(site *models.Site, uid string) (err error) {
 				IsCustomDomain: site.IsCustomDomain,
 				APIDomain:      site.APIDomain,
 				DstURL:         site.DstURL,
+				Pause:          site.Pause,
 			}}})
 
 	}
@@ -231,6 +232,7 @@ func SaveAPI(siteAPI *models.SiteAPI, uid string) (err error) {
 	return
 }
 
+// SaveApis 保存多个api
 func SaveApis(apis []interface{}) (err error) {
 	mongoSession := mongo.MgoSession.Clone()
 	defer mongoSession.Close()
@@ -367,6 +369,10 @@ func GetAPIByURL(apiDomain, method, url string) (siteAPI *models.SiteAPI, err er
 			Update(bson.M{"_id": siteAPI.ID}, bson.M{"$inc": bson.M{"visited": 1}})
 	}
 
+	if siteAPI != nil && (siteAPI.Pause || siteAPI.Site.Pause) {
+		err = errors.New(services.ErrorAPIPause)
+	}
+
 	return
 }
 
@@ -403,6 +409,10 @@ func GetSiteByDomain(apiDomain string) (site *models.Site, err error) {
 
 	if err != nil {
 		err = errors.New(services.ErrorRead)
+	}
+
+	if site != nil && site.Pause {
+		err = errors.New(services.ErrorAPIPause)
 	}
 
 	return

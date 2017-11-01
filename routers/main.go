@@ -19,7 +19,6 @@ func Start() {
 
 	admin := app.Party(utils.GlobalConfig.Domain.AdminDomain)
 	{
-		// admin.StaticWeb("/assets", "./admin/web/dist/assets")
 		admin.Get("/assets/{path:path}", controllers.Assets)
 
 		admin.Get("/", controllers.Index)
@@ -67,12 +66,12 @@ func Start() {
 		}
 	})
 
-	// app.Get("/{url:path}", controllers.ProxyDo)
-	app.Post("/{url:path}", controllers.ProxyDo)
-	app.Put("/{url:path}", controllers.ProxyDo)
-	app.Delete("/{url:path}", controllers.ProxyDo)
-
+	// SetupWebsocket 包含 app.Get("/{url:path}", controllers.ProxyRequest)
 	controllers.SetupWebsocket(app)
+
+	app.Post("/{url:path}", controllers.ProxyRequest)
+	app.Put("/{url:path}", controllers.ProxyRequest)
+	app.Delete("/{url:path}", controllers.ProxyRequest)
 
 	strPort := strconv.Itoa(int(utils.GlobalConfig.Domain.Port))
 	app.Run(iris.Addr(":" + strPort))

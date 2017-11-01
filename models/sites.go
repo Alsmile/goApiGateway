@@ -12,14 +12,15 @@ type Site struct {
 	OwnerID        string        `json:"ownerId,omitempty" bson:"ownerId,omitempty"`
 	EditorID       string        `json:"editorId,omitempty" bson:"editorId,omitempty"`
 	Name           string        `json:"name"`
-	Desc           string        `json:"desc"`
-	Gzip           bool          `json:"gzip"`
-	HTTPS          string        `json:"https"`
-	Subdomain      string        `json:"subdomain" `
+	Desc           string        `json:"desc" bson:"desc,omitempty"`
+	Gzip           bool          `json:"gzip" bson:"gzip,omitempty"`
+	HTTPS          string        `json:"https" bson:"https,omitempty"`
+	Subdomain      string        `json:"subdomain" bson:"subdomain,omitempty"`
 	IsCustomDomain bool          `json:"isCustomDomain" bson:"isCustomDomain"`
 	APIDomain      string        `json:"apiDomain" bson:"apiDomain"`
-	Group          string        `json:"group" `
+	Group          string        `json:"group" bson:"group,omitempty"`
 	DstURL         string        `json:"dstUrl" bson:"dstUrl"`
+	Pause          bool          `json:"pause" bson:"pause,omitempty"`
 	CreatedAt      time.Time     `json:"createdAt,omitempty" bson:"createdAt,omitempty"`
 	UpdatedAt      time.Time     `json:"updatedAt,omitempty" bson:"updatedAt,omitempty"`
 	DeletedAt      time.Time     `json:"deletedAt,omitempty" bson:"deletedAt,omitempty"`
@@ -34,7 +35,7 @@ type SiteAPI struct {
 	Name                   string        `json:"name"`
 	ShortURL               string        `json:"shortUrl" bson:"shortUrl"`
 	URL                    string        `json:"url"`
-	Desc                   string        `json:"desc"`
+	Desc                   string        `json:"desc" bson:"desc,omitempty"`
 	Method                 string        `json:"method" bson:"method,omitempty"`
 	IsMock                 bool          `json:"isMock" bson:"isMock,omitempty"`
 	URLReg                 string        `json:"urlReg"  bson:"urlReg,omitempty"`
@@ -52,6 +53,7 @@ type SiteAPI struct {
 	AutoReg                bool          `json:"autoReg" bson:"autoReg,omitempty"`
 	Visited                uint64        `json:"visited" bson:"visited,omitempty"`
 	StatusCode             int           `json:"statusCode" bson:"statusCode,omitempty"`
+	Pause                  bool          `json:"pause" bson:"pause,omitempty"`
 	CreatedAt              time.Time     `json:"createdAt,omitempty" bson:"createdAt,omitempty"`
 	UpdatedAt              time.Time     `json:"updatedAt,omitempty" bson:"updatedAt,omitempty"`
 	DeletedAt              time.Time     `json:"deletedAt,omitempty" bson:"deletedAt,omitempty"`
@@ -61,10 +63,10 @@ type SiteAPI struct {
 type APIParam struct {
 	ID       int    `json:"id" bson:"id,omitempty"`
 	ParentID int    `json:"parentId" bson:"parentId,omitempty"`
-	Name     string `json:"name"`
+	Name     string `json:"name" bson:"name,omitempty"`
 	Type     string `json:"type" bson:"type,omitempty"`
-	Desc     string `json:"desc"`
-	Required string `json:"required"`
+	Desc     string `json:"desc" bson:"desc,omitempty"`
+	Required string `json:"required" bson:"required,omitempty"`
 	Mock     string `json:"mock" bson:"mock,omitempty"`
 	Level    int    `json:"level" bson:"level,omitempty"`
 	HasChild bool   `json:"hasChild" bson:"hasChild,omitempty"`
@@ -73,11 +75,12 @@ type APIParam struct {
 // SiteParam 接口调用时，用到的网站数据
 type SiteParam struct {
 	ID             bson.ObjectId `json:"id" bson:"_id"`
-	Gzip           bool          `json:"gzip"`
-	HTTPS          string        `json:"https"`
-	Subdomain      string        `json:"subdomain" `
-	IsCustomDomain bool          `json:"isCustomDomain"  bson:"isCustomDomain"`
-	APIDomain      string        `json:"apiDomain" bson:"apiDomain"`
-	Group          string        `json:"group" `
-	DstURL         string        `json:"dstUrl" bson:"dstUrl"`
+	Gzip           bool          `json:"gzip" bson:"gzip,omitempty"`
+	HTTPS          string        `json:"https" bson:"https,omitempty"`
+	Subdomain      string        `json:"subdomain" bson:"subdomain,omitempty"`
+	IsCustomDomain bool          `json:"isCustomDomain" bson:"isCustomDomain,omitempty"`
+	APIDomain      string        `json:"apiDomain" bson:"apiDomain,omitempty"`
+	Group          string        `json:"group" bson:"group,omitempty"`
+	DstURL         string        `json:"dstUrl" bson:"dstUrl,omitempty"`
+	Pause          bool          `json:"pause" bson:"pause,omitempty"`
 }
