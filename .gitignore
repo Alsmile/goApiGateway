@@ -31,6 +31,6 @@ dist/
 vendor
 
 config/
-!config/default.json
+!config/default.yaml
 out/
 /goApiGateway

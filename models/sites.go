@@ -21,6 +21,9 @@ type Site struct {
 	Group          string        `json:"group" bson:"group,omitempty"`
 	DstURL         string        `json:"dstUrl" bson:"dstUrl"`
 	Pause          bool          `json:"pause" bson:"pause,omitempty"`
+	Rate           uint64        `json:"rate" bson:"rate,omitempty"`
+	Whitelist      []string      `json:"whitelist" bson:"whitelist,omitempty"`
+	Blacklist      []string      `json:"blacklist" bson:"blacklist,omitempty"`
 	CreatedAt      time.Time     `json:"createdAt,omitempty" bson:"createdAt,omitempty"`
 	UpdatedAt      time.Time     `json:"updatedAt,omitempty" bson:"updatedAt,omitempty"`
 	DeletedAt      time.Time     `json:"deletedAt,omitempty" bson:"deletedAt,omitempty"`
@@ -54,6 +57,9 @@ type SiteAPI struct {
 	Visited                uint64        `json:"visited" bson:"visited,omitempty"`
 	StatusCode             int           `json:"statusCode" bson:"statusCode,omitempty"`
 	Pause                  bool          `json:"pause" bson:"pause,omitempty"`
+	Rate                   uint64        `json:"rate" bson:"rate,omitempty"`
+	Whitelist              []string      `json:"whitelist" bson:"whitelist,omitempty"`
+	Blacklist              []string      `json:"blacklist" bson:"blacklist,omitempty"`
 	CreatedAt              time.Time     `json:"createdAt,omitempty" bson:"createdAt,omitempty"`
 	UpdatedAt              time.Time     `json:"updatedAt,omitempty" bson:"updatedAt,omitempty"`
 	DeletedAt              time.Time     `json:"deletedAt,omitempty" bson:"deletedAt,omitempty"`
@@ -83,4 +89,7 @@ type SiteParam struct {
 	Group          string        `json:"group" bson:"group,omitempty"`
 	DstURL         string        `json:"dstUrl" bson:"dstUrl,omitempty"`
 	Pause          bool          `json:"pause" bson:"pause,omitempty"`
+	Rate           uint64        `json:"rate" bson:"rate,omitempty"`
+	Whitelist      []string      `json:"whitelist" bson:"whitelist,omitempty"`
+	Blacklist      []string      `json:"blacklist" bson:"blacklist,omitempty"`
 }

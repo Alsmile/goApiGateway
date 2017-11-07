@@ -1,10 +1,12 @@
 package controllers
 
 import (
+	"path"
 	"strings"
 
 	myCaptcha "github.com/alsmile/goApiGateway/services/captcha"
 	"github.com/alsmile/goApiGateway/session"
+	"github.com/alsmile/goApiGateway/utils"
 	"github.com/dchest/captcha"
 	"github.com/garyburd/redigo/redis"
 	"github.com/kataras/iris"
@@ -13,12 +15,12 @@ import (
 // Index 首页静态文件
 func Index(ctx iris.Context) {
 	ctx.StatusCode(iris.StatusOK)
-	ctx.ServeFile("./admin/web/dist/index.html", true)
+	ctx.ServeFile("./admin/web/dist/index.html", false)
 }
 
 // Browser 浏览器不兼容静态文件
 func Browser(ctx iris.Context) {
-	ctx.ServeFile("./admin/web/dist/browser.html", true)
+	ctx.ServeFile("./admin/web/dist/browser.html", false)
 }
 
 // NotFound 404
@@ -36,9 +38,21 @@ func NotFound(ctx iris.Context) {
 
 // Assets 静态文件
 func Assets(ctx iris.Context) {
-	path := ctx.Params().Get("path")
+	paramPath := ctx.Params().Get("path")
 	ctx.StatusCode(iris.StatusOK)
-	ctx.ServeFile("./admin/web/dist/assets/"+path, true)
+
+	if path.Ext(paramPath) == ".js" {
+		if b, _ := utils.Exists("./admin/web/dist/assets/" + paramPath + ".gz"); !b {
+			utils.Compress("./admin/web/dist/assets/"+paramPath, "./admin/web/dist/assets/"+paramPath+".gz")
+		}
+	}
+
+	if b, _ := utils.Exists("./admin/web/dist/assets/" + paramPath + ".gz"); b {
+		ctx.Header("Content-Encoding", "gzip")
+		ctx.ServeFile("./admin/web/dist/assets/"+paramPath+".gz", false)
+		return
+	}
+	ctx.ServeFile("./admin/web/dist/assets/"+paramPath, false)
 }
 
 // Captcha 验证码

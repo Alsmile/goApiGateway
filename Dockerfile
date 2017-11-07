@@ -16,7 +16,7 @@ RUN mkdir -p "$APIGATEWAY_HOME/out/log"
 ADD ./goApiGateway $APIGATEWAY_HOME/
 ADD ./admin/web/dist/ $APIGATEWAY_HOME/admin/web/dist/
 ADD ./assets/ $APIGATEWAY_HOME/assets/
-ADD ./config/default.json $APIGATEWAY_HOME/config/
+ADD ./config/default.yaml $APIGATEWAY_HOME/config/
 
 RUN chmod +x $APIGATEWAY_HOME/goApiGateway
 #安装访问https的证书

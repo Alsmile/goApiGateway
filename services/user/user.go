@@ -28,7 +28,7 @@ import (
 
 // EncodePassword 密码加盐
 func EncodePassword(pwd string) string {
-	mac := hmac.New(sha256.New, []byte(utils.GlobalConfig.Secret))
+	mac := hmac.New(sha256.New, []byte(utils.GlobalConfig.Name+"__"+utils.GlobalConfig.Name))
 	mac.Write([]byte(pwd))
 	str := hex.EncodeToString(mac.Sum([]byte("goApiGateway")))
 

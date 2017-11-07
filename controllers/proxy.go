@@ -1,15 +1,15 @@
 package controllers
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/alsmile/goApiGateway/models"
-	"github.com/alsmile/goApiGateway/services"
+	"github.com/alsmile/goApiGateway/services/plugins"
 	"github.com/alsmile/goApiGateway/services/sites"
+	"github.com/alsmile/goApiGateway/utils"
 	"github.com/kataras/iris"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -21,50 +21,93 @@ func ProxyRequest(ctx iris.Context) {
 		return
 	}
 
-	ret := make(map[string]interface{})
-
 	host := ctx.Host()
 	method := string(ctx.Method())
 	url := "/" + ctx.Params().Get("url")
-	fmt.Println(ctx.RemoteAddr())
+	remoteAddr := ctx.RemoteAddr()
 
-	// 查找api级别代理
+	// api代理
+	found, err := proxyAPI(ctx, host, method, url, remoteAddr)
+	if !found {
+		found, err = proxySite(ctx, host, method, url, remoteAddr)
+	}
+
+	ret := make(map[string]interface{})
+	if !found {
+		ctx.StatusCode(iris.StatusNotFound)
+		ret["error"] = "Not found."
+	} else if err != nil {
+		ret["error"] = err.Error()
+	} else {
+		return
+	}
+
+	ret["method"] = method
+	ret["url"] = url
+	ctx.JSON(ret)
+}
+
+// proxyAPI 查找api代理，返回： bool - 是否找到api定义; error - error
+func proxyAPI(ctx iris.Context, host, method, url, remoteAddr string) (bool, error) {
+	var found bool
 	siteAPI, err := sites.GetAPIByURL(host, method, url)
 	if err == nil {
+		found = true
+		// 插件功能
+		if utils.GlobalConfig.Plugins.IP {
+			limit := false
+			if len(siteAPI.Whitelist) > 0 || len(siteAPI.Blacklist) > 0 {
+				limit = plugins.IPLimit(remoteAddr, &siteAPI.Whitelist, &siteAPI.Blacklist)
+			} else {
+				limit = plugins.IPLimit(remoteAddr, &siteAPI.Site.Whitelist, &siteAPI.Site.Blacklist)
+			}
+			if limit {
+				ctx.StatusCode(iris.StatusNotFound)
+				return true, err
+			}
+		}
+		// end 插件功能
+
 		if siteAPI.IsMock {
 			ctx.ResponseWriter().Header().Set("Content-Type", siteAPI.DataType)
 			ctx.WriteWithExpiration([]byte(siteAPI.ResponseParamsText), time.Now())
 		} else {
-			proxy(ctx, method, siteAPI.Site.DstURL+url)
-		}
-		return
-	} else if err.Error() != services.ErrorAPIPause {
-
-		// 查找site级别代理
-		site, err := sites.GetSiteByDomain(host)
-		if err == nil {
-			proxy(ctx, method, site.DstURL+url)
-			siteAPI = &models.SiteAPI{}
-
-			// 添加到自动发现
-			siteAPI.AutoReg = true
-			siteAPI.Site.ID = site.ID
-			siteAPI.Method = method
-			siteAPI.URL = url
-			siteAPI.Visited = 1
-			siteAPI.StatusCode = ctx.GetStatusCode()
-			sites.SaveAPI(siteAPI, site.OwnerID)
-
-			return
+			err = proxy(ctx, method, siteAPI.Site.DstURL+url)
 		}
 	}
 
-	// log
-	ret["method"] = method
-	ret["url"] = url
-	ret["error"] = "Not found."
-	ctx.StatusCode(iris.StatusNotFound)
-	ctx.JSON(ret)
+	return found, err
+}
+
+// proxySite 查找site代理，返回： bool - 是否找到site定义; error - error
+func proxySite(ctx iris.Context, host, method, url, remoteAddr string) (bool, error) {
+	var found bool
+	site, err := sites.GetSiteByDomain(host)
+	if err == nil {
+		found = true
+		// 插件功能
+		if utils.GlobalConfig.Plugins.IP {
+			if plugins.IPLimit(remoteAddr, &site.Whitelist, &site.Blacklist) {
+				ctx.StatusCode(iris.StatusNotFound)
+				return true, err
+			}
+		}
+		// end 插件功能
+
+		err = proxy(ctx, method, site.DstURL+url)
+
+		// 添加到自动发现
+		siteAPI := &models.SiteAPI{}
+		siteAPI.AutoReg = true
+		siteAPI.Site.ID = site.ID
+		siteAPI.Method = method
+		siteAPI.URL = url
+		siteAPI.Visited = 1
+		siteAPI.StatusCode = ctx.GetStatusCode()
+		sites.SaveAPI(siteAPI, site.OwnerID)
+	}
+
+	return found, err
 }
 
 // proxy 执行具体代理
