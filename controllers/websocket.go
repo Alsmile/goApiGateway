@@ -3,7 +3,9 @@ package controllers
 import (
 	"strings"
 
+	"github.com/alsmile/goApiGateway/services/plugins"
 	"github.com/alsmile/goApiGateway/services/sites"
+	"github.com/alsmile/goApiGateway/utils"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/websocket"
 	goWebsocket "golang.org/x/net/websocket"
@@ -31,6 +33,22 @@ func wsConnection(conn websocket.Connection) {
 		conn.Disconnect()
 		return
 	}
+
+	// 插件功能
+	remoteAddr := conn.Context().RemoteAddr()
+	if utils.GlobalConfig.Plugins.IP {
+		if plugins.IPLimit(remoteAddr, &site.Whitelist, &site.Blacklist) {
+			return
+		}
+	}
+
+	// Rate限制
+	if utils.GlobalConfig.Plugins.Rate {
+		if site.Rate > 0 && plugins.RateLimit(host, "get", site.DstURL, remoteAddr, site.Rate) {
+			return
+		}
+	}
+	// end 插件功能
 
 	// 替换ws协议
 	dstURL := strings.Replace(site.DstURL, "http", "ws", 1)

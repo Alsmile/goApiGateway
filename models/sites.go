@@ -93,3 +93,17 @@ type SiteParam struct {
 	Whitelist      []string      `json:"whitelist" bson:"whitelist,omitempty"`
 	Blacklist      []string      `json:"blacklist" bson:"blacklist,omitempty"`
 }
+
+// APILog 代理目标服务器的api日志
+type APILog struct {
+	ID         bson.ObjectId `json:"id" bson:"_id"`
+	APIID      bson.ObjectId `json:"apiId" bson:"apiId,omitempty"`
+	SiteID     bson.ObjectId `json:"siteId" bson:"siteId,omitempty"`
+	Host       string        `json:"host" bson:"host,omitempty"`
+	Method     string        `json:"method" bson:"method,omitempty"`
+	IP         string        `json:"ip" bson:"ip,omitempty"`
+	URL        string        `json:"url" bson:"url,omitempty"`
+	DstURL     string        `json:"dstUrl" bson:"dstUrl,omitempty"`
+	Difference string        `json:"difference" bson:"difference,omitempty"`
+	CreatedAt  time.Time     `json:"createdAt,omitempty" bson:"createdAt,omitempty"`
+}

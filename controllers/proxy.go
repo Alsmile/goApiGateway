@@ -23,7 +23,10 @@ func ProxyRequest(ctx iris.Context) {
 
 	host := ctx.Host()
 	method := string(ctx.Method())
-	url := "/" + ctx.Params().Get("url")
+	url := ctx.Params().Get("url")
+	if url[0] != '/' {
+		url = "/" + url
+	}
 	remoteAddr := ctx.RemoteAddr()
 
 	// api代理
@@ -31,7 +34,6 @@ func ProxyRequest(ctx iris.Context) {
 	if !found {
 		found, err = proxySite(ctx, host, method, url, remoteAddr)
 	}
-
 	ret := make(map[string]interface{})
 	if !found {
 		ctx.StatusCode(iris.StatusNotFound)
@@ -54,6 +56,7 @@ func proxyAPI(ctx iris.Context, host, method, url, remoteAddr string) (bool, err
 	if err == nil {
 		found = true
 		// 插件功能
+		// ip限制
 		if utils.GlobalConfig.Plugins.IP {
 			limit := false
 			if len(siteAPI.Whitelist) > 0 || len(siteAPI.Blacklist) > 0 {
@@ -66,13 +69,29 @@ func proxyAPI(ctx iris.Context, host, method, url, remoteAddr string) (bool, err
 				return true, err
 			}
 		}
+
+		// Rate限制
+		if utils.GlobalConfig.Plugins.Rate {
+			limit := false
+			if siteAPI.Rate > 0 || siteAPI.Site.Rate > 0 {
+				rate := siteAPI.Rate
+				if rate == 0 {
+					rate = siteAPI.Site.Rate
+				}
+				limit = plugins.RateLimit(host, method, siteAPI.URL, remoteAddr, rate)
+			}
+			if limit {
+				ctx.StatusCode(iris.StatusNotFound)
+				return true, err
+			}
+		}
 		// end 插件功能
 
 		if siteAPI.IsMock {
 			ctx.ResponseWriter().Header().Set("Content-Type", siteAPI.DataType)
 			ctx.WriteWithExpiration([]byte(siteAPI.ResponseParamsText), time.Now())
 		} else {
-			err = proxy(ctx, method, siteAPI.Site.DstURL+url)
+			err = proxy(ctx, host, method, url, remoteAddr, siteAPI.Site.DstURL+url, siteAPI.ID, siteAPI.Site.ID)
 		}
 	}
 
@@ -92,9 +111,20 @@ func proxySite(ctx iris.Context, host, method, url, remoteAddr string) (bool, er
 				return true, err
 			}
 		}
+		// Rate限制
+		if utils.GlobalConfig.Plugins.Rate {
+			limit := false
+			if site.Rate > 0 {
+				limit = plugins.RateLimit(host, method, site.DstURL, remoteAddr, site.Rate)
+			}
+			if limit {
+				ctx.StatusCode(iris.StatusNotFound)
+				return true, err
+			}
+		}
 		// end 插件功能
 
-		err = proxy(ctx, method, site.DstURL+url)
+		err = proxy(ctx, host, method, url, remoteAddr, site.DstURL+url, "", site.ID)
 
 		// 添加到自动发现
 		siteAPI := &models.SiteAPI{}
@@ -111,7 +141,15 @@ func proxySite(ctx iris.Context, host, method, url, remoteAddr string) (bool, er
 }
 
 // proxy 执行具体代理
-func proxy(ctx iris.Context, method, dstURL string) (err error) {
+func proxy(ctx iris.Context, host, method, url, remoteAddr, dstURL string, apiID, siteID bson.ObjectId) (err error) {
+	// Log 与 时间差
+	if utils.GlobalConfig.Plugins.Log {
+		start := time.Now()
+		defer func() {
+			plugins.Log(host, method, url, remoteAddr, dstURL, time.Since(start), apiID, siteID)
+		}()
+	}
+
 	client := &http.Client{}
 	query := "?" + ctx.Request().URL.Query().Encode()
 	clientReq, err := http.NewRequest(method, dstURL+query, ctx.Request().Body)
@@ -156,5 +194,5 @@ func ProxyTest(ctx iris.Context) {
 		return
 	}
 
-	proxy(ctx, method, host+url)
+	proxy(ctx, host, method, url, ctx.RemoteAddr(), host+url, "", "")
 }
